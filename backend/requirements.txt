@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 sqlalchemy
+psycopg2-binary
 pydantic
 pydantic-settings
 python-jose[cryptography]
@@ -11,4 +12,5 @@ openai
 httpx
 bcrypt
 email-validator
-
+reportlab
+icalendar

@@ -12,25 +12,17 @@ except Exception as e:
     print(f"Error creating database tables: {e}")
 
 app = FastAPI(
-    title="AI Travel Copilot API V2",
-    description="Backend API for AI-powered personalized travel planner, budget estimator, and recommender.",
+    title="voira API",
+    description="Backend API for voira - AI-powered personalized travel planner, budget estimator, and recommender.",
     version="2.0.0"
 )
 
 # Configure CORS for Frontend integration
-origins = [
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5174",
-    "*"  # Accept all for local testing
-]
+allowed_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=allowed_origins if "*" not in allowed_origins else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -55,7 +47,7 @@ def startup_event():
 @app.get("/")
 def read_root():
     return {
-        "message": "Welcome to the AI Travel Copilot API V2!",
+        "message": "Welcome to the voira API!",
         "docs_url": "/docs",
         "status": "online"
     }

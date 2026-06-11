@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import api, { tripsApi, SavedTrip, TripPlan } from '../services/api';
 import { useCurrency } from '../context/CurrencyContext';
@@ -176,13 +177,11 @@ export const Dashboard: React.FC = () => {
 
   const downloadPDF = () => {
     if (!activeTrip || activeTrip.id === 0) return;
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
     window.open(`${API_BASE_URL}/api/trips/${activeTrip.id}/pdf`, '_blank');
   };
 
   const downloadCalendar = () => {
     if (!activeTrip || activeTrip.id === 0) return;
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
     window.open(`${API_BASE_URL}/api/trips/${activeTrip.id}/calendar`, '_blank');
   };
 

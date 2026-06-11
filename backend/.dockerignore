@@ -1,0 +1,13 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv
+ENV
+.vscode
+.git
+.gitignore
+flyscanner.db
+backend.log

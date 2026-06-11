@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 export interface WeatherDay {
   day: number;
@@ -19,7 +20,6 @@ export const useWeather = (destination: string, startDate: string = '2026-06-12'
       setLoading(true);
       setError('');
       try {
-        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         const response = await axios.get(`${API_BASE_URL}/api/weather`, {
           params: {
             destination,
