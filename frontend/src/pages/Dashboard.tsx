@@ -491,7 +491,7 @@ export const Dashboard: React.FC = () => {
             <Link to="/dashboard" className="text-xs font-semibold text-textSecondary hover:text-primary flex items-center gap-1 mb-2">
               ← Back to Dashboard
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-sans font-semibold text-textPrimary dark:text-dark-text">Your Voira Itinerary</h1>
+            <h1 className="text-2xl sm:text-3xl font-sans font-semibold text-textPrimary dark:text-dark-text">Your voira Itinerary</h1>
           </div>
           
           <div className="flex items-center gap-4 w-full sm:w-auto">

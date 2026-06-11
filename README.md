@@ -1,6 +1,6 @@
-# ✈️ AI Travel Copilot
+# ✈️ voira
 
-AI Travel Copilot is a production-ready, full-stack, AI-powered travel planning platform. It helps users generate personalized day-wise travel itineraries, budget estimates, attraction lists, hotel recommendations, and dynamic updates based on weather, budget, or duration changes. It also includes an integrated AI Travel Assistant Chatbot that uses active trip details as context.
+voira is a production-ready, full-stack, AI-powered travel planning platform. It helps users generate personalized day-wise travel itineraries, budget estimates, attraction lists, hotel recommendations, and dynamic updates based on weather, budget, or duration changes. It also includes an integrated AI Travel Assistant Chatbot that uses active trip details as context.
 
 ---
 
@@ -20,7 +20,7 @@ AI Travel Copilot is a production-ready, full-stack, AI-powered travel planning 
 ## 🏗️ Project Structure
 
 ```text
-flyscanner/
+voira/
 ├── backend/
 │   ├── app/
 │   │   ├── database/

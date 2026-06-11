@@ -48,7 +48,7 @@ function AppContent() {
           
           <footer className="py-6 border-t border-stoneMuted/50 dark:border-dark-border/40 text-center text-xs text-textSecondary dark:text-dark-text-muted bg-warmWhite/50 dark:bg-dark-card/50 backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-4">
-              © {new Date().getFullYear()} Voira AI. All rights reserved.
+              © {new Date().getFullYear()} voira. All rights reserved.
             </div>
           </footer>
         </>

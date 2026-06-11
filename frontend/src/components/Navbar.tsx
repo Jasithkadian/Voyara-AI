@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Sun, Moon, Menu, X, Plane, User as UserIcon, LogOut, Compass, Briefcase, Bell } from 'lucide-react';
+import { Logo } from './Logo';
 import { tripsApi } from '../services/api';
 import { useCurrency, CurrencyCode } from '../context/CurrencyContext';
 
@@ -85,13 +86,8 @@ export const Navbar: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 rounded-md bg-gradient-to-tr from-primary to-coral flex items-center justify-center text-warmWhite shadow-md shadow-primary/20 group-hover:scale-105 transition-transform duration-300">
-                <Plane className="-rotate-45 w-5.5 h-5.5" />
-              </div>
-              <span className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-textPrimary to-textPrimary dark:from-dark-text dark:to-dark-text tracking-tight">
-                Voira<span className="text-primary">AI</span>
-              </span>
+            <Link to="/" className="flex items-center group">
+              <Logo className="h-8 text-[#0A1628] dark:text-warmWhite" />
             </Link>
 
             {/* Desktop Navigation */}

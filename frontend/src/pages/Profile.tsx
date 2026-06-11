@@ -167,7 +167,7 @@ export const Profile: React.FC = () => {
               </svg>
               <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-coral/10" />
               <span className="relative z-10 text-[10px] font-semibold text-warmWhite/40 uppercase tracking-widest pointer-events-none select-none">
-                Voira AI • Explore the Unexplored
+                voira • Explore the Unexplored
               </span>
             </div>
           )}

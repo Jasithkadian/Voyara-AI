@@ -58,7 +58,7 @@ export const Home: React.FC = () => {
             Streamlining every phase of your journey
           </h2>
           <p className="text-sm text-textSecondary dark:text-dark-text-muted max-w-xl mx-auto leading-relaxed">
-            Eliminate tabs, messy spreadsheets, and hours of research. Voira unites discovery, planning, checkout, and monitoring in one workspace.
+            Eliminate tabs, messy spreadsheets, and hours of research. voira unites discovery, planning, checkout, and monitoring in one workspace.
           </p>
         </div>
 
@@ -134,7 +134,7 @@ export const Home: React.FC = () => {
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
             <span className="text-xs font-semibold text-warmWhite/80 bg-warmWhite/10 px-4 py-1 rounded-lg inline-block">Sandbox Ready</span>
             <h2 className="text-4xl sm:text-6xl font-semibold tracking-tight leading-none">
-              Explore Voira today.
+              Explore voira today.
             </h2>
             <p className="text-sm sm:text-base text-warmWhite/80 max-w-lg mx-auto leading-relaxed">
               Experience the full product in 30 seconds. Generate plans, simulate bookings, and track weather timelines immediately.

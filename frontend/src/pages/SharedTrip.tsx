@@ -84,7 +84,7 @@ export const SharedTrip: React.FC = () => {
               Adventure to {trip.destination}
             </h1>
             <p className="text-sm text-warmWhite/80 max-w-xl">
-              You are viewing a custom travel itinerary shared by a Voira AI traveler. Check out their spots and design your own matching trip.
+              You are viewing a custom travel itinerary shared by a voira AI traveler. Check out their spots and design your own matching trip.
             </p>
           </div>
 

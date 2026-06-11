@@ -244,7 +244,7 @@ export const TripPlanner: React.FC = () => {
       <div className="w-full max-w-xl">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-textPrimary dark:text-warmWhite flex items-center justify-center gap-2 tracking-tight">
-            <Compass className="w-8 h-8 text-primary animate-spin-slow" /> Voira AI Trip Planner
+            <Compass className="w-8 h-8 text-primary animate-spin-slow" /> voira AI Trip Planner
           </h2>
           <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-2">
             Let artificial intelligence design your custom holiday itinerary and budget.

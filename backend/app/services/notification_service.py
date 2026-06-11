@@ -40,9 +40,9 @@ def send_email_notification(title: str, message: str, user_id: int):
     if SMTP_HOST and SMTP_USER and SMTP_PASS:
         try:
             msg = MIMEText(message)
-            msg["Subject"] = f"AI Travel Copilot Alert: {title}"
+            msg["Subject"] = f"Voira Alert: {title}"
             msg["From"] = SMTP_USER
-            msg["To"] = f"user_{user_id}@flyscanner.com"  # Simulated mapping or placeholder email
+            msg["To"] = f"user_{user_id}@voira.com"  # Simulated mapping or placeholder email
             
             with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
                 server.starttls()

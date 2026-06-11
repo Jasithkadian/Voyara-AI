@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Compass, Briefcase, Globe, MessageSquare, Settings, Sun, Moon, LogOut, Plane, Bell } from 'lucide-react';
+import { Logo } from './Logo';
 import { tripsApi } from '../services/api';
 import { useCurrency, CurrencyCode } from '../context/CurrencyContext';
 
@@ -64,13 +65,8 @@ export const Sidebar: React.FC = () => {
     <aside className="w-[240px] shrink-0 h-screen sticky top-0 bg-warmWhite dark:bg-dark-card border-r border-stoneMuted/60 dark:border-dark-border/60 flex flex-col justify-between p-comfortable z-30 font-sans text-left">
       <div className="space-y-8">
         {/* Brand Logo */}
-        <Link to="/" className="flex items-center space-x-2.5 px-tight">
-          <div className="w-9 h-9 rounded-md bg-gradient-to-tr from-primary to-coral flex items-center justify-center text-warmWhite shadow-md shadow-primary/20">
-            <Plane className="-rotate-45 w-5 h-5" />
-          </div>
-          <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-textPrimary to-textPrimary dark:from-dark-text dark:to-dark-text tracking-tight select-none">
-            Voira<span className="text-primary">AI</span>
-          </span>
+        <Link to="/" className="flex items-center px-tight">
+          <Logo className="h-7 text-[#0A1628] dark:text-warmWhite" />
         </Link>
 
         {/* Primary Nav Links */}

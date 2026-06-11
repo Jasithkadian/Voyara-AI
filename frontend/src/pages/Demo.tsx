@@ -108,7 +108,7 @@ export const Demo: React.FC = () => {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12">
       <div className="text-center max-w-2xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-4 py-1 bg-primary/10 text-primary rounded-lg text-xs font-semibold  tracking-normal">
-          <Sparkles className="w-3.5 h-3.5" /> Voira Demo Sandbox
+          <Sparkles className="w-3.5 h-3.5" /> voira Demo Sandbox
         </div>
         <h2 className="text-4xl font-semibold text-textSecondary dark:text-warmWhite tracking-tight">
           One-Click Experience Sandbox

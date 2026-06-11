@@ -1,0 +1,9 @@
+<svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- Voira Logo -->
+  <g transform="translate(10, 5)">
+    <!-- V Icon -->
+    <path d="M2 2 L13 26 Q15 30 17 26 L28 2" fill="none" stroke="#0A1628" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+  <!-- Wordmark -->
+  <text x="45" y="27" font-family="'Neue Montreal', 'Inter', system-ui, sans-serif" font-weight="500" font-size="22" fill="#0A1628" letter-spacing="-0.5">voira</text>
+</svg>

@@ -18,18 +18,18 @@ export const HeroSection: React.FC = () => {
           <div className="lg:col-span-7 space-y-12 text-center lg:text-left">
             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-primary/10 to-coral/10 dark:from-primary/20 dark:to-coral/20 text-primary px-4 py-2 rounded-lg text-xs font-semibold tracking-wide border border-primary/20 shadow-sm">
               <Sparkles className="w-4 h-4 text-coral animate-pulse" />
-              <span>Unveiling Voira AI Copilot v4</span>
+              <span>Unveiling voira v4</span>
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-textPrimary dark:text-dark-text leading-[1.08] font-sans">
               Travel planning, <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-coral to-coral">
-                reimagined by AI.
+                reimagined.
               </span>
             </h1>
             
             <p className="text-base sm:text-lg text-textSecondary dark:text-dark-text-muted max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              Voira is your autonomous travel concierge. Instantly generate optimized daily schedules, real-time flight searches, budget allocations, and weather-adaptive revisions in one workspace.
+              voira is your autonomous travel concierge. Instantly generate optimized daily schedules, real-time flight searches, budget allocations, and weather-adaptive revisions in one workspace.
             </p>
 
             {/* Simulated Search bar inside Hero (Compelling CTA) */}

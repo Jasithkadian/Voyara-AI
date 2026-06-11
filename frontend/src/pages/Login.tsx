@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Lock, Mail, Plane, Sparkles } from 'lucide-react';
+import { Logo } from '../components/Logo';
 
 export const Login: React.FC = () => {
   const { login, loginGuest } = useAuth();

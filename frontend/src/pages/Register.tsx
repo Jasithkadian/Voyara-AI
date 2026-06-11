@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Mail, User as UserIcon, Plane } from 'lucide-react';
+import { Lock, Mail, User as UserIcon } from 'lucide-react';
+import { Logo } from '../components/Logo';
 
 export const Register: React.FC = () => {
   const { register } = useAuth();
@@ -34,8 +35,8 @@ export const Register: React.FC = () => {
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-coral/10 rounded-lg blur-2xl -ml-20 -mb-20"></div>
 
         <div className="text-center mb-12 relative">
-          <div className="w-12 h-12 rounded-lg bg-gradient-to-tr from-primary to-coral flex items-center justify-center text-warmWhite mx-auto shadow-md shadow-primary/10 mb-4">
-            <Plane className="w-6 h-6 -rotate-45" />
+          <div className="mx-auto mb-4 flex justify-center">
+            <Logo iconOnly className="w-12 h-12 text-[#0A1628] dark:text-warmWhite" />
           </div>
           <h2 className="text-3xl font-semibold text-textSecondary dark:text-warmWhite">Create Account</h2>
           <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">
