@@ -56,6 +56,15 @@ class ReplanRequest(BaseModel):
     trip_id: int
     changes: str
 
+class TripUpdateRequest(BaseModel):
+    trip_id: int
+    budget: float
+    days: int
+    travelers: int
+    interests: List[str] = []
+    generated_plan: Dict[str, Any]
+
+
 # Endpoints
 @router.post("/generate-trip")
 def generate_trip_v3(
@@ -412,6 +421,48 @@ def replan_trip(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to apply replanned trip in database: {str(e)}"
+        )
+
+@router.post("/trips/update")
+def update_trip(
+    request: TripUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    trip = db.query(Trip).filter(Trip.id == request.trip_id, Trip.user_id == current_user.id).first()
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found or unauthorized"
+        )
+    try:
+        trip.budget = request.budget
+        trip.days = request.days
+        trip.travelers = request.travelers
+        trip.interests = request.interests
+        trip.generated_plan = request.generated_plan
+        db.commit()
+        db.refresh(trip)
+        return {
+            "status": "success",
+            "trip": {
+                "id": trip.id,
+                "source": trip.source,
+                "destination": trip.destination,
+                "budget": trip.budget,
+                "days": trip.days,
+                "travelers": trip.travelers,
+                "interests": trip.interests,
+                "generated_plan": trip.generated_plan,
+                "created_at": trip.created_at.isoformat()
+            }
+        }
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to update database for trip: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update trip in database: {str(e)}"
         )
 
 def simulate_replan_v3(original_plan: Dict[str, Any], changes: str) -> Dict[str, Any]:

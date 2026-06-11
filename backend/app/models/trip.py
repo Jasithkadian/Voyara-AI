@@ -15,6 +15,7 @@ class Trip(Base):
     travelers = Column(Integer, default=1)
     interests = Column(JSON, nullable=True)  # List of strings
     generated_plan = Column(JSON, nullable=True)  # Full generated plan JSON
+    share_token = Column(String, unique=True, nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     # Relationships

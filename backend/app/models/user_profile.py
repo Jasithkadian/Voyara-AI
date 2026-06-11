@@ -14,6 +14,7 @@ class UserProfile(Base):
     preferred_hotels = Column(JSON, nullable=True)      # List of strings
     food_preferences = Column(JSON, nullable=True)      # List of strings
     preferred_activities = Column(JSON, nullable=True)  # List of strings
+    preferred_currency = Column(String, default="INR", nullable=True)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
     # Relationships

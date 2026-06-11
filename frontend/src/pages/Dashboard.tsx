@@ -10,10 +10,13 @@ import { AttractionCard } from '../components/AttractionCard';
 import { RouteMap } from '../components/RouteMap';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
+import { TravelTips } from '../components/TravelTips';
+import { MapWidget } from '../components/MapWidget';
 import { 
   Compass, Calendar, Wallet, MapPin, ArrowRight, Plus, 
   Trash2, Sparkles, Smile, RefreshCw, Save, MessageSquare, 
-  X, AlertCircle, Sun, CloudRain, Users, Thermometer, Plane, CheckCircle
+  X, AlertCircle, Sun, CloudRain, Users, Thermometer, Plane, CheckCircle,
+  Clock
 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
@@ -33,6 +36,105 @@ export const Dashboard: React.FC = () => {
   const [activeTrip, setActiveTrip] = useState<SavedTrip | null>(null);
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Version history & Hotel view mode states
+  const [showVersionPanel, setShowVersionPanel] = useState(false);
+  const [versionsList, setVersionsList] = useState<any[]>([]);
+  const [previewingVersionId, setPreviewingVersionId] = useState<string | null>(null);
+  const [originalPlanBeforePreview, setOriginalPlanBeforePreview] = useState<TripPlan | null>(null);
+  const [hotelViewMode, setHotelViewMode] = useState<'list' | 'map'>('list');
+
+  // Load versions whenever activeTrip changes
+  useEffect(() => {
+    if (activeTrip && activeTrip.id !== 0) {
+      const stored = localStorage.getItem(`voira_trip_versions_${activeTrip.id}`);
+      setVersionsList(stored ? JSON.parse(stored) : []);
+    }
+  }, [activeTrip]);
+
+  const saveCurrentVersion = (trip: SavedTrip) => {
+    if (!trip || trip.id === 0) return;
+    const key = `voira_trip_versions_${trip.id}`;
+    const stored = localStorage.getItem(key);
+    const versions = stored ? JSON.parse(stored) : [];
+    
+    const newVersion = {
+      versionId: Math.random().toString(36).substring(2, 9),
+      timestamp: new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      plan: trip.generated_plan,
+      budget: trip.budget,
+      days: trip.days,
+      travelers: trip.travelers,
+      interests: trip.interests
+    };
+    
+    versions.unshift(newVersion);
+    localStorage.setItem(key, JSON.stringify(versions));
+    setVersionsList(versions);
+  };
+
+  const handlePreviewVersion = (version: any) => {
+    if (!activeTrip) return;
+    if (!originalPlanBeforePreview) {
+      setOriginalPlanBeforePreview(activeTrip.generated_plan);
+    }
+    setActiveTrip(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        budget: version.budget,
+        days: version.days,
+        travelers: version.travelers,
+        interests: version.interests,
+        generated_plan: version.plan
+      };
+    });
+    setPreviewingVersionId(version.versionId);
+    setShowVersionPanel(false);
+  };
+
+  const handleCancelPreview = () => {
+    if (!activeTrip || !originalPlanBeforePreview) return;
+    setActiveTrip(prev => {
+      if (!prev || !originalPlanBeforePreview) return null;
+      return {
+        ...prev,
+        generated_plan: originalPlanBeforePreview
+      };
+    });
+    setOriginalPlanBeforePreview(null);
+    setPreviewingVersionId(null);
+  };
+
+  const handleRestoreVersion = async (version: any) => {
+    if (!activeTrip) return;
+    setLoading(true);
+    try {
+      const res = await tripsApi.update({
+        trip_id: activeTrip.id,
+        budget: version.budget,
+        days: version.days,
+        travelers: version.travelers,
+        interests: version.interests,
+        generated_plan: version.plan
+      });
+      setActiveTrip(res.trip);
+      setOriginalPlanBeforePreview(null);
+      setPreviewingVersionId(null);
+      setError('Itinerary restored to previous version successfully!');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to restore version to backend.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   // Replanner Modal state
   const [showReplanModal, setShowReplanModal] = useState(false);
@@ -292,6 +394,9 @@ export const Dashboard: React.FC = () => {
     if (replanWeather) instruction += `Weather condition updated to ${replanWeather}. `;
     if (replanCustomText.trim()) instruction += `Additional requirements: "${replanCustomText}".`;
 
+    // Save current plan version before replacing
+    saveCurrentVersion(activeTrip);
+
     try {
       const response = await tripsApi.replan(activeTrip.id, instruction);
       setActiveTrip(response.trip);
@@ -368,6 +473,20 @@ export const Dashboard: React.FC = () => {
               <RefreshCw className="w-4 h-4" /> Regenerate Itinerary
             </Button>
 
+            {saveSuccess && activeTrip && activeTrip.id !== 0 && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  const stored = localStorage.getItem(`voira_trip_versions_${activeTrip.id}`);
+                  setVersionsList(stored ? JSON.parse(stored) : []);
+                  setShowVersionPanel(true);
+                }}
+                className="flex-1 sm:flex-initial"
+              >
+                <Clock className="w-4 h-4 text-textSecondary" /> Version History
+              </Button>
+            )}
+
             {saveSuccess && (
               <Link
                 to="/chat"
@@ -380,6 +499,34 @@ export const Dashboard: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Preview Alert Bar */}
+        {previewingVersionId && (
+          <div className="bg-primary/10 border border-primary/30 p-4 rounded-lg flex items-center justify-between text-xs font-semibold text-primary animate-fade-in font-sans">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+              <span>You are currently previewing an older version of this trip itinerary.</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  const version = versionsList.find(v => v.versionId === previewingVersionId);
+                  if (version) handleRestoreVersion(version);
+                }}
+              >
+                Restore this Version
+              </Button>
+              <button
+                onClick={handleCancelPreview}
+                className="text-textSecondary hover:text-textPrimary dark:text-dark-text-muted dark:hover:text-dark-text hover:underline transition-all"
+              >
+                Cancel Preview
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -460,24 +607,64 @@ export const Dashboard: React.FC = () => {
             )}
             
             {/* Hotels recommendations list */}
-            <div>
-              <h3 className="font-sans font-semibold text-xl text-textPrimary dark:text-dark-text mb-4 flex items-center gap-2">
-                🏨 Smart Hotel Matches
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                {plan.hotelRecommendations.map((hotel, index) => {
-                  const isBooked = bookings.some(b => b.booking_type === 'Hotel' && b.provider_name === hotel.name);
-                  return (
-                    <HotelCard 
-                      key={index} 
-                      hotel={hotel} 
-                      index={index}
-                      isBooked={isBooked}
-                      onBook={() => handleBook('Hotel', hotel.name, 6500.0, { hotelName: hotel.name, price: hotel.pricePerNight })}
-                    />
-                  );
-                })}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h3 className="font-sans font-semibold text-xl text-textPrimary dark:text-dark-text flex items-center gap-2">
+                  🏨 Smart Hotel Matches
+                </h3>
+                <div className="flex bg-stoneMuted/45 dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border rounded-md p-1 self-start sm:self-auto shadow-xs">
+                  <button
+                    onClick={() => setHotelViewMode('list')}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-sm transition-all select-none ${
+                      hotelViewMode === 'list'
+                        ? 'bg-primary text-warmWhite shadow-sm'
+                        : 'text-textSecondary hover:text-textPrimary dark:text-dark-text-muted dark:hover:text-dark-text bg-transparent'
+                    }`}
+                  >
+                    List View
+                  </button>
+                  <button
+                    onClick={() => setHotelViewMode('map')}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-sm transition-all select-none ${
+                      hotelViewMode === 'map'
+                        ? 'bg-primary text-warmWhite shadow-sm'
+                        : 'text-textSecondary hover:text-textPrimary dark:text-dark-text-muted dark:hover:text-dark-text bg-transparent'
+                    }`}
+                  >
+                    Map View
+                  </button>
+                </div>
               </div>
+
+              {hotelViewMode === 'list' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  {plan.hotelRecommendations.map((hotel, index) => {
+                    const isBooked = bookings.some(b => b.booking_type === 'Hotel' && b.provider_name === hotel.name);
+                    return (
+                      <HotelCard 
+                        key={index} 
+                        hotel={hotel} 
+                        index={index}
+                        isBooked={isBooked}
+                        onBook={() => handleBook('Hotel', hotel.name, 6500.0, { hotelName: hotel.name, price: hotel.pricePerNight })}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="h-[450px] w-full rounded-lg overflow-hidden border border-stoneMuted/60 dark:border-dark-border/60 shadow-sm">
+                  <MapWidget
+                    destination={activeTrip.destination}
+                    items={plan.hotelRecommendations.map(hotel => ({
+                      name: hotel.name,
+                      category: 'Hotel' as const
+                    }))}
+                    focusedIndex={null}
+                    onMarkerClick={() => {}}
+                    height="450px"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Attractions category view */}
@@ -553,21 +740,10 @@ export const Dashboard: React.FC = () => {
             )}
 
             {/* Tips Card */}
-            {plan.travelTips && plan.travelTips.length > 0 && (
-              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-sm">
-                <h4 className="font-sans font-semibold text-base text-textPrimary dark:text-dark-text mb-4 flex items-center gap-2">
-                  💡 Voira AI Travel Tips
-                </h4>
-                <ul className="space-y-4">
-                  {plan.travelTips.map((tip, index) => (
-                    <li key={index} className="flex items-start gap-2 text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed">
-                      <span className="w-1.5 h-1.5 rounded-lg bg-primary mt-2 shrink-0"></span>
-                      <span>{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <TravelTips 
+              destination={activeTrip.destination} 
+              startDate="2026-06-12"
+            />
           </div>
         </div>
 
@@ -688,6 +864,91 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* VERSION HISTORY PANEL SIDE DRAWER */}
+        {showVersionPanel && (
+          <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs animate-fade-in">
+            <div className="w-full max-w-md bg-warmWhite dark:bg-dark-card h-full border-l border-stoneMuted dark:border-dark-border shadow-2xl p-8 flex flex-col justify-between animate-slide-left text-left font-sans">
+              <div className="space-y-6 overflow-y-auto flex-1 pr-2">
+                <div className="flex justify-between items-center pb-4 border-b border-stoneMuted dark:border-dark-border">
+                  <div>
+                    <h3 className="text-xl font-semibold text-textPrimary dark:text-warmWhite flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-primary" /> Version History
+                    </h3>
+                    <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">
+                      Compare, preview, and restore previous iterations of your plan.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowVersionPanel(false)}
+                    className="p-2 rounded-sm hover:bg-stoneMuted dark:hover:bg-stoneMuted text-textSecondary"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {versionsList.length === 0 ? (
+                    <div className="text-center py-12 space-y-2">
+                      <Clock className="w-10 h-10 text-textSecondary dark:text-dark-text-muted mx-auto mb-2 opacity-50" />
+                      <h5 className="font-semibold text-textPrimary dark:text-warmWhite text-sm">No versions saved yet</h5>
+                      <p className="text-xs text-textSecondary dark:text-dark-text-muted max-w-xs mx-auto leading-relaxed">
+                        We save a version automatically before you regenerate or replan your itinerary.
+                      </p>
+                    </div>
+                  ) : (
+                    versionsList.map((version, vIdx) => (
+                      <div 
+                        key={version.versionId} 
+                        className="p-4 bg-stoneMuted/30 dark:bg-dark-muted/10 border border-stoneMuted/65 dark:border-dark-border/60 rounded-md space-y-3 hover:shadow-sm transition-all"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-xs text-textPrimary dark:text-warmWhite">
+                            Version {versionsList.length - vIdx}
+                          </span>
+                          <span className="text-[10px] text-textSecondary font-mono font-semibold">
+                            {version.timestamp}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-2 text-[10px] text-textSecondary border-y border-stoneMuted/40 dark:border-dark-border/40 py-2">
+                          <div>
+                            <span className="block font-semibold">Budget</span>
+                            <span className="font-mono text-coral font-bold">{formatCurrency(version.budget)}</span>
+                          </div>
+                          <div>
+                            <span className="block font-semibold">Days</span>
+                            <span className="font-bold text-textPrimary dark:text-dark-text">{version.days} Days</span>
+                          </div>
+                          <div>
+                            <span className="block font-semibold">Guests</span>
+                            <span className="font-bold text-textPrimary dark:text-dark-text">{version.travelers} Guests</span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-1">
+                          <button
+                            onClick={() => handlePreviewVersion(version)}
+                            className="text-[11px] font-bold text-primary hover:underline"
+                          >
+                            Preview
+                          </button>
+                          <button
+                            onClick={() => handleRestoreVersion(version)}
+                            className="text-[11px] font-bold text-coral hover:underline"
+                          >
+                            Restore
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* CHECKOUT MODAL */}
         {showCheckoutModal && checkoutItem && (

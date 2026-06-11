@@ -1,62 +1,468 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TripForm } from '../components/TripForm';
 import { LoadingState } from '../components/LoadingState';
 import { tripsApi, TripGenerateInput } from '../services/api';
-import { Compass, AlertCircle } from 'lucide-react';
+import { Compass, AlertCircle, MessageSquare, CheckCircle, Sparkles, MapPin, Calendar, Wallet, Users, RefreshCw, ChevronRight } from 'lucide-react';
+
+interface ParsedTripParams {
+  destination: string;
+  days: number;
+  budget: number;
+  travelers: number;
+  interests: string[];
+  dates: string;
+}
+
+const INTEREST_LABELS: Record<string, string> = {
+  beaches: '🏖️ Beaches',
+  nightlife: '🍸 Nightlife',
+  water_sports: '🏄 Water Sports',
+  food: '🍕 Food & Dining',
+  culture: '🏛️ Culture & Heritage',
+  nature: '🌲 Nature & Wildlife',
+  adventure: '⛰️ Adventure Sports',
+  shopping: '🛍️ Shopping',
+  relaxation: '🧘 Spa & Wellness',
+  history: '🏰 History & Castles',
+};
+
+// Conversational parser function
+function parseNaturalLanguage(text: string): ParsedTripParams {
+  const t = text.toLowerCase();
+  
+  // 1. Extract Destination
+  let destination = 'Goa';
+  const destMatch = text.match(/(?:in|to|visit|go)\s+([A-Z][a-zA-Z\s]{1,15})(?:\s+for|\s+with|\s+under|,|\.|$)/i);
+  if (destMatch && destMatch[1]) {
+    destination = destMatch[1].trim();
+  } else {
+    const commonCities = ['goa', 'bali', 'dubai', 'switzerland', 'japan', 'tokyo', 'delhi', 'mumbai', 'paris', 'london', 'new york'];
+    for (const city of commonCities) {
+      if (t.includes(city)) {
+        destination = city.charAt(0).toUpperCase() + city.slice(1);
+        break;
+      }
+    }
+  }
+
+  // 2. Extract Duration (Days)
+  let days = 5;
+  const daysMatch = t.match(/(\d+)\s*(?:day|night)/);
+  if (daysMatch && daysMatch[1]) {
+    days = parseInt(daysMatch[1], 10);
+  } else if (t.includes('week')) {
+    days = 7;
+  }
+
+  // 3. Extract Budget
+  let budget = 30000;
+  const budgetMatch = t.match(/(?:₹|rs\.?|inr|)\s*(\d{1,3}(?:,\d{3})*|\d+)\s*(k|thousand|)/i);
+  if (budgetMatch && budgetMatch[1]) {
+    let rawVal = budgetMatch[1].replace(/,/g, '');
+    let val = parseInt(rawVal, 10);
+    const suffix = (budgetMatch[2] || '').toLowerCase();
+    if (suffix === 'k') {
+      val *= 1000;
+    }
+    if (val >= 2000) {
+      budget = val;
+    }
+  }
+
+  // 4. Extract Travelers
+  let travelers = 1;
+  if (t.includes('couple') || t.includes('honeymoon')) {
+    travelers = 2;
+  } else if (t.includes('family') || t.includes('group')) {
+    travelers = 4;
+  } else {
+    const travelersMatch = t.match(/(\d+)\s*(?:traveler|guest|people|person|friend)/);
+    if (travelersMatch && travelersMatch[1]) {
+      travelers = parseInt(travelersMatch[1], 10);
+    }
+  }
+
+  // 5. Extract Interests
+  const interests: string[] = [];
+  const interestMapping: Record<string, string> = {
+    beach: 'beaches',
+    sea: 'beaches',
+    coast: 'beaches',
+    nightlife: 'nightlife',
+    party: 'nightlife',
+    club: 'nightlife',
+    bar: 'nightlife',
+    water: 'water_sports',
+    surf: 'water_sports',
+    dive: 'water_sports',
+    food: 'food',
+    dining: 'food',
+    eat: 'food',
+    culture: 'culture',
+    museum: 'culture',
+    nature: 'nature',
+    wildlife: 'nature',
+    jungle: 'nature',
+    adventure: 'adventure',
+    trek: 'adventure',
+    hike: 'adventure',
+    climb: 'adventure',
+    shop: 'shopping',
+    relax: 'relaxation',
+    spa: 'relaxation',
+    wellness: 'relaxation',
+    history: 'history',
+    castle: 'history'
+  };
+
+  Object.keys(interestMapping).forEach((keyword) => {
+    if (t.includes(keyword)) {
+      const id = interestMapping[keyword];
+      if (!interests.includes(id)) {
+        interests.push(id);
+      }
+    }
+  });
+
+  if (interests.length === 0) {
+    interests.push('beaches');
+  }
+
+  // 6. Extract Dates info
+  let dates = 'end of July';
+  const dateMatch = text.match(/(?:in|for|at|end of)\s+([A-Za-z]+\s*\d*)/i);
+  if (dateMatch && dateMatch[1]) {
+    dates = dateMatch[1].trim();
+  }
+
+  return { destination, days, budget, travelers, interests, dates };
+}
 
 export const TripPlanner: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [isApiReady, setIsApiReady] = useState(false);
   const [error, setError] = useState('');
+  
+  // Navigation / input mode toggle
+  const [plannerMode, setPlannerMode] = useState<'conversational' | 'wizard'>('conversational');
+  const [nlQuery, setNlQuery] = useState('');
+  const [parsedParams, setParsedParams] = useState<ParsedTripParams | null>(null);
 
-  const handleFormSubmit = async (data: TripGenerateInput) => {
+  const apiResultRef = useRef<any>(null);
+  const activeInputRef = useRef<TripGenerateInput | null>(null);
+
+  const handleNlSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nlQuery.trim()) return;
+    const parsed = parseNaturalLanguage(nlQuery);
+    setParsedParams(parsed);
+  };
+
+  const handleConfirmedGenerate = async () => {
+    if (!parsedParams) return;
+    
+    const input: TripGenerateInput = {
+      source: 'Delhi', // Default source city
+      destination: parsedParams.destination,
+      days: parsedParams.days,
+      budget: parsedParams.budget,
+      travelers: parsedParams.travelers,
+      interests: parsedParams.interests,
+    };
+
+    activeInputRef.current = input;
     setLoading(true);
+    setIsApiReady(false);
     setError('');
+
     try {
-      const generatedPlan = await tripsApi.generate(data);
-      // Redirect to the dedicated dashboard trip results view
-      navigate('/dashboard/trip', { 
-        state: { 
-          generatedPlan, 
-          originalInput: data 
-        } 
-      });
+      const generatedPlan = await tripsApi.generate(input);
+      apiResultRef.current = generatedPlan;
+      setIsApiReady(true);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to generate your trip plan. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
 
+  const handleWizardSubmit = async (data: TripGenerateInput) => {
+    activeInputRef.current = data;
+    setLoading(true);
+    setIsApiReady(false);
+    setError('');
+
+    try {
+      const generatedPlan = await tripsApi.generate(data);
+      apiResultRef.current = generatedPlan;
+      setIsApiReady(true);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to generate your trip plan. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const handleLoadingComplete = () => {
+    if (apiResultRef.current && activeInputRef.current) {
+      navigate('/dashboard/trip', { 
+        state: { 
+          generatedPlan: apiResultRef.current, 
+          originalInput: activeInputRef.current 
+        } 
+      });
+    }
+  };
+
+  const toggleInterest = (id: string) => {
+    if (!parsedParams) return;
+    setParsedParams({
+      ...parsedParams,
+      interests: parsedParams.interests.includes(id)
+        ? parsedParams.interests.filter(item => item !== id)
+        : [...parsedParams.interests, id]
+    });
+  };
+
   if (loading) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center bg-gradient-mesh">
-        <LoadingState />
+      <div className="min-h-[85vh] flex items-center justify-center bg-gradient-mesh py-12 px-4">
+        <LoadingState 
+          source={activeInputRef.current?.source || 'Delhi'}
+          destination={activeInputRef.current?.destination || 'Goa'}
+          budget={activeInputRef.current?.budget || 30000}
+          days={activeInputRef.current?.days || 5}
+          isApiReady={isApiReady}
+          onFinished={handleLoadingComplete}
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-[85vh] py-20 px-4 bg-gradient-mesh flex items-center justify-center">
-      <div className="w-full">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-semibold text-textSecondary dark:text-warmWhite flex items-center justify-center gap-2">
+    <div className="min-h-[85vh] py-16 px-4 bg-gradient-mesh flex items-center justify-center">
+      <div className="w-full max-w-xl">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-textPrimary dark:text-warmWhite flex items-center justify-center gap-2 tracking-tight">
             <Compass className="w-8 h-8 text-primary animate-spin-slow" /> Voira AI Trip Planner
           </h2>
-          <p className="text-sm text-textSecondary dark:text-dark-text-muted mt-1">
+          <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-2">
             Let artificial intelligence design your custom holiday itinerary and budget.
           </p>
         </div>
 
         {error && (
-          <div className="max-w-xl mx-auto mb-6 flex items-center gap-4 p-4 bg-coral dark:bg-coral/20 text-coral dark:text-coral border border-coral dark:border-coral/45 rounded-lg">
+          <div className="mb-6 flex items-center gap-4 p-4 bg-coral dark:bg-coral/25 text-coral dark:text-coral border border-coral dark:border-coral/45 rounded-lg text-left">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <p className="text-xs sm:text-sm font-semibold">{error}</p>
           </div>
         )}
 
-        <TripForm onSubmit={handleFormSubmit} loading={loading} />
+        {/* Toggle Mode Tab Bar */}
+        <div className="flex bg-stoneMuted/30 dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 p-1.5 rounded-lg max-w-md mx-auto mb-8">
+          <button
+            onClick={() => { setPlannerMode('conversational'); setParsedParams(null); }}
+            className={`flex-1 py-2 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-2 ${
+              plannerMode === 'conversational'
+                ? 'bg-primary text-warmWhite shadow-xs'
+                : 'text-textSecondary hover:text-textPrimary dark:text-dark-text-muted'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" /> Conversational AI
+          </button>
+          
+          <button
+            onClick={() => setPlannerMode('wizard')}
+            className={`flex-1 py-2 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-2 ${
+              plannerMode === 'wizard'
+                ? 'bg-primary text-warmWhite shadow-xs'
+                : 'text-textSecondary hover:text-textPrimary dark:text-dark-text-muted'
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5" /> Structured Wizard
+          </button>
+        </div>
+
+        {/* CONVERSATIONAL MODE */}
+        {plannerMode === 'conversational' && (
+          <div className="w-full">
+            {!parsedParams ? (
+              <form onSubmit={handleNlSubmit} className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/50 dark:border-dark-border/40 rounded-xl p-comfortable shadow-sm space-y-6 text-left">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" /> Describe Your Travel Plan
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={nlQuery}
+                    onChange={(e) => setNlQuery(e.target.value)}
+                    placeholder="Try: 5 days in Goa for beaches and parties, ₹30,000, end of July"
+                    className="w-full px-4 py-4 rounded-lg bg-warmWhite dark:bg-dark-elevated border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-dark-text text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary placeholder:font-normal transition-all resize-none leading-relaxed shadow-inner"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={!nlQuery.trim()}
+                  className="w-full h-11 bg-primary text-warmWhite font-semibold rounded-md hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs shadow-sm shadow-primary/25 disabled:opacity-50"
+                >
+                  <span>Parse My Itinerary Idea</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </form>
+            ) : (
+              // CONFIRMATION CARD (Editable parameters)
+              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-xl p-comfortable shadow-md space-y-6 text-left animate-fade-in">
+                <div className="flex justify-between items-center pb-4 border-b border-stoneMuted/45 dark:border-dark-border/45">
+                  <h3 className="font-bold text-sm text-textPrimary dark:text-warmWhite uppercase tracking-wide flex items-center gap-2">
+                    <CheckCircle className="w-4.5 h-4.5 text-successSage" /> Confirm Extracted Details
+                  </h3>
+                  <button 
+                    onClick={() => setParsedParams(null)}
+                    className="text-[10px] text-textSecondary hover:underline font-bold flex items-center gap-1"
+                  >
+                    <RefreshCw className="w-3 h-3" /> Edit Prompt
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Destination */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-primary" /> Destination
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={parsedParams.destination}
+                      onChange={(e) => setParsedParams({ ...parsedParams, destination: e.target.value })}
+                      className="w-full px-3 py-2.5 rounded border border-stoneMuted dark:border-dark-border bg-stoneMuted/10 dark:bg-dark-muted/40 text-xs font-semibold text-textPrimary dark:text-warmWhite focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  {/* Dates / Months */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-textSecondary" /> Target Dates Range
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={parsedParams.dates}
+                      onChange={(e) => setParsedParams({ ...parsedParams, dates: e.target.value })}
+                      className="w-full px-3 py-2.5 rounded border border-stoneMuted dark:border-dark-border bg-stoneMuted/10 dark:bg-dark-muted/40 text-xs font-semibold text-textPrimary dark:text-warmWhite focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  {/* Budget & Days Row */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
+                        <Wallet className="w-3.5 h-3.5 text-successSage" /> Budget (INR)
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        value={parsedParams.budget}
+                        onChange={(e) => setParsedParams({ ...parsedParams, budget: Number(e.target.value) })}
+                        className="w-full px-3 py-2.5 rounded border border-stoneMuted dark:border-dark-border bg-stoneMuted/10 dark:bg-dark-muted/40 text-xs font-mono font-semibold text-coral focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-primary" /> Duration (Days)
+                      </label>
+                      <div className="flex items-center space-x-2 border border-stoneMuted dark:border-dark-border rounded px-2 bg-stoneMuted/10 dark:bg-dark-muted/40 h-[38px] justify-between">
+                        <button 
+                          type="button" 
+                          onClick={() => setParsedParams({ ...parsedParams, days: Math.max(1, parsedParams.days - 1) })}
+                          className="font-bold text-xs text-textSecondary hover:text-primary px-2"
+                        >
+                          -
+                        </button>
+                        <span className="text-xs font-semibold text-textPrimary dark:text-warmWhite">{parsedParams.days} Days</span>
+                        <button 
+                          type="button" 
+                          onClick={() => setParsedParams({ ...parsedParams, days: parsedParams.days + 1 })}
+                          className="font-bold text-xs text-textSecondary hover:text-primary px-2"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Travelers select */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-textSecondary" /> Travelers count
+                    </label>
+                    <select
+                      value={parsedParams.travelers}
+                      onChange={(e) => setParsedParams({ ...parsedParams, travelers: Number(e.target.value) })}
+                      className="w-full px-3 py-2.5 rounded border border-stoneMuted dark:border-dark-border bg-stoneMuted/10 dark:bg-dark-muted/40 text-xs font-semibold text-textPrimary dark:text-warmWhite focus:ring-1 focus:ring-primary"
+                    >
+                      <option value={1}>1 Traveler (Solo)</option>
+                      <option value={2}>2 Travelers (Couple)</option>
+                      <option value={3}>3 Travelers</option>
+                      <option value={4}>4 Travelers (Family)</option>
+                      <option value={5}>5+ Group Travelers</option>
+                    </select>
+                  </div>
+
+                  {/* Moods/Interests selections */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary">
+                      Travel Moods (Select Multiple)
+                    </label>
+                    <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+                      {Object.keys(INTEREST_LABELS).map((key) => {
+                        const isSelected = parsedParams.interests.includes(key);
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => toggleInterest(key)}
+                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
+                              isSelected
+                                ? 'bg-primary border-primary text-warmWhite shadow-xs'
+                                : 'border-stoneMuted dark:border-dark-border text-textSecondary hover:bg-stoneMuted/20'
+                            }`}
+                          >
+                            {INTEREST_LABELS[key]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-4 border-t border-stoneMuted/45 dark:border-dark-border/45 mt-6">
+                  <button
+                    onClick={() => setParsedParams(null)}
+                    className="w-1/3 py-3 border border-stoneMuted dark:border-dark-border rounded-md font-semibold text-xs text-textSecondary flex items-center justify-center gap-1.5"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={handleConfirmedGenerate}
+                    className="w-2/3 py-3 bg-primary text-warmWhite font-semibold rounded-md text-xs flex items-center justify-center gap-2 shadow-md shadow-primary/20 animate-shimmer"
+                  >
+                    <Sparkles className="w-4 h-4 text-warningAmber" />
+                    <span>Generate AI Travel Plan</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* WIZARD MODE */}
+        {plannerMode === 'wizard' && (
+          <TripForm onSubmit={handleWizardSubmit} loading={loading} />
+        )}
       </div>
     </div>
   );

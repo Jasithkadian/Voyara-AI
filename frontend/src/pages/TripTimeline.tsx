@@ -6,6 +6,7 @@ import {
   Plane, MapPin, Home, Utensils, Compass, Calendar, AlertTriangle, 
   RefreshCw, CheckCircle, Clock, ArrowLeftRight, Navigation
 } from 'lucide-react';
+import { EmptyState } from '../components/EmptyState';
 
 export const TripTimeline: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -18,6 +19,8 @@ export const TripTimeline: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [checkingMonitor, setCheckingMonitor] = useState(false);
   const [monitorResult, setMonitorResult] = useState<any>(null);
+  const [hasUnreadAlerts, setHasUnreadAlerts] = useState(true);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -71,6 +74,7 @@ export const TripTimeline: React.FC = () => {
     try {
       const res = await tripsApi.triggerMonitoringCheck(selectedTrip.id);
       setMonitorResult(res);
+      setHasUnreadAlerts(false); // Mark as read when checked
       if (res.status === 'rescheduled') {
         // Reload trip data to get the rewritten itinerary
         const updatedTrips = await tripsApi.getHistory();
@@ -95,15 +99,8 @@ export const TripTimeline: React.FC = () => {
 
   if (trips.length === 0) {
     return (
-      <div className="max-w-md mx-auto my-20 text-center bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-12 shadow-sm">
-        <Compass className="w-12 h-12 text-textSecondary mx-auto mb-4" />
-        <h4 className="font-semibold text-textSecondary dark:text-warmWhite text-lg">No active trips found</h4>
-        <p className="text-sm text-textSecondary dark:text-dark-text-muted mt-1 mb-6 leading-relaxed">
-          Create and save a trip plan to view its daily chronological journey timeline.
-        </p>
-        <button onClick={() => navigate('/planner')} className="px-6 py-4 bg-primary text-warmWhite font-semibold rounded-lg shadow-md hover:bg-primary transition-all text-sm">
-          Plan a Trip
-        </button>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12 py-12 flex items-center justify-center">
+        <EmptyState type="no-saved-trips" />
       </div>
     );
   }
@@ -140,19 +137,30 @@ export const TripTimeline: React.FC = () => {
             ))}
           </select>
 
-          <button
-            onClick={handleMonitorCheck}
-            disabled={checkingMonitor}
-            className={`p-2 rounded-lg border text-xs font-semibold transition-all flex items-center gap-2 ${
-              checkingMonitor
-                ? 'bg-stoneMuted dark:bg-dark-card text-textSecondary cursor-not-allowed'
-                : 'bg-primary/10 hover:bg-primary/20 text-primary border-primary/20'
-            }`}
-            title="Trigger real-time flight and weather monitoring check"
-          >
-            <RefreshCw className={`w-4 h-4 ${checkingMonitor ? 'animate-spin' : ''}`} />
-            <span className="hidden md:inline">Check Alerts</span>
-          </button>
+          <div className="relative">
+            <button
+              onClick={handleMonitorCheck}
+              disabled={checkingMonitor}
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+              className={`p-2 rounded-lg border text-xs font-semibold transition-all flex items-center gap-2 relative ${
+                checkingMonitor
+                  ? 'bg-stoneMuted dark:bg-dark-card text-textSecondary cursor-not-allowed'
+                  : 'bg-primary/10 hover:bg-primary/20 text-primary border-primary/20'
+              }`}
+            >
+              <RefreshCw className={`w-4 h-4 ${checkingMonitor ? 'animate-spin' : ''}`} />
+              <span className="hidden md:inline">Check Alerts</span>
+              {hasUnreadAlerts && !checkingMonitor && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-600 rounded-full border border-warmWhite dark:border-dark-card animate-pulse" />
+              )}
+            </button>
+            {showTooltip && (
+              <div className="absolute right-0 top-12 w-64 bg-textPrimary text-warmWhite dark:bg-dark-card dark:text-dark-text border border-stoneMuted dark:border-dark-border px-3 py-2 rounded shadow-lg text-[10px] leading-normal z-50 animate-fade-in font-sans font-normal pointer-events-none text-left">
+                Get notified about price changes, weather alerts, and flight delays for this trip.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

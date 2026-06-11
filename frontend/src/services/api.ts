@@ -169,6 +169,10 @@ export const tripsApi = {
     const response = await api.post('/api/trips/replan', { trip_id: tripId, changes });
     return response.data;
   },
+  update: async (data: { trip_id: number; budget: number; days: number; travelers: number; interests: string[]; generated_plan: TripPlan }): Promise<{ status: string; trip: SavedTrip }> => {
+    const response = await api.post('/api/trips/update', data);
+    return response.data;
+  },
   searchFlights: async (params: { source: string; destination: string; departure_date: string; return_date?: string; passengers: number }): Promise<any[]> => {
     const response = await api.get('/api/flights/search', { params });
     return response.data;

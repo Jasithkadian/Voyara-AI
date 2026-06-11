@@ -7,5 +7,6 @@ from app.models.expense import Expense
 from app.models.booking import Booking
 from app.models.notification import Notification
 from app.models.transaction import Transaction
+from app.models.price_alert import PriceAlert
 
-__all__ = ["Base", "User", "Trip", "ChatHistory", "UserProfile", "Expense", "Booking", "Notification", "Transaction"]
+__all__ = ["Base", "User", "Trip", "ChatHistory", "UserProfile", "Expense", "Booking", "Notification", "Transaction", "PriceAlert"]
