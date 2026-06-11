@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { Navbar } from './components/Navbar';
@@ -42,7 +42,7 @@ function AppContent() {
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/share/:token" element={<SharedTrip />} />
               <Route path="/explore" element={<Explore />} />
-              <Route path="*" element={<Home />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
           
@@ -58,7 +58,9 @@ function AppContent() {
           <div className="flex-1 h-screen overflow-y-auto flex flex-col justify-between">
             <main className="flex-grow w-full">
               <Routes>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/register" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/dashboard/trip" element={<Dashboard />} />
                 <Route path="/my-expenses" element={<SavedTrips defaultTab="expenses" />} />
@@ -72,7 +74,7 @@ function AppContent() {
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/share/:token" element={<SharedTrip />} />
                 <Route path="/explore" element={<Explore />} />
-                <Route path="*" element={<Dashboard />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </main>
           </div>

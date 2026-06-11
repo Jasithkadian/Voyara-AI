@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Lock, Mail, Plane, Sparkles } from 'lucide-react';
 
 export const Login: React.FC = () => {
-  const { login } = useAuth();
+  const { login, loginGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,6 +20,19 @@ export const Login: React.FC = () => {
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Invalid email or password. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await loginGuest();
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError('Guest login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -77,13 +90,24 @@ export const Login: React.FC = () => {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 mt-2 rounded-lg font-semibold bg-primary text-warmWhite hover:bg-primary shadow-md shadow-primary/20 disabled:opacity-50 transition-all duration-300"
-          >
-            {loading ? 'Signing In...' : 'Sign In'}
-          </button>
+          <div className="space-y-3 pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 rounded-lg font-semibold bg-primary text-warmWhite hover:bg-primary shadow-md shadow-primary/20 disabled:opacity-50 transition-all duration-300"
+            >
+              {loading ? 'Signing In...' : 'Sign In'}
+            </button>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={handleGuestLogin}
+              className="w-full py-4 rounded-lg font-semibold border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-dark-text-muted hover:bg-stoneMuted/30 dark:hover:bg-dark-muted/30 transition-all duration-300"
+            >
+              Continue as Guest
+            </button>
+          </div>
         </form>
 
         <div className="mt-6 text-center text-xs text-textSecondary dark:text-dark-text-muted">

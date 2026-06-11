@@ -6,7 +6,7 @@ import { tripsApi } from '../services/api';
 import { useCurrency, CurrencyCode } from '../context/CurrencyContext';
 
 export const Navbar: React.FC = () => {
-  const { user, isAuthenticated, logout, theme, toggleTheme, login, register } = useAuth();
+  const { user, isAuthenticated, logout, theme, toggleTheme, login, register, loginGuest } = useAuth();
   const { currency, setCurrency } = useCurrency();
   const [isOpen, setIsOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -496,6 +496,32 @@ export const Navbar: React.FC = () => {
               >
                 {authLoading ? 'Please wait...' : isRegister ? 'Sign Up' : 'Sign In'}
               </button>
+
+              {!isRegister && (
+                <button
+                  type="button"
+                  disabled={authLoading}
+                  onClick={async () => {
+                    setAuthError('');
+                    setAuthLoading(true);
+                    try {
+                      await loginGuest();
+                      setShowAuthModal(false);
+                      setEmail('');
+                      setPassword('');
+                      setName('');
+                      navigate('/dashboard');
+                    } catch (err: any) {
+                      setAuthError('Guest login failed. Please try again.');
+                    } finally {
+                      setAuthLoading(false);
+                    }
+                  }}
+                  className="w-full py-4 mt-3 rounded-sm font-semibold border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-dark-text-muted hover:bg-stoneMuted/30 dark:hover:bg-dark-muted/30 transition-all duration-300"
+                >
+                  Continue as Guest
+                </button>
+              )}
             </form>
 
             <div className="mt-6 text-center text-sm text-textSecondary dark:text-dark-text-muted">
