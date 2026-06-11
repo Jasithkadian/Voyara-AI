@@ -1,14 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { tripsApi } from '../services/api';
+import { tripsApi, SavedTrip } from '../services/api';
 import { User, Mail, Calendar, Compass, LogOut, Shield, Wallet, Save, Sparkles, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { usePlacePhoto } from '../hooks/usePlacePhoto';
+
+interface ProfileCollageItemProps {
+  destinationName: string;
+}
+
+const ProfileCollageItem: React.FC<ProfileCollageItemProps> = ({ destinationName }) => {
+  const { photo, loading } = usePlacePhoto(destinationName, 'destination');
+  if (loading) {
+    return <div className="flex-1 h-full bg-stoneMuted/30 dark:bg-dark-muted/40 animate-pulse min-w-[60px]" />;
+  }
+  return (
+    <img
+      src={photo}
+      alt={destinationName}
+      className="w-full h-full object-cover object-center flex-1 brightness-[0.75] hover:scale-105 hover:brightness-[0.9] transition-all duration-500 min-w-[60px]"
+    />
+  );
+};
 
 export const Profile: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [tripCount, setTripCount] = useState(0);
   const [totalSpent, setTotalSpent] = useState(0);
   const [totalDays, setTotalDays] = useState(0);
+  const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
   const navigate = useNavigate();
 
   // Preference State
@@ -34,6 +54,7 @@ export const Profile: React.FC = () => {
   const fetchProfileData = async () => {
     try {
       const trips = await tripsApi.getHistory();
+      setSavedTrips(trips);
       setTripCount(trips.length);
       setTotalSpent(trips.reduce((sum, t) => sum + t.budget, 0));
       setTotalDays(trips.reduce((sum, t) => sum + t.days, 0));
@@ -119,10 +140,40 @@ export const Profile: React.FC = () => {
 
       <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg overflow-hidden shadow-sm">
         {/* Cover header */}
-        <div className="h-32 bg-gradient-to-r from-primary to-coral relative">
-          <div className="absolute -bottom-12 left-8">
-            <div className="w-24 h-24 rounded-md bg-warmWhite dark:bg-dark-card p-2 shadow-sm">
-              <div className="w-full h-full rounded-md bg-primary/10 text-primary flex items-center justify-center font-semibold text-3xl">
+        <div className="h-32 relative overflow-hidden bg-warmWhite dark:bg-dark-card border-b border-stoneMuted/50 dark:border-dark-border/50">
+          {savedTrips.length > 0 ? (
+            <div className="absolute inset-0 flex flex-row w-full h-full overflow-hidden">
+              {savedTrips.slice(0, 5).map((trip, idx) => (
+                <div key={trip.id || idx} className="flex-1 h-full relative border-r last:border-r-0 border-warmWhite/15 overflow-hidden">
+                  <ProfileCollageItem destinationName={trip.destination} />
+                  <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-black/60 backdrop-blur-xs text-[9px] uppercase tracking-wider text-warmWhite rounded font-bold pointer-events-none select-none">
+                    {trip.destination.split(',')[0]}
+                  </div>
+                </div>
+              ))}
+              <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-[#1A1A2E] flex items-center justify-center overflow-hidden">
+              <svg className="absolute inset-0 w-full h-full opacity-35" viewBox="0 0 800 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M-50,150 C100,80 250,220 400,120 C550,20 700,160 850,90" fill="none" stroke="#0A84FF" strokeWidth="2.5" />
+                <path d="M-50,170 C110,100 260,240 410,140 C560,40 710,180 860,110" fill="none" stroke="#0A84FF" strokeWidth="1.5" />
+                <path d="M-50,130 C90,60 240,200 390,100 C540,0 690,140 840,70" fill="none" stroke="#0A84FF" strokeWidth="1.5" />
+                <path d="M-50,190 C120,120 270,260 420,160 C570,60 720,200 870,130" fill="none" stroke="#FF6F61" strokeWidth="1" />
+                <path d="M-50,110 C80,40 230,180 380,80 C530,-20 680,120 830,50" fill="none" stroke="#0A84FF" strokeWidth="1" />
+                <circle cx="150" cy="80" r="3" fill="#FF6F61" />
+                <circle cx="450" cy="140" r="3" fill="#0A84FF" />
+                <circle cx="650" cy="60" r="3" fill="#FF6F61" />
+              </svg>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-coral/10" />
+              <span className="relative z-10 text-[10px] font-semibold text-warmWhite/40 uppercase tracking-widest pointer-events-none select-none">
+                Voira AI • Explore the Unexplored
+              </span>
+            </div>
+          )}
+          <div className="absolute -bottom-12 left-8 z-20">
+            <div className="w-24 h-24 rounded-md bg-warmWhite dark:bg-dark-card p-2 shadow-sm border border-stoneMuted/40 dark:border-dark-border/40">
+              <div className="w-full h-full rounded-md bg-primary/10 text-primary flex items-center justify-center font-semibold text-3xl shadow-inner">
                 {user?.name.charAt(0).toUpperCase()}
               </div>
             </div>

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi } from '../services/api';
-import { Sparkles, Navigation, Globe, Compass, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, Navigation, ShieldCheck } from 'lucide-react';
+import { DestinationCard } from '../components/DestinationCard';
 
 interface DestinationDemo {
   id: string;
@@ -124,65 +125,18 @@ export const Demo: React.FC = () => {
       )}
 
       {/* Grid of demo cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="flex flex-wrap justify-center gap-8">
         {demos.map((dest) => {
           const isProcessing = loadingDest === dest.id;
           return (
-            <div
+            <DestinationCard
               key={dest.id}
-              className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                {/* Visual Header Gradient block */}
-                <div className={`w-full h-32 bg-gradient-to-br ${dest.bgGradient} rounded-lg mb-4 relative overflow-hidden flex items-end p-4`}>
-                  <div className="absolute inset-0 bg-textPrimary/10" />
-                  <div className="relative z-10 text-warmWhite">
-                    <span className="text-xs  font-semibold tracking-normal text-warmWhite/80">{dest.country}</span>
-                    <h3 className="font-semibold text-2xl tracking-tight leading-none mt-1">{dest.name}</h3>
-                  </div>
-                  <Globe className="w-16 h-16 text-warmWhite/10 absolute -right-2 -bottom-2 group-hover:scale-110 transition-transform" />
-                </div>
-
-                <p className="text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed min-h-[50px]">
-                  {dest.description}
-                </p>
-
-                <div className="mt-6 flex justify-between items-center text-xs font-semibold border-t border-stoneMuted dark:border-dark-border pt-4">
-                  <div>
-                    <span className="text-xs  font-semibold text-textSecondary block tracking-normal">Duration</span>
-                    <span className="text-textSecondary dark:text-dark-text-muted">{dest.duration}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs  font-semibold text-textSecondary block tracking-normal">Estimated Cost</span>
-                    <span className="text-textSecondary dark:text-dark-text-muted">{dest.budget}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <button
-                  onClick={() => handleLaunchDemo(dest)}
-                  disabled={!!loadingDest}
-                  className={`w-full py-4 rounded-lg font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-sm ${
-                    isProcessing
-                      ? 'bg-stoneMuted dark:bg-dark-card text-textSecondary cursor-wait'
-                      : 'bg-primary hover:bg-primary text-warmWhite hover:shadow-md'
-                  }`}
-                >
-                  {isProcessing ? (
-                    <>
-                      <div className="w-4 h-4 rounded-lg border-2 border-stoneMuted border-t-brand animate-spin" />
-                      <span>Deploying Sandbox...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Launch Demo Itinerary</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+              name={dest.name}
+              region={dest.country}
+              price={dest.budget}
+              onClick={() => handleLaunchDemo(dest)}
+              isLoadingAction={isProcessing}
+            />
           );
         })}
       </div>

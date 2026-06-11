@@ -8,16 +8,16 @@ interface TripFormProps {
 }
 
 const INTEREST_OPTIONS = [
-  { id: 'beaches', label: '🏖️ Beaches' },
-  { id: 'nightlife', label: '🍸 Nightlife' },
-  { id: 'water_sports', label: '🏄 Water Sports' },
-  { id: 'food', label: '🍕 Food & Dining' },
-  { id: 'culture', label: '🏛️ Culture & Heritage' },
-  { id: 'nature', label: '🌲 Nature & Wildlife' },
-  { id: 'adventure', label: '⛰️ Adventure Sports' },
-  { id: 'shopping', label: '🛍️ Shopping' },
-  { id: 'relaxation', label: '🧘 Spa & Wellness' },
-  { id: 'history', label: '🏰 History & Castles' },
+  { id: 'beaches', label: '🏖️ Beaches', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80' },
+  { id: 'nightlife', label: '🍸 Nightlife', image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=400&q=80' },
+  { id: 'water_sports', label: '🏄 Water Sports', image: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=400&q=80' },
+  { id: 'food', label: '🍕 Food & Dining', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80' },
+  { id: 'culture', label: '🏛️ Culture & Heritage', image: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=400&q=80' },
+  { id: 'nature', label: '🌲 Nature & Wildlife', image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80' },
+  { id: 'adventure', label: '⛰️ Adventure Sports', image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80' },
+  { id: 'shopping', label: '🛍️ Shopping', image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=400&q=80' },
+  { id: 'relaxation', label: '🧘 Spa & Wellness', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=400&q=80' },
+  { id: 'history', label: '🏰 History & Castles', image: 'https://images.unsplash.com/photo-1508849789987-4e5333c12b78?auto=format&fit=crop&w=400&q=80' },
 ];
 
 export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
@@ -247,7 +247,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
             <label className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted flex items-center gap-2 mb-2">
               <Compass className="w-4 h-4 text-primary" /> Travel Interests (Select multiple)
             </label>
-            <div className="grid grid-cols-2 gap-4 max-h-64 overflow-y-auto pr-1 scrollbar-thin">
+            <div className="grid grid-cols-2 gap-4 max-h-72 overflow-y-auto pr-1 scrollbar-thin py-1">
               {INTEREST_OPTIONS.map((interest) => {
                 const isSelected = selectedInterests.includes(interest.id);
                 return (
@@ -255,16 +255,34 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
                     key={interest.id}
                     type="button"
                     onClick={() => handleInterestToggle(interest.id)}
-                    className={`p-4 rounded-md border text-left text-xs font-semibold transition-all flex items-center justify-between select-none ${
+                    className={`h-[90px] rounded-lg relative overflow-hidden text-left transition-all duration-300 flex items-end p-3 border-2 group select-none ${
                       isSelected
-                        ? 'bg-primary border-primary text-warmWhite shadow-sm'
-                        : 'bg-warmWhite hover:bg-stoneMuted border-stoneMuted text-textPrimary dark:bg-dark-card dark:border-dark-border dark:text-dark-text'
+                        ? 'border-coral shadow-md'
+                        : 'border-stoneMuted/40 dark:border-dark-border/40 hover:border-primary/50'
                     }`}
+                    style={{
+                      backgroundImage: `url(${interest.image})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
                   >
-                    <span>{interest.label}</span>
+                    {/* Base dark overlay */}
+                    <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors pointer-events-none" />
+
+                    {/* Selected Coral Tint Overlay (20% opacity) */}
                     {isSelected && (
-                      <CheckCircle2 className="w-4 h-4 text-warmWhite" />
+                      <div className="absolute inset-0 bg-coral/20 pointer-events-none" />
                     )}
+
+                    {/* Interest Label Text */}
+                    <div className="relative z-10 w-full flex justify-between items-center text-warmWhite pointer-events-none">
+                      <span className="font-sans font-bold text-xs tracking-wider uppercase drop-shadow-sm">
+                        {interest.label}
+                      </span>
+                      {isSelected && (
+                        <CheckCircle2 className="w-4 h-4 text-coral shrink-0 drop-shadow-sm" />
+                      )}
+                    </div>
                   </button>
                 );
               })}
