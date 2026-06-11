@@ -3,9 +3,11 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Sun, Moon, Menu, X, Plane, User as UserIcon, LogOut, Compass, Briefcase, Bell } from 'lucide-react';
 import { tripsApi } from '../services/api';
+import { useCurrency, CurrencyCode } from '../context/CurrencyContext';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout, theme, toggleTheme, login, register } = useAuth();
+  const { currency, setCurrency } = useCurrency();
   const [isOpen, setIsOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
@@ -194,6 +196,19 @@ export const Navbar: React.FC = () => {
 
             {/* Actions */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* Currency Dropdown Selector */}
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
+                className="px-2 py-1 text-xs rounded bg-stoneMuted/30 dark:bg-dark-muted border border-stoneMuted/50 dark:border-dark-border/50 text-textPrimary dark:text-warmWhite focus:outline-none cursor-pointer font-semibold"
+              >
+                <option value="INR">INR (₹)</option>
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="AED">AED (د.إ)</option>
+              </select>
+
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-sm bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text transition-colors"

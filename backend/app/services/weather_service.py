@@ -2,11 +2,71 @@ import os
 import httpx
 import logging
 import random
+import datetime
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
 
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
+
+MONTHLY_AVERAGES = {
+    "goa": {
+        1: {"temp": 28, "condition": "Sunny"},
+        2: {"temp": 29, "condition": "Sunny"},
+        3: {"temp": 30, "condition": "Sunny"},
+        4: {"temp": 32, "condition": "Sunny"},
+        5: {"temp": 33, "condition": "Sunny"},
+        6: {"temp": 29, "condition": "Rain"},
+        7: {"temp": 28, "condition": "Rain"},
+        8: {"temp": 28, "condition": "Rain"},
+        9: {"temp": 29, "condition": "Rain"},
+        10: {"temp": 30, "condition": "Cloudy"},
+        11: {"temp": 30, "condition": "Sunny"},
+        12: {"temp": 29, "condition": "Sunny"},
+    },
+    "paris": {
+        1: {"temp": 6, "condition": "Rain"},
+        2: {"temp": 7, "condition": "Cloudy"},
+        3: {"temp": 11, "condition": "Cloudy"},
+        4: {"temp": 14, "condition": "Sunny"},
+        5: {"temp": 18, "condition": "Sunny"},
+        6: {"temp": 22, "condition": "Sunny"},
+        7: {"temp": 25, "condition": "Sunny"},
+        8: {"temp": 24, "condition": "Sunny"},
+        9: {"temp": 21, "condition": "Cloudy"},
+        10: {"temp": 16, "condition": "Rain"},
+        11: {"temp": 10, "condition": "Rain"},
+        12: {"temp": 7, "condition": "Cloudy"},
+    },
+    "tokyo": {
+        1: {"temp": 6, "condition": "Sunny"},
+        2: {"temp": 7, "condition": "Sunny"},
+        3: {"temp": 10, "condition": "Cloudy"},
+        4: {"temp": 15, "condition": "Cloudy"},
+        5: {"temp": 20, "condition": "Sunny"},
+        6: {"temp": 23, "condition": "Rain"},
+        7: {"temp": 27, "condition": "Rain"},
+        8: {"temp": 28, "condition": "Sunny"},
+        9: {"temp": 24, "condition": "Rain"},
+        10: {"temp": 19, "condition": "Cloudy"},
+        11: {"temp": 14, "condition": "Sunny"},
+        12: {"temp": 9, "condition": "Sunny"},
+    },
+    "dubai": {
+        1: {"temp": 19, "condition": "Sunny"},
+        2: {"temp": 20, "condition": "Sunny"},
+        3: {"temp": 23, "condition": "Sunny"},
+        4: {"temp": 28, "condition": "Sunny"},
+        5: {"temp": 33, "condition": "Sunny"},
+        6: {"temp": 36, "condition": "Sunny"},
+        7: {"temp": 38, "condition": "Sunny"},
+        8: {"temp": 38, "condition": "Sunny"},
+        9: {"temp": 36, "condition": "Sunny"},
+        10: {"temp": 31, "condition": "Sunny"},
+        11: {"temp": 26, "condition": "Sunny"},
+        12: {"temp": 21, "condition": "Sunny"},
+    }
+}
 
 def get_weather_forecast(destination: str, days: int) -> List[Dict[str, Any]]:
     """
@@ -78,6 +138,70 @@ def get_weather_forecast(destination: str, days: int) -> List[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"Error fetching weather from OpenWeather: {str(e)}. Simulating fallback.")
         return simulate_weather(destination, days)
+
+def get_weather_for_dates(destination: str, start_date_str: str, days: int) -> List[Dict[str, Any]]:
+    """
+    Main entry point for weather retrieval. If dates are >7 days away,
+    falls back to historical averages for that destination's month.
+    """
+    try:
+        start_date = datetime.datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        today = datetime.date.today()
+        days_diff = (start_date - today).days
+    except Exception:
+        # Fallback if date is invalid or missing
+        return get_weather_forecast(destination, days)
+        
+    if days_diff > 7:
+        logger.info(f"Destination {destination} travel date {start_date_str} is >7 days away. Using monthly averages.")
+        return get_monthly_averages_forecast(destination, start_date, days)
+    else:
+        return get_weather_forecast(destination, days)
+
+def get_monthly_averages_forecast(destination: str, start_date: datetime.date, days: int) -> List[Dict[str, Any]]:
+    dest_clean = destination.lower()
+    
+    # Identify matching city
+    matched_city = None
+    for city in MONTHLY_AVERAGES:
+        if city in dest_clean:
+            matched_city = city
+            break
+            
+    forecasts = []
+    current_date = start_date
+    for d in range(1, days + 1):
+        month = current_date.month
+        
+        if matched_city:
+            avg = MONTHLY_AVERAGES[matched_city][month]
+            temp = avg["temp"]
+            condition = avg["condition"]
+        else:
+            # Generic seasonal fallback
+            if month in [12, 1, 2]:
+                temp = 12
+                condition = "Cloudy"
+            elif month in [3, 4, 5]:
+                temp = 20
+                condition = "Sunny"
+            elif month in [6, 7, 8]:
+                temp = 28
+                condition = "Sunny"
+            else:
+                temp = 17
+                condition = "Windy"
+                
+        # Tiny random offset
+        temp = temp + random.choice([-2, -1, 0, 1, 2])
+        forecasts.append({
+            "day": d,
+            "condition": condition,
+            "temp": temp
+        })
+        current_date += datetime.timedelta(days=1)
+        
+    return forecasts
 
 def simulate_weather(destination: str, days: int) -> List[Dict[str, Any]]:
     """

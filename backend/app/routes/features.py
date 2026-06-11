@@ -12,6 +12,7 @@ from app.models.expense import Expense
 from app.models.booking import Booking
 from app.models.notification import Notification
 from app.models.transaction import Transaction
+from app.models.price_alert import PriceAlert
 
 # Services
 from app.services.flight_service import search_flights
@@ -19,9 +20,10 @@ from app.services.hotel_service import search_hotels
 from app.services.maps_service import calculate_route_details
 from app.services.notification_service import create_notification
 from app.services.payment_service import create_stripe_payment_intent, create_razorpay_order, process_webhook_payment
-from app.services.monitoring_service import run_realtime_trip_monitor
+from app.services.monitoring_service import run_realtime_trip_monitor, check_all_price_alerts
 from app.services.recommendation_service import generate_personalized_recommendations
 from app.services.demo_service import get_preloaded_demo_itinerary
+from app.services.weather_service import get_weather_for_dates
 
 router = APIRouter(prefix="/api", tags=["Platform Features"])
 
@@ -61,6 +63,21 @@ class MonitorCheckRequest(BaseModel):
 
 class RouteCalculateRequest(BaseModel):
     locations: List[Dict[str, Any]] # [{"name": "A", "lat": 12.3, "lng": 76.5}, ...]
+
+class PriceAlertCreate(BaseModel):
+    origin: str
+    destination: str
+    date: str # YYYY-MM-DD
+    target_price: float
+    notification_method: Optional[str] = "email"
+
+class ExploreRequest(BaseModel):
+    budget: float
+    season: Optional[str] = None
+    duration: int
+    moods: List[str] = []
+    surprise_me: Optional[bool] = False
+
 
 # --- FLIGHTS & HOTELS SEARCH ---
 
@@ -593,3 +610,312 @@ def get_demo_itinerary(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch demo itinerary: {str(e)}"
         )
+
+# --- PRICE ALERTS ENDPOINTS ---
+
+@router.post("/alerts/create")
+def create_price_alert(
+    request: PriceAlertCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Fetch initial current price
+    initial_price = None
+    try:
+        flights = search_flights(request.origin, request.destination, request.date, passengers=1)
+        if flights:
+            initial_price = min(f["price"] for f in flights)
+    except Exception as ex:
+        pass
+        
+    alert = PriceAlert(
+        user_id=current_user.id,
+        origin=request.origin,
+        destination=request.destination,
+        date=request.date,
+        target_price=request.target_price,
+        notification_method=request.notification_method,
+        current_price=initial_price,
+        is_active=True
+    )
+    db.add(alert)
+    db.commit()
+    db.refresh(alert)
+    return alert
+
+@router.get("/alerts/list")
+def list_price_alerts(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    alerts = db.query(PriceAlert).filter(PriceAlert.user_id == current_user.id).order_by(PriceAlert.created_at.desc()).all()
+    return alerts
+
+@router.post("/alerts/test-trigger")
+def test_trigger_price_alerts(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    result = check_all_price_alerts(db)
+    return result
+
+# --- WEATHER ROUTE ---
+
+@router.get("/weather")
+def get_weather_route(
+    destination: str,
+    start_date: str, # YYYY-MM-DD
+    days: int = 5
+):
+    try:
+        weather = get_weather_for_dates(destination, start_date, days)
+        return weather
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch weather: {str(e)}"
+        )
+
+# --- EXPLORE MODE ---
+
+EXPLORE_DESTINATIONS = [
+    {
+        "name": "Goa, India",
+        "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+        "description": "Lush green coastal views, beautiful beaches, and a vibrant nightlife that makes every moment magical.",
+        "estimatedCost": 22000.0,
+        "bestSeason": "Winter (Nov-Feb)",
+        "seasons": ["winter", "monsoon", "spring"],
+        "moods": ["Beaches", "Nightlife", "Relaxing", "Food"]
+    },
+    {
+        "name": "Paris, France",
+        "image": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=600&q=80",
+        "description": "The city of light and romance, featuring world-class history, dining, art museums, and iconic cafes.",
+        "estimatedCost": 85000.0,
+        "bestSeason": "Spring (Apr-Jun)",
+        "seasons": ["spring", "summer"],
+        "moods": ["Culture", "Food", "Relaxing"]
+    },
+    {
+        "name": "Tokyo, Japan",
+        "image": "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=600&q=80",
+        "description": "A neo-futuristic hub that blends historic temples, incredible street food, and neon-lit night excursions.",
+        "estimatedCost": 75000.0,
+        "bestSeason": "Autumn (Sep-Nov)",
+        "seasons": ["autumn", "spring"],
+        "moods": ["Food", "Culture", "Nightlife", "Adventure"]
+    },
+    {
+        "name": "Dubai, UAE",
+        "image": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=80",
+        "description": "A luxurious desert oasis offering sky-high architecture, dune bashing, and premium shopping resorts.",
+        "estimatedCost": 55000.0,
+        "bestSeason": "Winter (Dec-Mar)",
+        "seasons": ["winter", "autumn"],
+        "moods": ["Adventure", "Nightlife", "Relaxing"]
+    },
+    {
+        "name": "Bali, Indonesia",
+        "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=600&q=80",
+        "description": "Tropical beaches, lush rice terraces, mystical temples, and tranquil wellness retreats.",
+        "estimatedCost": 35000.0,
+        "bestSeason": "Summer (Jun-Aug)",
+        "seasons": ["summer", "spring"],
+        "moods": ["Beaches", "Relaxing", "Culture", "Adventure"]
+    },
+    {
+        "name": "Ladakh, India",
+        "image": "https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=600&q=80",
+        "description": "Dramatic high-altitude desert landscapes, serene monasteries, and jaw-dropping mountain lakes.",
+        "estimatedCost": 30000.0,
+        "bestSeason": "Summer (Jun-Sep)",
+        "seasons": ["summer"],
+        "moods": ["Adventure", "Relaxing", "Culture"]
+    },
+    {
+        "name": "Jaipur, India",
+        "image": "https://images.unsplash.com/photo-1477584322813-ac8ec5df9c09?auto=format&fit=crop&w=600&q=80",
+        "description": "The Pink City, full of royal heritage palaces, gorgeous fortresses, and spiced Rajasthani delicacies.",
+        "estimatedCost": 15000.0,
+        "bestSeason": "Winter (Nov-Feb)",
+        "seasons": ["winter", "autumn", "spring"],
+        "moods": ["Culture", "Food"]
+    },
+    {
+        "name": "Phuket, Thailand",
+        "image": "https://images.unsplash.com/photo-1528181304800-2f1702424b60?auto=format&fit=crop&w=600&q=80",
+        "description": "Crystal blue waters, exciting night markets, and fun island excursions under the tropical sun.",
+        "estimatedCost": 40000.0,
+        "bestSeason": "Winter (Nov-Feb)",
+        "seasons": ["winter", "spring"],
+        "moods": ["Beaches", "Relaxing", "Nightlife", "Food"]
+    },
+    {
+        "name": "Rome, Italy",
+        "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=600&q=80",
+        "description": "An open-air museum of ancient ruins, Renaissance art, and world-class fresh pasta and gelato.",
+        "estimatedCost": 78000.0,
+        "bestSeason": "Spring (Apr-Jun)",
+        "seasons": ["spring", "autumn"],
+        "moods": ["Culture", "Food"]
+    },
+    {
+        "name": "Reykjavik, Iceland",
+        "image": "https://images.unsplash.com/photo-1504829857797-ddff28127792?auto=format&fit=crop&w=600&q=80",
+        "description": "Stunning hot springs, massive waterfalls, and a chance to experience the magical Northern Lights.",
+        "estimatedCost": 98000.0,
+        "bestSeason": "Winter (Oct-Mar)",
+        "seasons": ["winter", "summer"],
+        "moods": ["Adventure", "Relaxing"]
+    }
+]
+
+@router.post("/explore")
+def explore_destinations_endpoint(request: ExploreRequest):
+    ranked = []
+    for dest in EXPLORE_DESTINATIONS:
+        score = 60 # base score
+        
+        # Budget matching
+        if request.budget >= dest["estimatedCost"]:
+            score += 20
+        elif request.budget >= dest["estimatedCost"] * 0.8:
+            score += 10
+        else:
+            score -= 15
+            
+        # Season matching
+        if request.season:
+            season_clean = request.season.lower()
+            if season_clean in dest["seasons"]:
+                score += 15
+            else:
+                score -= 5
+                
+        # Mood matching
+        mood_matches = 0
+        for m in request.moods:
+            if m in dest["moods"]:
+                mood_matches += 1
+        if request.moods:
+            score += (mood_matches / len(request.moods)) * 20
+        else:
+            score += 10
+            
+        # Clamp score between 35 and 99
+        score = max(35, min(99, round(score)))
+        
+        ranked.append({
+            "name": dest["name"],
+            "image": dest["image"],
+            "description": dest["description"],
+            "estimatedCost": dest["estimatedCost"] * (request.duration / 5.0), # scale cost based on days
+            "bestSeason": dest["bestSeason"],
+            "moods": dest["moods"],
+            "matchScore": score
+        })
+        
+    # Sort by matchScore descending
+    ranked.sort(key=lambda x: x["matchScore"], reverse=True)
+    
+    # If surprise_me, shuffle
+    if request.surprise_me:
+        import random
+        random.shuffle(ranked)
+        # override matchScore for surprise me
+        for r in ranked:
+            r["matchScore"] = random.randint(85, 98)
+            
+    return ranked[:6]
+
+# --- BUDGET CO-PILOT ---
+
+@router.get("/trips/{trip_id}/budget-copilot")
+def budget_copilot_endpoint(
+    trip_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    trip = db.query(Trip).filter(Trip.id == trip_id, Trip.user_id == current_user.id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+        
+    plan = trip.generated_plan or {}
+    breakdown = plan.get("budgetBreakdown", {})
+    
+    # Fetch all expenses for this trip
+    expenses = db.query(Expense).filter(Expense.trip_id == trip_id).all()
+    
+    # Sum spent per category
+    spent = {
+        "Food": 0.0,
+        "Hotels": 0.0,
+        "Transport": 0.0,
+        "Activities": 0.0,
+        "Miscellaneous": 0.0
+    }
+    for ex in expenses:
+        cat = ex.category
+        if cat in spent:
+            spent[cat] += ex.amount
+        else:
+            spent["Miscellaneous"] += ex.amount
+            
+    # Planned allocations mapping
+    planned = {
+        "Hotels": float(breakdown.get("hotel_cost", 10000.0)),
+        "Food": float(breakdown.get("food_cost", 5000.0)),
+        "Transport": float(breakdown.get("transportation_cost", 5000.0)),
+        "Activities": float(breakdown.get("activity_cost", 5000.0)),
+        "Miscellaneous": float(breakdown.get("miscellaneous_cost", 3000.0))
+    }
+    
+    flags = []
+    recommendations = []
+    
+    category_tips = {
+        "Hotels": "You are over budget on lodging. Consider downgrading remaining room nights, looking for high-rated homestays, or checking hostel private rooms.",
+        "Food": "Your dining expenses are high. Try traditional local street food stalls or casual family taverns, and limit high-end dining splurges.",
+        "Transport": "Transport costs have exceeded normal levels. We recommend utilizing day-passes for public transit, walking short distances, or using local ride-share promo codes.",
+        "Activities": "Activities are over budget. Opt for free-entry museum days, self-guided walking tours, or nature hikes which cost nothing.",
+        "Miscellaneous": "Shopping and miscellaneous spending is high. Look for souvenir deals in local markets away from main tourist centers and avoid impulse buys."
+    }
+    
+    total_planned = sum(planned.values())
+    total_spent = sum(spent.values())
+    
+    for cat, planned_val in planned.items():
+        spent_val = spent[cat]
+        if planned_val > 0:
+            deviation = (spent_val - planned_val) / planned_val
+            if deviation > 0.15:
+                flags.append({
+                    "category": cat,
+                    "planned": planned_val,
+                    "spent": spent_val,
+                    "deviation": round(deviation * 100, 1),
+                    "status": "warning"
+                })
+                recommendations.append(category_tips[cat])
+                
+    if not flags:
+        status_msg = "Nominal"
+        comment = "Great job! All spending categories are well within your allocated budgets. You are on track for a financially balanced trip."
+    else:
+        status_msg = "Over budget warning"
+        comment = f"Alert: You have exceeded your planned budget by more than 15% in {len(flags)} categories. Apply our cost-saving recommendations to recover your balance."
+        
+    return {
+        "status": status_msg,
+        "totalPlanned": total_planned,
+        "totalSpent": total_spent,
+        "breakdown": {
+            cat: {"planned": planned[cat], "spent": spent[cat]}
+            for cat in planned
+        },
+        "flags": flags,
+        "recommendations": recommendations,
+        "comment": comment
+    }
+

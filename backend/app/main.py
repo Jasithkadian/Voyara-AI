@@ -42,6 +42,16 @@ app.include_router(trips.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
 app.include_router(features.router)
 
+@app.on_event("startup")
+def startup_event():
+    try:
+        from app.services.monitoring_service import start_price_alert_monitor
+        start_price_alert_monitor()
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to start price alert monitor: {e}")
+
+
 @app.get("/")
 def read_root():
     return {

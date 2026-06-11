@@ -3,6 +3,7 @@ import { DailyPlan } from '../services/api';
 import { Calendar, Sun, CloudRain, CloudSun, Utensils, Compass } from 'lucide-react';
 import { ActivityCard } from './ActivityCard';
 import { MapWidget, MapMarkerItem } from './MapWidget';
+import { useWeather } from '../hooks/useWeather';
 
 interface ItineraryCardProps {
   dailyPlan: DailyPlan[];
@@ -12,6 +13,8 @@ interface ItineraryCardProps {
 export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destination = 'Goa' }) => {
   const [activeDay, setActiveDay] = useState(1);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  
+  const { weather: fetchedWeather } = useWeather(destination, '2026-06-12', dailyPlan.length);
 
   const currentDayData = dailyPlan.find(d => d.day === activeDay) || dailyPlan[0];
 
@@ -70,8 +73,11 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
         {/* Day selection tabs with inline weather indicators */}
         <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide py-1 max-w-full">
           {dailyPlan.map((day) => {
-            const weatherTemp = day.weather?.match(/\d+°C/)?.[0] || '';
-            const weatherDesc = day.weather?.split(',')[0].trim() || 'Sunny';
+            const fetchedDay = fetchedWeather?.find(w => w.day === day.day);
+            const weatherTemp = fetchedDay ? `${fetchedDay.temp}°C` : (day.weather?.match(/\d+°C/)?.[0] || '');
+            const weatherDesc = fetchedDay ? fetchedDay.condition : (day.weather?.split(',')[0].trim() || 'Sunny');
+            const weatherString = fetchedDay ? `${weatherDesc}, ${weatherTemp}` : (day.weather || 'Sunny');
+            
             return (
               <button
                 key={day.day}
@@ -87,7 +93,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
               >
                 <span className="flex items-center gap-1.5">
                   <span>Day {day.day}</span>
-                  {getWeatherIcon(day.weather)}
+                  {getWeatherIcon(weatherString)}
                   <span className={`text-[10px] font-normal ${activeDay === day.day ? 'text-warmWhite/80' : 'text-textSecondary dark:text-dark-text-muted'}`}>
                     {weatherTemp || weatherDesc}
                   </span>

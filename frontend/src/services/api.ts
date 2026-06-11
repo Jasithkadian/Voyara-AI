@@ -245,6 +245,18 @@ export const tripsApi = {
     const response = await api.get('/api/demo/itinerary', { params: { destination } });
     return response.data;
   },
+  share: async (tripId: number): Promise<{ share_token: string; share_url: string }> => {
+    const response = await api.post(`/api/trips/${tripId}/share`);
+    return response.data;
+  },
+  getShared: async (token: string): Promise<SavedTrip> => {
+    const response = await api.get(`/api/trips/share/${token}`);
+    return response.data;
+  },
+  explore: async (data: { budget: number; season?: string; duration: number; moods: string[]; surprise_me?: boolean }): Promise<any[]> => {
+    const response = await api.post('/api/explore', data);
+    return response.data;
+  },
 };
 
 export const aiApi = {

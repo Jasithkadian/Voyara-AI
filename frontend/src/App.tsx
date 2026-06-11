@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { CurrencyProvider } from './context/CurrencyContext';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { CommandPalette } from './components/CommandPalette';
@@ -16,6 +17,8 @@ import { Analytics } from './pages/Analytics';
 import { TripTimeline } from './pages/TripTimeline';
 import { Demo } from './pages/Demo';
 import { Onboarding } from './pages/Onboarding';
+import { SharedTrip } from './pages/SharedTrip';
+import { Explore } from './pages/Explore';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -37,6 +40,8 @@ function AppContent() {
               <Route path="/planner" element={<TripPlanner />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/share/:token" element={<SharedTrip />} />
+              <Route path="/explore" element={<Explore />} />
               <Route path="*" element={<Home />} />
             </Routes>
           </main>
@@ -65,6 +70,8 @@ function AppContent() {
                 <Route path="/trip-timeline" element={<SavedTrips defaultTab="timeline" />} />
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/share/:token" element={<SharedTrip />} />
+                <Route path="/explore" element={<Explore />} />
                 <Route path="*" element={<Dashboard />} />
               </Routes>
             </main>
@@ -80,10 +87,13 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <CurrencyProvider>
+          <AppContent />
+        </CurrencyProvider>
       </AuthProvider>
     </Router>
   );
 }
 
 export default App;
+

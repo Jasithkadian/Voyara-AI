@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api, { tripsApi, SavedTrip, TripPlan } from '../services/api';
+import { useCurrency } from '../context/CurrencyContext';
 import { TripOverview } from '../components/TripOverview';
 import { BudgetChart } from '../components/BudgetChart';
 import { ItineraryCard } from '../components/ItineraryCard';
@@ -12,15 +13,17 @@ import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 import { TravelTips } from '../components/TravelTips';
 import { MapWidget } from '../components/MapWidget';
+import { PackingList } from '../components/PackingList';
 import { 
   Compass, Calendar, Wallet, MapPin, ArrowRight, Plus, 
   Trash2, Sparkles, Smile, RefreshCw, Save, MessageSquare, 
   X, AlertCircle, Sun, CloudRain, Users, Thermometer, Plane, CheckCircle,
-  Clock
+  Clock, Share2, FileText, CalendarRange
 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
+  const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -149,6 +152,18 @@ export const Dashboard: React.FC = () => {
   const [flights, setFlights] = useState<any[]>([]);
   const [flightsLoading, setFlightsLoading] = useState(false);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [budgetCopilot, setBudgetCopilot] = useState<any>(null);
+
+  const fetchBudgetCopilot = async () => {
+    if (!activeTrip || activeTrip.id === 0) return;
+    try {
+      const response = await api.get(`/api/trips/${activeTrip.id}/budget-copilot`);
+      setBudgetCopilot(response.data);
+    } catch (err) {
+      console.error("Failed to fetch budget co-pilot:", err);
+    }
+  };
+
 
   // Checkout & Payments states
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -157,6 +172,38 @@ export const Dashboard: React.FC = () => {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [paymentResult, setPaymentResult] = useState<any>(null);
   const [cancelLoading, setCancelLoading] = useState<number | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+
+  const downloadPDF = () => {
+    if (!activeTrip || activeTrip.id === 0) return;
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    window.open(`${API_BASE_URL}/api/trips/${activeTrip.id}/pdf`, '_blank');
+  };
+
+  const downloadCalendar = () => {
+    if (!activeTrip || activeTrip.id === 0) return;
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    window.open(`${API_BASE_URL}/api/trips/${activeTrip.id}/calendar`, '_blank');
+  };
+
+  const handleShare = async () => {
+    if (!activeTrip || activeTrip.id === 0) return;
+    setShareLoading(true);
+    try {
+      const res = await tripsApi.share(activeTrip.id);
+      const shareUrl = `${window.location.origin}/share/${res.share_token}`;
+      await navigator.clipboard.writeText(shareUrl);
+      setError(`✓ Public share link copied to clipboard: ${shareUrl}`);
+      setTimeout(() => setError(''), 8000);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to generate public share token.");
+      setTimeout(() => setError(''), 4000);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -170,6 +217,7 @@ export const Dashboard: React.FC = () => {
     if (activeTrip) {
       fetchFlights();
       fetchBookings();
+      fetchBudgetCopilot();
     }
   }, [activeTrip]);
 
@@ -257,6 +305,7 @@ export const Dashboard: React.FC = () => {
         confirmation_id: `FLY-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
       });
       fetchBookings();
+      fetchBudgetCopilot();
     } catch (err) {
       console.error(err);
       setError("Secure checkout payment authorization failed.");
@@ -411,11 +460,7 @@ export const Dashboard: React.FC = () => {
   };
 
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(val);
+    return formatPrice(val);
   };
 
   if (loading) {
@@ -474,17 +519,47 @@ export const Dashboard: React.FC = () => {
             </Button>
 
             {saveSuccess && activeTrip && activeTrip.id !== 0 && (
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  const stored = localStorage.getItem(`voira_trip_versions_${activeTrip.id}`);
-                  setVersionsList(stored ? JSON.parse(stored) : []);
-                  setShowVersionPanel(true);
-                }}
-                className="flex-1 sm:flex-initial"
-              >
-                <Clock className="w-4 h-4 text-textSecondary" /> Version History
-              </Button>
+              <>
+                <Button
+                  variant="secondary"
+                  onClick={handleShare}
+                  disabled={shareLoading}
+                  className="flex-1 sm:flex-initial"
+                  title="Copy shareable read-only public itinerary link"
+                >
+                  <Share2 className="w-4 h-4" /> {shareLoading ? 'Sharing...' : 'Share'}
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  onClick={downloadPDF}
+                  className="flex-1 sm:flex-initial"
+                  title="Download premium PDF copy"
+                >
+                  <FileText className="w-4 h-4" /> PDF
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  onClick={downloadCalendar}
+                  className="flex-1 sm:flex-initial"
+                  title="Sync travel schedule to Apple, Google or Outlook calendar"
+                >
+                  <CalendarRange className="w-4 h-4" /> Calendar Sync
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    const stored = localStorage.getItem(`voira_trip_versions_${activeTrip.id}`);
+                    setVersionsList(stored ? JSON.parse(stored) : []);
+                    setShowVersionPanel(true);
+                  }}
+                  className="flex-1 sm:flex-initial"
+                >
+                  <Clock className="w-4 h-4 text-textSecondary" /> Version History
+                </Button>
+              </>
             )}
 
             {saveSuccess && (
@@ -675,6 +750,45 @@ export const Dashboard: React.FC = () => {
           <div className="lg:col-span-4 space-y-12">
             <BudgetChart breakdown={plan.budgetBreakdown} targetBudget={activeTrip.budget} />
 
+            {/* Budget Co-pilot widget */}
+            {budgetCopilot && (
+              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-sm space-y-4 text-left">
+                <h4 className="font-sans font-semibold text-base text-textPrimary dark:text-dark-text flex items-center gap-2">
+                  💡 Budget Co-pilot
+                </h4>
+                
+                <p className="text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed">
+                  {budgetCopilot.comment}
+                </p>
+
+                {budgetCopilot.flags && budgetCopilot.flags.length > 0 && (
+                  <div className="space-y-2 pt-2">
+                    {budgetCopilot.flags.map((flag: any, fIdx: number) => (
+                      <div key={fIdx} className="p-2.5 rounded bg-primary/5 dark:bg-dark-muted/20 border border-primary/20 text-xs flex justify-between items-center">
+                        <span className="font-semibold text-textPrimary dark:text-warmWhite">{flag.category}</span>
+                        <span className="font-bold text-coral">
+                          Spent: {formatCurrency(flag.spent)} / Planned: {formatCurrency(flag.planned)} (+{flag.deviation}%)
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {budgetCopilot.recommendations && budgetCopilot.recommendations.length > 0 && (
+                  <div className="pt-2 border-t border-stoneMuted/40 dark:border-dark-border/40 space-y-2">
+                    <p className="text-[10px] uppercase font-bold text-textSecondary dark:text-dark-text-muted tracking-wider">Recommendations</p>
+                    <ul className="list-disc pl-4 space-y-1">
+                      {budgetCopilot.recommendations.map((rec: string, rIdx: number) => (
+                        <li key={rIdx} className="text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed">
+                          {rec}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Bookings & Tickets panel */}
             {activeTrip && activeTrip.id !== 0 && (
               <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-sm space-y-4">
@@ -738,6 +852,13 @@ export const Dashboard: React.FC = () => {
                 )}
               </div>
             )}
+
+            {/* Packing List widget */}
+            <PackingList 
+              destination={activeTrip.destination}
+              weatherCondition={plan.dailyItinerary?.[0]?.weather || 'Sunny'}
+              interests={activeTrip.interests}
+            />
 
             {/* Tips Card */}
             <TravelTips 

@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Compass, Briefcase, Globe, MessageSquare, Settings, Sun, Moon, LogOut, Plane, Bell } from 'lucide-react';
 import { tripsApi } from '../services/api';
+import { useCurrency, CurrencyCode } from '../context/CurrencyContext';
 
 export const Sidebar: React.FC = () => {
   const { user, logout, theme, toggleTheme } = useAuth();
@@ -56,6 +57,7 @@ export const Sidebar: React.FC = () => {
     { label: 'Settings', path: '/profile', icon: Settings },
   ];
 
+  const { currency, setCurrency } = useCurrency();
   const hasUnread = notifications.some(n => !n.is_read);
 
   return (
@@ -149,6 +151,23 @@ export const Sidebar: React.FC = () => {
             {theme === 'dark' ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
           </button>
         </div>
+
+        {/* Currency Dropdown Selector */}
+        <div className="flex items-center justify-between px-tight">
+          <span className="text-[10px] uppercase font-bold text-textSecondary dark:text-dark-text-muted">Currency</span>
+          <select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
+            className="px-2 py-1 text-[11px] rounded bg-stoneMuted/30 dark:bg-dark-muted border border-stoneMuted/50 dark:border-dark-border/50 text-textPrimary dark:text-warmWhite focus:outline-none cursor-pointer font-semibold"
+          >
+            <option value="INR">INR (₹)</option>
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="AED">AED (د.إ)</option>
+          </select>
+        </div>
+
 
         {/* User Profile Block */}
         <div className="flex items-center justify-between p-2 rounded-md bg-stoneMuted/20 dark:bg-dark-muted/20 border border-stoneMuted/40 dark:border-dark-border/40">
