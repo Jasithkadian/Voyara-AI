@@ -224,7 +224,7 @@ export const Expenses: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-warmWhite dark:bg-dark-card p-6 border border-stoneMuted dark:border-dark-border rounded-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-warmWhite dark:bg-dark-card p-6 border border-stoneMuted dark:border-dark-border rounded-md">
         <div>
           <button onClick={() => navigate(-1)} className="text-xs font-semibold text-textSecondary hover:text-primary flex items-center gap-1 mb-2">
             <ArrowLeft className="w-3.5 h-3.5" /> Back

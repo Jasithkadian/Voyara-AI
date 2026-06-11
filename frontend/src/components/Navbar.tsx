@@ -223,7 +223,7 @@ export const Navbar: React.FC = () => {
 
                   {/* Dropdown Drawer */}
                   {showNotifDropdown && (
-                    <div className="absolute right-0 mt-2 w-80 bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg shadow-xl py-4 z-50 animate-fade-in max-h-96 overflow-y-auto">
+                    <div className="absolute right-0 mt-2 w-80 bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md shadow-card-hover py-4 z-50 animate-fade-in max-h-96 overflow-y-auto">
                       <div className="px-4 pb-2 border-b border-stoneMuted/50 dark:border-dark-border flex justify-between items-center">
                         <span className="text-xs font-semibold text-textPrimary dark:text-dark-text">Notifications</span>
                         <span className="text-xs text-textSecondary">Smart Alerts</span>
@@ -252,7 +252,7 @@ export const Navbar: React.FC = () => {
                     to="/profile"
                     className="flex items-center space-x-2 p-2 px-4 rounded-sm hover:bg-stoneMuted/30 dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm">
+                    <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm">
                       {user?.name.charAt(0).toUpperCase()}
                     </div>
                     <span className="text-sm font-normal max-w-[100px] truncate">{user?.name}</span>

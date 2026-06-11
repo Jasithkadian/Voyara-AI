@@ -57,9 +57,9 @@ export const Analytics: React.FC = () => {
   if (error || !data) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="p-6 bg-coral dark:bg-coral/20 text-coral dark:text-coral rounded-lg border border-coral text-center">
+        <div className="p-6 bg-coral dark:bg-coral/20 text-coral dark:text-coral rounded-md border border-coral text-center">
           <p className="font-semibold">{error || 'Something went wrong while loading analytics.'}</p>
-          <button onClick={fetchAnalytics} className="mt-4 px-4 py-2 bg-primary text-warmWhite rounded-lg text-xs font-semibold">
+          <button onClick={fetchAnalytics} className="mt-4 px-4 py-2 bg-primary text-warmWhite rounded-sm text-xs font-semibold">
             Retry
           </button>
         </div>
@@ -105,7 +105,7 @@ export const Analytics: React.FC = () => {
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Trips Planned */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 shadow-sm hover:shadow-card-hover transition-all relative overflow-hidden group">
           <div className="absolute right-0 top-0 w-24 h-24 bg-primary/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
           <div className="flex items-center gap-4">
             <div className="p-4 bg-primary/10 text-primary rounded-lg">
@@ -123,7 +123,7 @@ export const Analytics: React.FC = () => {
         </div>
 
         {/* Trips Saved */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 shadow-sm hover:shadow-card-hover transition-all relative overflow-hidden group">
           <div className="absolute right-0 top-0 w-24 h-24 bg-primary/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
           <div className="flex items-center gap-4">
             <div className="p-4 bg-primary/10 text-primary rounded-lg">
@@ -141,7 +141,7 @@ export const Analytics: React.FC = () => {
         </div>
 
         {/* Bookings Created */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 shadow-sm hover:shadow-card-hover transition-all relative overflow-hidden group">
           <div className="absolute right-0 top-0 w-24 h-24 bg-successSage/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
           <div className="flex items-center gap-4">
             <div className="p-4 bg-successSage/10 text-successSage rounded-lg">
@@ -159,7 +159,7 @@ export const Analytics: React.FC = () => {
         </div>
 
         {/* Total Revenue */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 shadow-sm hover:shadow-card-hover transition-all relative overflow-hidden group">
           <div className="absolute right-0 top-0 w-24 h-24 bg-warningAmber/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
           <div className="flex items-center gap-4">
             <div className="p-4 bg-warningAmber/10 text-warningAmber rounded-lg">
@@ -172,7 +172,7 @@ export const Analytics: React.FC = () => {
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs text-successSage font-semibold">
             <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>Avg Budget: {formatCurrency(data.averageBudget)}</span>
+            <span className="font-mono text-coral">Avg Budget: {formatCurrency(data.averageBudget)}</span>
           </div>
         </div>
       </div>

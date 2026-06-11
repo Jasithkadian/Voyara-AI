@@ -27,7 +27,7 @@ export const AttractionCard: React.FC<AttractionCardProps> = ({ attractions }) =
   };
 
   return (
-    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-xl">
+    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-md p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div className="flex items-center space-x-4">
           <div className="w-10 h-10 rounded-md bg-primary/10 text-primary flex items-center justify-center">

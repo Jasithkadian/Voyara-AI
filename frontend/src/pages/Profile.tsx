@@ -104,25 +104,25 @@ export const Profile: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 py-12 space-y-12">
       {/* Messages */}
       {msg && (
-        <div className="p-4 bg-successSage dark:bg-successSage/20 text-successSage dark:text-successSage rounded-lg border border-successSage dark:border-successSage/50 text-sm font-semibold flex items-center gap-2">
+        <div className="p-4 bg-successSage dark:bg-successSage/20 text-successSage dark:text-successSage rounded-md border border-successSage dark:border-successSage/50 text-sm font-semibold flex items-center gap-2">
           <Sparkles className="w-5 h-5 shrink-0 animate-pulse" />
           <span>{msg}</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-coral dark:bg-coral/20 text-coral dark:text-coral rounded-lg border border-coral dark:border-coral/50 text-sm font-semibold flex items-center gap-2">
+        <div className="p-4 bg-coral dark:bg-coral/20 text-coral dark:text-coral rounded-md border border-coral dark:border-coral/50 text-sm font-semibold flex items-center gap-2">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg overflow-hidden shadow-xl">
+      <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg overflow-hidden shadow-sm">
         {/* Cover header */}
         <div className="h-32 bg-gradient-to-r from-primary to-coral relative">
           <div className="absolute -bottom-12 left-8">
-            <div className="w-24 h-24 rounded-lg bg-warmWhite dark:bg-dark-card p-2 shadow-lg">
-              <div className="w-full h-full rounded-lg bg-primary/10 text-primary flex items-center justify-center font-semibold text-3xl">
+            <div className="w-24 h-24 rounded-md bg-warmWhite dark:bg-dark-card p-2 shadow-sm">
+              <div className="w-full h-full rounded-md bg-primary/10 text-primary flex items-center justify-center font-semibold text-3xl">
                 {user?.name.charAt(0).toUpperCase()}
               </div>
             </div>
@@ -140,7 +140,7 @@ export const Profile: React.FC = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-coral/10 hover:bg-coral/20 text-coral dark:text-coral font-semibold rounded-lg flex items-center gap-2 text-xs transition-colors border border-coral/20"
+              className="px-4 py-2 bg-coral/10 hover:bg-coral/20 text-coral dark:text-coral font-semibold rounded-sm flex items-center gap-2 text-xs transition-colors border border-coral/20"
             >
               <LogOut className="w-4 h-4" /> Log Out
             </button>
@@ -165,23 +165,23 @@ export const Profile: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4 pt-6 border-t border-stoneMuted dark:border-dark-border">
-            <div className="bg-stoneMuted dark:bg-dark-card p-6 rounded-lg border border-stoneMuted dark:border-dark-border">
+            <div className="bg-stoneMuted dark:bg-dark-card p-6 rounded-md border border-stoneMuted dark:border-dark-border">
               <Compass className="w-5 h-5 text-primary mb-2" />
               <span className="text-xs text-textSecondary dark:text-dark-text-muted block  font-semibold">Trips Saved</span>
               <span className="text-xl font-semibold text-textSecondary dark:text-warmWhite">{tripCount}</span>
             </div>
 
-            <div className="bg-stoneMuted dark:bg-dark-card p-6 rounded-lg border border-stoneMuted dark:border-dark-border">
+            <div className="bg-stoneMuted dark:bg-dark-card p-6 rounded-md border border-stoneMuted dark:border-dark-border">
               <Wallet className="w-5 h-5 text-successSage mb-2" />
               <span className="text-xs text-textSecondary dark:text-dark-text-muted block  font-semibold">Total Budget Plan</span>
-              <span className="text-xl font-semibold text-textSecondary dark:text-warmWhite truncate block">{formatCurrency(totalSpent)}</span>
+              <span className="text-xl font-semibold text-coral font-mono truncate block">{formatCurrency(totalSpent)}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* TRAVEL PREFERENCES FORM */}
-      <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-12 shadow-xl space-y-6">
+      <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-12 shadow-sm space-y-6">
         <div>
           <h3 className="text-xl font-semibold text-textSecondary dark:text-warmWhite flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" /> Personalize Travel Preferences
@@ -200,7 +200,7 @@ export const Profile: React.FC = () => {
               <select
                 value={travelStyle}
                 onChange={(e) => setTravelStyle(e.target.value)}
-                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="Adventure">🧗 Adventure & Hikes</option>
                 <option value="Relaxation">🧘 Relaxation & Spa</option>
@@ -216,7 +216,7 @@ export const Profile: React.FC = () => {
               <select
                 value={budgetRange}
                 onChange={(e) => setBudgetRange(e.target.value)}
-                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="Budget">Budget (Hostels / Street Food)</option>
                 <option value="Mid-Range">Mid-Range (Standard hotels / Bistro dining)</option>
@@ -232,7 +232,7 @@ export const Profile: React.FC = () => {
                 value={foodPreferences}
                 onChange={(e) => setFoodPreferences(e.target.value)}
                 placeholder="e.g. Vegetarian, Halal, Vegan, Gluten-Free"
-                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
+                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
               />
             </div>
 
@@ -244,7 +244,7 @@ export const Profile: React.FC = () => {
                 value={preferredHotels}
                 onChange={(e) => setPreferredHotels(e.target.value)}
                 placeholder="e.g. Boutique Hotels, Beachfront, Hostels, Taj"
-                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
+                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
               />
             </div>
           </div>
@@ -258,7 +258,7 @@ export const Profile: React.FC = () => {
                 value={preferredActivities}
                 onChange={(e) => setPreferredActivities(e.target.value)}
                 placeholder="e.g. Snorkeling, Art Galleries, Wine Tasting, Nightclubs"
-                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
+                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
               />
             </div>
 
@@ -270,7 +270,7 @@ export const Profile: React.FC = () => {
                 value={favoriteDestinations}
                 onChange={(e) => setFavoriteDestinations(e.target.value)}
                 placeholder="e.g. Bali, Paris, Tokyo, Switzerland"
-                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
+                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
               />
             </div>
           </div>
@@ -284,7 +284,7 @@ export const Profile: React.FC = () => {
             <button
               type="submit"
               disabled={saveLoading}
-              className="px-6 py-4 bg-primary text-warmWhite font-semibold rounded-lg shadow-md shadow-primary/15 hover:bg-primary flex items-center justify-center gap-2 transition-all text-sm disabled:opacity-50"
+              className="px-6 py-4 bg-primary text-warmWhite font-semibold rounded-sm shadow-md shadow-primary/15 hover:bg-primary flex items-center justify-center gap-2 transition-all text-sm disabled:opacity-50"
             >
               <Save className="w-4 h-4" /> {saveLoading ? 'Saving...' : 'Save Preferences'}
             </button>

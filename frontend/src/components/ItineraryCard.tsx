@@ -31,7 +31,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan }) => {
   };
 
   return (
-    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-comfortable shadow-sm space-y-comfortable">
+    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-md p-comfortable shadow-sm space-y-comfortable">
       <div className="flex items-center justify-between flex-wrap gap-comfortable border-b border-stoneMuted/50 dark:border-dark-border pb-6">
         <div className="flex items-center space-x-4">
           <div className="w-11 h-11 rounded-md bg-primary/10 text-primary flex items-center justify-center">

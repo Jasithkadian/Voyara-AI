@@ -12,7 +12,7 @@ interface HotelCardProps {
 
 export const HotelCard: React.FC<HotelCardProps> = ({ hotel, isBooked, onBook, index = 0 }) => {
   return (
-    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-md p-comfortable shadow-lg flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-card-hover active:scale-[0.99] relative overflow-hidden group">
+    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-md p-comfortable shadow-sm flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-card-hover active:scale-[0.99] relative overflow-hidden group">
       {/* Accent bar */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-cyan-400"></div>
 

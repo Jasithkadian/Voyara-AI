@@ -606,7 +606,7 @@ export const Dashboard: React.FC = () => {
                         const val = e.target.value.replace(/[^0-9]/g, '');
                         setReplanBudget(val ? Number(val) : 0);
                       }}
-                      className="w-full px-4 py-2 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-warmWhite text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full px-4 py-2 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-coral font-mono focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>

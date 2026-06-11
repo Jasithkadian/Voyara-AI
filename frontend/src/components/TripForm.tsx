@@ -74,21 +74,19 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
           return (
             <div 
               key={num} 
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 border-2 ${
+              className={`w-7 h-7 rounded-md flex items-center justify-center transition-all duration-300 border-2 ${
                 isCompleted 
                   ? 'bg-primary border-primary text-warmWhite scale-105' 
                   : isActive 
                   ? 'bg-primary border-primary text-warmWhite scale-110 shadow-md shadow-primary/20' 
-                  : 'bg-warmWhite border-stoneMuted dark:bg-dark-card dark:border-dark-border text-transparent'
+                  : 'bg-warmWhite border-stoneMuted dark:bg-dark-card dark:border-dark-border'
               }`}
             >
               {isCompleted ? (
                 <CheckCircle2 className="w-4 h-4 text-warmWhite" />
               ) : isActive ? (
-                <div className="w-2.5 h-2.5 rounded-lg bg-warmWhite" />
-              ) : (
-                <div className="w-2.5 h-2.5 rounded-lg bg-stoneMuted dark:bg-dark-muted" />
-              )}
+                <div className="w-2.5 h-2.5 rounded-full bg-warmWhite" />
+              ) : null}
             </div>
           );
         })}
@@ -216,7 +214,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
                   setBudget(val ? Number(val) : 0);
                 }}
                 placeholder="e.g. ₹30,000"
-                className="w-full px-4 py-4 rounded-sm bg-warmWhite dark:bg-dark-elevated border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-dark-text focus:outline-none focus:ring-1 focus:ring-primary font-semibold text-lg transition-all"
+                className="w-full px-4 py-4 rounded-sm bg-warmWhite dark:bg-dark-elevated border border-stoneMuted dark:border-dark-border text-coral dark:text-coral focus:outline-none focus:ring-1 focus:ring-primary font-mono text-lg transition-all"
               />
             </div>
             <p className="text-xs text-textSecondary leading-normal">
