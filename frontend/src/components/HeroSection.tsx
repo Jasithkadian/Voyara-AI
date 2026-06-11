@@ -1,123 +1,128 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plane, Calendar, Wallet, Compass, MessageSquare, RefreshCw, Sparkles, MapPin } from 'lucide-react';
+import { Plane, Calendar, Wallet, Compass, Sparkles, MapPin, Search, Globe, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const HeroSection: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="relative overflow-hidden py-20 lg:py-32">
-      {/* Decorative blurred background shapes */}
-      <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-brand/10 rounded-full blur-3xl -z-10 animate-pulse-subtle"></div>
-      <div className="absolute bottom-1/4 right-1/10 w-96 h-96 bg-accent/5 rounded-full blur-3xl -z-10" style={{ animationDelay: '1.5s' }}></div>
+    <div className="relative overflow-hidden py-20 lg:py-20 bg-grid-pattern">
+      {/* Mesh gradients absolute backgrounds */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 dark:bg-primary/15 rounded-lg blur-[100px] -z-10 animate-pulse-subtle"></div>
+      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-coral/5 dark:bg-coral/8 rounded-lg blur-[90px] -z-10" style={{ animationDelay: '2s' }}></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Text Content */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-            <div className="inline-flex items-center space-x-2 bg-brand/10 dark:bg-brand/20 text-brand px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase border border-brand/20">
-              <Sparkles className="w-4 h-4 animate-spin-slow" />
-              <span>Next-Gen Travel AI Assistant</span>
+          {/* Left Text Content */}
+          <div className="lg:col-span-7 space-y-12 text-center lg:text-left">
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-primary/10 to-coral/10 dark:from-primary/20 dark:to-coral/20 text-primary px-4 py-2 rounded-lg text-xs font-semibold tracking-wide border border-primary/20 shadow-sm">
+              <Sparkles className="w-4 h-4 text-coral animate-pulse" />
+              <span>Unveiling Voira AI Copilot v4</span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-              Plan your next trip with <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand to-accent-600">
-                AI Travel Copilot
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-textPrimary dark:text-dark-text leading-[1.08] font-sans">
+              Travel planning, <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-coral to-coral">
+                reimagined by AI.
               </span>
             </h1>
             
-            <p className="text-lg text-slate-600 dark:text-neutral-400 max-w-2xl mx-auto lg:mx-0">
-              Generate personalized day-wise itineraries, instant budget breakdowns, customized hotel recommendations, and hidden attraction lists in seconds using artificial intelligence.
+            <p className="text-base sm:text-lg text-textSecondary dark:text-dark-text-muted max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+              Voira is your autonomous travel concierge. Instantly generate optimized daily schedules, real-time flight searches, budget allocations, and weather-adaptive revisions in one workspace.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+            {/* Simulated Search bar inside Hero (Compelling CTA) */}
+            <div className="bg-warmWhite dark:bg-dark-card/90 border border-stoneMuted/80 dark:border-dark-border p-2 rounded-md shadow-xl flex flex-col md:flex-row gap-2 max-w-xl mx-auto lg:mx-0 backdrop-blur-md">
+              <div className="flex items-center gap-2 px-4 flex-1">
+                <Search className="w-4.5 h-4.5 text-textSecondary" />
+                <input 
+                  type="text" 
+                  disabled 
+                  placeholder="Where is your dream destination?" 
+                  className="bg-transparent text-xs text-textPrimary dark:text-dark-text placeholder:text-textSecondary focus:outline-none w-full cursor-not-allowed"
+                />
+              </div>
               <Link
-                to={isAuthenticated ? "/planner" : "/planner"}
-                className="w-full sm:w-auto px-8 py-4 bg-brand text-white font-semibold rounded-2xl shadow-lg shadow-brand/25 hover:bg-brand-600 hover:shadow-brand/35 hover:-translate-y-0.5 transition-all text-center"
+                to="/planner"
+                className="px-6 py-4 bg-primary hover:bg-primary text-warmWhite text-xs font-semibold rounded-sm transition-all shadow-md shadow-primary/15 hover:shadow-primary/25 flex items-center justify-center gap-2"
               >
-                Plan a New Trip
+                <span>Plan Instantly</span>
+                <ChevronRight className="w-4 h-4" />
               </Link>
-              <a
-                href="#features"
-                className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-neutral-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-neutral-850 hover:-translate-y-0.5 transition-all text-center"
-              >
-                Explore Features
-              </a>
             </div>
 
-            {/* Micro Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-8 max-w-md mx-auto lg:mx-0 border-t border-slate-200/60 dark:border-neutral-800/60">
+            {/* Credibility metrics block */}
+            <div className="grid grid-cols-3 gap-12 pt-12 max-w-md mx-auto lg:mx-0 border-t border-stoneMuted/50 dark:border-dark-border">
               <div>
-                <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">100k+</p>
-                <p className="text-xs text-slate-500 dark:text-neutral-400 font-medium">Trips Planned</p>
+                <p className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-dark-text">125k+</p>
+                <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold mt-1">Trips Synced</p>
               </div>
               <div>
-                <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">150+</p>
-                <p className="text-xs text-slate-500 dark:text-neutral-400 font-medium">Destinations</p>
+                <p className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-dark-text">180+</p>
+                <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold mt-1">Cities Covered</p>
               </div>
               <div>
-                <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">4.9★</p>
-                <p className="text-xs text-slate-500 dark:text-neutral-400 font-medium">User Rating</p>
+                <p className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-dark-text">4.92★</p>
+                <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold mt-1">User Score</p>
               </div>
             </div>
           </div>
 
-          {/* Floating Previews Grid */}
-          <div className="lg:col-span-5 relative hidden md:block">
-            <div className="relative mx-auto w-full max-w-[420px] aspect-[4/5] bg-gradient-to-tr from-brand/20 to-accent/20 rounded-3xl p-6 border border-white/20 shadow-2xl flex flex-col justify-between overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-xl -mr-10 -mt-10"></div>
-              
-              {/* Header inside mockup */}
+          {/* Right Floating Previews Mockup (Skyscanner / Airbnb feel) */}
+          <div className="lg:col-span-5 relative hidden lg:block">
+            <div className="relative mx-auto w-full max-w-[400px] aspect-[4/5] bg-gradient-to-tr from-primary/15 via-coral/10 to-coral/15 rounded-lg p-6 border border-warmWhite/10 dark:border-warmWhite/5 shadow-2xl flex flex-col justify-between overflow-hidden backdrop-blur-3xl">
+              {/* Graphic background shapes */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-warmWhite/5 rounded-lg blur-2xl -mr-20 -mt-20"></div>
+              <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-primary/5 rounded-lg blur-2xl"></div>
+
+              {/* Destination Tag */}
               <div className="flex justify-between items-start z-10">
-                <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md p-3 rounded-2xl border border-white/20 shadow-sm">
-                  <div className="flex items-center space-x-1">
-                    <MapPin className="w-4 h-4 text-brand" />
-                    <span className="text-xs font-bold text-slate-800 dark:text-neutral-100">Paris, France</span>
+                <div className="bg-warmWhite/90 dark:bg-dark-card/90 backdrop-blur-md p-4 rounded-md border border-stoneMuted/50 dark:border-dark-border shadow-sm flex items-center gap-2">
+                  <div className="p-2 bg-primary/10 text-primary rounded-lg">
+                    <Globe className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] text-slate-500">5 Days • 2 Travelers</span>
+                  <div>
+                    <span className="text-xs text-textSecondary block font-semibold">Recommended</span>
+                    <span className="text-xs font-semibold text-textPrimary dark:text-dark-text">Bali, Indonesia</span>
+                  </div>
                 </div>
                 
-                <div className="bg-brand text-white font-bold text-xs px-3 py-1.5 rounded-full shadow-md">
-                  Active Plan
-                </div>
+                <span className="bg-successSage/15 text-successSage dark:text-successSage font-semibold text-xs px-4 py-2 rounded-lg border border-successSage/10">
+                  Verified Package
+                </span>
               </div>
 
-              {/* Floating Itinerary Card */}
-              <div className="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/10 transform rotate-1 translate-x-2 z-10">
-                <p className="text-[10px] font-bold text-brand uppercase tracking-wider">Day 2: Culture & Romance</p>
-                <h4 className="text-sm font-bold text-slate-800 dark:text-neutral-100 mt-0.5">Louvre Museum & Seine River Cruise</h4>
-                <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1 line-clamp-2">
-                  Beat the crowds in the morning at the Louvre to see the Mona Lisa, followed by a romantic lunch at a bistro.
+              {/* Daily segment preview card */}
+              <div className="bg-warmWhite/95 dark:bg-dark-card/95 backdrop-blur-md p-4 rounded-md shadow-xl border border-stoneMuted/50 dark:border-dark-border/80 transform rotate-1 translate-x-3 z-10 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold text-primary">Day 2 • 09:30 AM</span>
+                  <span className="text-xs bg-stoneMuted/30 dark:bg-dark-muted text-textSecondary px-2 py-1 rounded-sm font-semibold">28°C Sunny</span>
+                </div>
+                <h4 className="text-xs font-semibold text-textPrimary dark:text-dark-text">Tegalalang Rice Terraces Excursion</h4>
+                <p className="text-xs text-textSecondary leading-relaxed line-clamp-2">
+                  Explore scenic cascading green hillsides, enjoy the iconic jungle swing, and enjoy coconut juice.
                 </p>
-                <div className="mt-3 flex items-center justify-between border-t border-slate-100 dark:border-neutral-800 pt-2 text-[10px] font-medium text-slate-500">
-                  <span>Est: €50 / person</span>
-                  <span className="bg-slate-150 dark:bg-neutral-800 px-2 py-0.5 rounded-full">3 hours</span>
+                <div className="mt-4 pt-2 border-t border-stoneMuted/50 dark:border-dark-border flex items-center justify-between text-xs text-textSecondary">
+                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-textSecondary" /> Tegalalang</span>
+                  <span className="font-semibold text-coral font-mono">Est: ₹800</span>
                 </div>
               </div>
 
-              {/* Floating Budget Card */}
-              <div className="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/10 transform -rotate-2 -translate-x-4 z-10 self-start w-5/6">
-                <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Budget Allocation</p>
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-lg font-bold text-slate-800 dark:text-white">$1,500</span>
-                  <span className="text-[10px] text-slate-500">92% of budget limit</span>
+              {/* Mini Budget breakdown card */}
+              <div className="bg-warmWhite/95 dark:bg-dark-card/95 backdrop-blur-md p-4 rounded-md shadow-xl border border-stoneMuted/50 dark:border-dark-border/80 transform -rotate-2 -translate-x-3 z-10 self-start w-5/6 space-y-2">
+                <span className="text-xs font-semibold text-successSage dark:text-successSage block">Cost Matrix Summary</span>
+                <div className="flex justify-between items-end">
+                  <span className="text-xl font-semibold text-coral font-mono">₹59,000</span>
+                  <span className="text-xs text-textSecondary">7 Days • 2 Guests</span>
                 </div>
-                
-                {/* Visual mini bar chart */}
-                <div className="mt-3 space-y-1.5">
-                  <div className="flex items-center text-[10px]">
-                    <span className="w-12 text-slate-400">Hotels</span>
-                    <div className="flex-1 bg-slate-100 dark:bg-neutral-800 h-2 rounded-full overflow-hidden ml-2">
-                      <div className="bg-brand h-full rounded-full" style={{ width: '45%' }}></div>
-                    </div>
+                <div className="space-y-2 pt-1">
+                  <div className="w-full bg-stoneMuted/30 dark:bg-dark-muted h-1.5 rounded-lg overflow-hidden">
+                    <div className="bg-gradient-to-r from-primary to-coral h-full rounded-lg" style={{ width: '68%' }} />
                   </div>
-                  <div className="flex items-center text-[10px]">
-                    <span className="w-12 text-slate-400">Food</span>
-                    <div className="flex-1 bg-slate-100 dark:bg-neutral-800 h-2 rounded-full overflow-hidden ml-2">
-                      <div className="bg-accent h-full rounded-full" style={{ width: '25%' }}></div>
-                    </div>
+                  <div className="flex justify-between text-xs text-textSecondary">
+                    <span>Flights &amp; Hotel</span>
+                    <span>Activities &amp; Meals</span>
                   </div>
                 </div>
               </div>
@@ -126,7 +131,6 @@ export const HeroSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Feature grid placeholder anchor */}
       <div id="features"></div>
     </div>
   );

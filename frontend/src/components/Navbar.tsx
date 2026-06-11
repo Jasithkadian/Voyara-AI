@@ -79,109 +79,111 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 w-full glass border-b border-slate-200/50 dark:border-neutral-800/50 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="sticky top-0 z-40 w-full glass border-b border-stoneMuted/50 dark:border-dark-border/50 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand to-accent flex items-center justify-center text-white shadow-md shadow-brand/20 group-hover:scale-105 transition-transform duration-300">
+              <div className="w-10 h-10 rounded-md bg-gradient-to-tr from-primary to-coral flex items-center justify-center text-warmWhite shadow-md shadow-primary/20 group-hover:scale-105 transition-transform duration-300">
                 <Plane className="-rotate-45 w-5.5 h-5.5" />
               </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 tracking-tight">
-                Travel<span className="text-brand">Copilot</span>
+              <span className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-textPrimary to-textPrimary dark:from-dark-text dark:to-dark-text tracking-tight">
+                Voira<span className="text-primary">AI</span>
               </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               <Link
                 to="/"
-                className={`text-sm font-medium transition-colors ${
+                className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
                   isActive('/') 
-                    ? 'text-brand' 
-                    : 'text-slate-600 dark:text-neutral-300 hover:text-brand'
+                    ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
+                    : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
                 }`}
               >
                 Home
               </Link>
-              <Link
-                to="/demo"
-                className={`text-sm font-medium transition-colors ${
-                  isActive('/demo') 
-                    ? 'text-brand' 
-                    : 'text-slate-600 dark:text-neutral-300 hover:text-brand'
-                }`}
-              >
-                Demo Sandbox
-              </Link>
+              {!isAuthenticated && (
+                <Link
+                  to="/demo"
+                  className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                    isActive('/demo') 
+                      ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
+                      : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                  }`}
+                >
+                  Demo Sandbox
+                </Link>
+              )}
               {isAuthenticated ? (
                 <>
                   <Link
                     to="/dashboard"
-                    className={`text-sm font-medium transition-colors ${
+                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
                       isActive('/dashboard') 
-                        ? 'text-brand' 
-                        : 'text-slate-600 dark:text-neutral-300 hover:text-brand'
+                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
+                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
                     }`}
                   >
                     Dashboard
                   </Link>
                   <Link
                     to="/planner"
-                    className={`text-sm font-medium transition-colors ${
+                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
                       isActive('/planner') 
-                        ? 'text-brand' 
-                        : 'text-slate-600 dark:text-neutral-300 hover:text-brand'
+                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
+                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
                     }`}
                   >
                     Plan Trip
                   </Link>
                   <Link
                     to="/saved-trips"
-                    className={`text-sm font-medium transition-colors ${
+                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
                       isActive('/saved-trips') 
-                        ? 'text-brand' 
-                        : 'text-slate-600 dark:text-neutral-300 hover:text-brand'
+                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
+                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
                     }`}
                   >
                     Saved Trips
                   </Link>
                   <Link
                     to="/chat"
-                    className={`text-sm font-medium transition-colors ${
+                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
                       isActive('/chat') 
-                        ? 'text-brand' 
-                        : 'text-slate-600 dark:text-neutral-300 hover:text-brand'
+                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
+                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
                     }`}
                   >
                     AI Chat
                   </Link>
                   <Link
                     to="/trip-timeline"
-                    className={`text-sm font-medium transition-colors ${
+                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
                       isActive('/trip-timeline') 
-                        ? 'text-brand' 
-                        : 'text-slate-600 dark:text-neutral-300 hover:text-brand'
+                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
+                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
                     }`}
                   >
                     Timeline
                   </Link>
                   <Link
                     to="/my-expenses"
-                    className={`text-sm font-medium transition-colors ${
+                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
                       isActive('/my-expenses') 
-                        ? 'text-brand' 
-                        : 'text-slate-600 dark:text-neutral-300 hover:text-brand'
+                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
+                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
                     }`}
                   >
                     Expenses
                   </Link>
                   <Link
                     to="/analytics"
-                    className={`text-sm font-medium transition-colors ${
+                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
                       isActive('/analytics') 
-                        ? 'text-brand' 
-                        : 'text-slate-600 dark:text-neutral-300 hover:text-brand'
+                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
+                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
                     }`}
                   >
                     Analytics
@@ -194,7 +196,7 @@ export const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-4">
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-slate-700 dark:text-neutral-200 transition-colors"
+                className="p-2 rounded-sm bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text transition-colors"
                 aria-label="Toggle theme"
               >
                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -210,31 +212,31 @@ export const Navbar: React.FC = () => {
                         handleNotificationsRead();
                       }
                     }}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-slate-700 dark:text-neutral-200 transition-colors relative"
+                    className="p-2 rounded-sm bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text transition-colors relative"
                     title="Alerts"
                   >
                     <Bell className="w-5 h-5" />
                     {notifications.some(n => !n.is_read) && (
-                      <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+                      <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-lg bg-coral animate-ping"></span>
                     )}
                   </button>
 
                   {/* Dropdown Drawer */}
                   {showNotifDropdown && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl shadow-xl py-3 z-50 animate-fade-in max-h-96 overflow-y-auto">
-                      <div className="px-4 pb-2 border-b border-slate-100 dark:border-neutral-850 flex justify-between items-center">
-                        <span className="text-xs font-bold text-slate-800 dark:text-white">Notifications</span>
-                        <span className="text-[10px] text-slate-400">Smart Alerts</span>
+                    <div className="absolute right-0 mt-2 w-80 bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg shadow-xl py-4 z-50 animate-fade-in max-h-96 overflow-y-auto">
+                      <div className="px-4 pb-2 border-b border-stoneMuted/50 dark:border-dark-border flex justify-between items-center">
+                        <span className="text-xs font-semibold text-textPrimary dark:text-dark-text">Notifications</span>
+                        <span className="text-xs text-textSecondary">Smart Alerts</span>
                       </div>
                       
                       {notifications.length === 0 ? (
-                        <p className="text-[11px] text-slate-500 text-center py-6">No new notifications.</p>
+                        <p className="text-xs text-textSecondary text-center py-6">No new notifications.</p>
                       ) : (
-                        <div className="divide-y divide-slate-100 dark:divide-neutral-850">
+                        <div className="divide-y divide-stoneMuted/50 dark:divide-dark-border">
                           {notifications.map((n) => (
-                            <div key={n.id} className={`p-3 text-xs leading-relaxed ${!n.is_read ? 'bg-brand/5' : ''}`}>
-                              <div className="font-bold text-slate-800 dark:text-white">{n.title}</div>
-                              <p className="text-slate-550 dark:text-neutral-400 mt-0.5">{n.message}</p>
+                            <div key={n.id} className={`p-4 text-xs leading-relaxed ${!n.is_read ? 'bg-primary/5' : ''}`}>
+                              <div className="font-semibold text-textPrimary dark:text-dark-text">{n.title}</div>
+                              <p className="text-textSecondary dark:text-dark-text-muted mt-1">{n.message}</p>
                             </div>
                           ))}
                         </div>
@@ -245,19 +247,19 @@ export const Navbar: React.FC = () => {
               )}
 
               {isAuthenticated ? (
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <Link
                     to="/profile"
-                    className="flex items-center space-x-2 p-1.5 px-3 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200 transition-colors"
+                    className="flex items-center space-x-2 p-2 px-4 rounded-sm hover:bg-stoneMuted/30 dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center font-semibold text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm">
                       {user?.name.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-sm font-medium max-w-[100px] truncate">{user?.name}</span>
+                    <span className="text-sm font-normal max-w-[100px] truncate">{user?.name}</span>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="p-2 rounded-xl hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 text-slate-500 transition-colors"
+                    className="p-2 rounded-sm hover:bg-coral hover:text-coral dark:hover:bg-coral/30 text-textSecondary transition-colors"
                     title="Log Out"
                   >
                     <LogOut className="w-5 h-5" />
@@ -269,7 +271,7 @@ export const Navbar: React.FC = () => {
                     setIsRegister(false);
                     setShowAuthModal(true);
                   }}
-                  className="px-4 py-2 rounded-xl font-medium bg-brand text-white hover:bg-brand-600 shadow-md shadow-brand/20 hover:shadow-lg transition-all duration-300"
+                  className="h-9 px-4 rounded-sm font-semibold bg-primary text-warmWhite hover:opacity-95 active:scale-[0.98] transition-all text-xs flex items-center justify-center"
                 >
                   Sign In
                 </button>
@@ -277,16 +279,16 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center space-x-3">
+            <div className="md:hidden flex items-center space-x-4">
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-xl bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                className="p-2 rounded-sm bg-stoneMuted/30 dark:bg-dark-muted text-textPrimary dark:text-dark-text"
               >
                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-2 rounded-xl bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                className="p-2 rounded-sm bg-stoneMuted/30 dark:bg-dark-muted text-textPrimary dark:text-dark-text"
               >
                 {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -296,76 +298,78 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Navigation Drawer */}
         {isOpen && (
-          <div className="md:hidden glass border-b border-slate-200 dark:border-neutral-800 px-4 pt-2 pb-4 space-y-2">
+          <div className="md:hidden glass border-b border-stoneMuted dark:border-dark-border px-4 pt-2 pb-4 space-y-2">
             <Link
               to="/"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+              className={isActive('/') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
             >
               Home
             </Link>
-            <Link
-              to="/demo"
-              onClick={() => setIsOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
-            >
-              Demo Sandbox
-            </Link>
+            {!isAuthenticated && (
+              <Link
+                to="/demo"
+                onClick={() => setIsOpen(false)}
+                className={isActive('/demo') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
+              >
+                Demo Sandbox
+              </Link>
+            )}
             {isAuthenticated ? (
               <>
                 <Link
                   to="/dashboard"
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                  className={isActive('/dashboard') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
                 >
                   Dashboard
                 </Link>
                 <Link
                   to="/planner"
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                  className={isActive('/planner') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
                 >
                   Plan Trip
                 </Link>
                 <Link
                   to="/saved-trips"
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                  className={isActive('/saved-trips') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
                 >
                   Saved Trips
                 </Link>
                 <Link
                   to="/chat"
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                  className={isActive('/chat') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
                 >
                   AI Chat
                 </Link>
                 <Link
                   to="/trip-timeline"
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                  className={isActive('/trip-timeline') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
                 >
                   Timeline
                 </Link>
                 <Link
                   to="/my-expenses"
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                  className={isActive('/my-expenses') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
                 >
                   Expenses
                 </Link>
                 <Link
                   to="/analytics"
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                  className={isActive('/analytics') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
                 >
                   Analytics
                 </Link>
                 <Link
                   to="/profile"
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-base font-medium hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200"
+                  className={isActive('/profile') ? 'block px-4 py-2 rounded-sm text-sm font-semibold text-primary bg-primary/5 border-l-[3px] border-primary dark:bg-primary/10' : 'block px-4 py-2 rounded-sm text-sm font-semibold text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted'}
                 >
                   Profile ({user?.name})
                 </Link>
@@ -374,7 +378,7 @@ export const Navbar: React.FC = () => {
                     setIsOpen(false);
                     handleLogout();
                   }}
-                  className="w-full text-left px-3 py-2.5 rounded-xl text-base font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+                  className="w-full text-left px-4 py-2 rounded-sm text-sm font-semibold text-coral hover:bg-coral dark:hover:bg-coral/20"
                 >
                   Log Out
                 </button>
@@ -386,7 +390,7 @@ export const Navbar: React.FC = () => {
                   setIsRegister(false);
                   setShowAuthModal(true);
                 }}
-                className="w-full px-4 py-2.5 rounded-xl font-medium bg-brand text-white hover:bg-brand-600"
+                className="w-full px-4 py-2 rounded-sm font-semibold bg-primary text-warmWhite hover:opacity-95 active:scale-[0.98] transition-all"
               >
                 Sign In
               </button>
@@ -397,30 +401,30 @@ export const Navbar: React.FC = () => {
 
       {/* Authentication Modal */}
       {showAuthModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm dark:bg-black/70 animate-fade-in">
-          <div className="relative w-full max-w-md bg-white dark:bg-neutral-900 rounded-3xl p-8 border border-slate-100 dark:border-neutral-850 shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-textPrimary/60 backdrop-blur-sm dark:bg-textPrimary/70 animate-fade-in">
+          <div className="relative w-full max-w-md bg-warmWhite dark:bg-dark-card rounded-lg p-12 border border-stoneMuted/50 dark:border-dark-border shadow-2xl overflow-hidden">
             {/* Background decorative gradients */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent/10 rounded-full blur-2xl -ml-16 -mb-16"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-lg blur-2xl -mr-20 -mt-20"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-coral/10 rounded-lg blur-2xl -ml-20 -mb-20"></div>
 
             <button
               onClick={() => setShowAuthModal(false)}
-              className="absolute top-5 right-5 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-400 hover:text-slate-600 dark:hover:text-neutral-200 transition-colors"
+              className="absolute top-5 right-5 p-2 rounded-lg hover:bg-stoneMuted/30 dark:hover:bg-dark-muted text-textSecondary hover:text-textPrimary dark:hover:text-dark-text transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="mb-6 text-center">
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h3 className="text-2xl font-semibold text-textPrimary dark:text-dark-text">
                 {isRegister ? 'Create Account' : 'Welcome Back'}
               </h3>
-              <p className="text-slate-500 dark:text-neutral-400 mt-1 text-sm">
+              <p className="text-textSecondary dark:text-dark-text-muted mt-1 text-sm">
                 {isRegister ? 'Join us to plan your next dream vacation' : 'Sign in to access your travel plans'}
               </p>
             </div>
 
             {authError && (
-              <div className="p-3 mb-4 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 text-xs font-medium border border-red-100 dark:border-red-950/50">
+              <div className="p-4 mb-4 rounded-sm bg-coral dark:bg-coral/30 text-coral dark:text-coral text-xs font-normal border border-coral dark:border-coral/50">
                 {authError}
               </div>
             )}
@@ -428,7 +432,7 @@ export const Navbar: React.FC = () => {
             <form onSubmit={handleAuthSubmit} className="space-y-4 relative">
               {isRegister && (
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1.5 uppercase tracking-wider">
+                  <label className="block text-xs font-normal text-textSecondary dark:text-dark-text-muted mb-2">
                     Full Name
                   </label>
                   <input
@@ -437,13 +441,13 @@ export const Navbar: React.FC = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-neutral-800/50 border border-slate-200 dark:border-neutral-700/50 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand transition-all"
+                    className="w-full px-4 py-4 bg-warmWhite dark:bg-dark-muted/50 border border-stoneMuted dark:border-dark-border/50 rounded-sm text-textPrimary dark:text-dark-text placeholder:text-textSecondary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1.5 uppercase tracking-wider">
+                <label className="block text-xs font-normal text-textSecondary dark:text-dark-text-muted mb-2">
                   Email Address
                 </label>
                 <input
@@ -452,12 +456,12 @@ export const Navbar: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="john@example.com"
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-neutral-800/50 border border-slate-200 dark:border-neutral-700/50 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand transition-all"
+                  className="w-full px-4 py-4 bg-warmWhite dark:bg-dark-muted/50 border border-stoneMuted dark:border-dark-border/50 rounded-sm text-textPrimary dark:text-dark-text placeholder:text-textSecondary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1.5 uppercase tracking-wider">
+                <label className="block text-xs font-normal text-textSecondary dark:text-dark-text-muted mb-2">
                   Password
                 </label>
                 <input
@@ -466,20 +470,20 @@ export const Navbar: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-neutral-800/50 border border-slate-200 dark:border-neutral-700/50 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand transition-all"
+                  className="w-full px-4 py-4 bg-warmWhite dark:bg-dark-muted/50 border border-stoneMuted dark:border-dark-border/50 rounded-sm text-textPrimary dark:text-dark-text placeholder:text-textSecondary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={authLoading}
-                className="w-full py-3 mt-2 rounded-xl font-semibold bg-brand text-white hover:bg-brand-600 shadow-md shadow-brand/20 hover:shadow-lg disabled:opacity-50 transition-all duration-300"
+                className="w-full py-4 mt-2 rounded-sm font-semibold bg-primary text-warmWhite hover:opacity-95 active:scale-[0.98] transition-all disabled:opacity-50"
               >
                 {authLoading ? 'Please wait...' : isRegister ? 'Sign Up' : 'Sign In'}
               </button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-slate-500 dark:text-neutral-400">
+            <div className="mt-6 text-center text-sm text-textSecondary dark:text-dark-text-muted">
               {isRegister ? (
                 <>
                   Already have an account?{' '}
@@ -488,7 +492,7 @@ export const Navbar: React.FC = () => {
                       setIsRegister(false);
                       setAuthError('');
                     }}
-                    className="text-brand font-semibold hover:underline"
+                    className="text-primary font-semibold hover:underline"
                   >
                     Sign In
                   </button>
@@ -501,7 +505,7 @@ export const Navbar: React.FC = () => {
                       setIsRegister(true);
                       setAuthError('');
                     }}
-                    className="text-brand font-semibold hover:underline"
+                    className="text-primary font-semibold hover:underline"
                   >
                     Create one
                   </button>

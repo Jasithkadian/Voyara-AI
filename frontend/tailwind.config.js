@@ -8,47 +8,63 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#f2f8ff',
-          100: '#e1f0ff',
-          200: '#bce1ff',
-          300: '#82c7ff',
-          400: '#40a6ff',
-          500: '#0a84ff', // Premium Blue
-          600: '#0061d5',
-          700: '#004aa6',
-          800: '#003e8c',
-          900: '#003373',
-          DEFAULT: '#0a84ff'
-        },
-        accent: {
-          50: '#fff1f2',
-          100: '#ffe4e6',
-          200: '#fecdd3',
-          300: '#fda4af',
-          400: '#fb7185',
-          500: '#f43f5e', // Airbnb-like Rose
-          600: '#e11d48',
-          700: '#be123c',
-          DEFAULT: '#f43f5e'
-        },
+        primary: '#0A84FF',
+        coral: '#FF6F61',
+        warmWhite: '#FAFAF8',
+        stoneMuted: '#E8E6E1',
+        textPrimary: '#1A1A2E',
+        textSecondary: '#6B7280',
+        successSage: '#2D6A4F',
+        warningAmber: '#D97706',
+
+        // ─── Dark mode semantic tokens ───
+        // Use these instead of raw neutral-* shades:
+        //   dark:bg-dark-bg  dark:bg-dark-card  dark:text-dark-text
         dark: {
-          50: '#a3a3a3',
-          100: '#737373',
-          200: '#525252',
-          300: '#404040',
-          400: '#262626',
-          500: '#171717',
-          600: '#0a0a0a',
-          DEFAULT: '#171717'
-        }
+          DEFAULT: '#1A1A2E',
+          bg: '#0a0a0c',            // page background (was neutral-950)
+          card: '#141416',          // card surfaces (was neutral-900)
+          elevated: '#1c1c1e',      // elevated surfaces, modals
+          muted: '#262626',         // muted backgrounds (was neutral-800)
+          border: '#2d2d30',        // borders (was neutral-800)
+          text: '#f5f5f5',          // primary text (was neutral-50)
+          'text-muted': '#a1a1aa',  // secondary text (was neutral-400)
+        },
       },
       fontFamily: {
-        sans: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['"PP Neue Montreal"', '"Neue Montreal"', 'sans-serif'],
+        sans: ['"DM Sans"', 'sans-serif'],
+        mono: ['"DM Mono"', 'monospace'],
+      },
+      fontWeight: {
+        normal: '400',
+        semibold: '600',
+      },
+      fontSize: {
+        'xs': ['12px', '16px'],
+        'sm': ['14px', '20px'],
+        'base': ['16px', '24px'],
+        'lg': ['20px', '28px'],
+        'xl': ['28px', '36px'],
+        '2xl': ['40px', '48px'],
+        '3xl': ['56px', '68px'],
+        '4xl': ['72px', '84px'],
+      },
+      spacing: {
+        'hairline': '4px',
+        'tight': '8px',
+        'comfortable': '16px',
+        'generous': '24px',
+        'spacious': '48px',
+        'dramatic': '80px',
+      },
+      borderRadius: {
+        'sm': '4px',      // inputs
+        'md': '8px',      // cards
+        'lg': '12px',     // large cards
       },
       boxShadow: {
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
-        'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+        'card-hover': '0 2px 8px rgba(0,0,0,0.08)',
       }
     },
   },

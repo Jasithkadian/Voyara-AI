@@ -8,6 +8,7 @@ export const Profile: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [tripCount, setTripCount] = useState(0);
   const [totalSpent, setTotalSpent] = useState(0);
+  const [totalDays, setTotalDays] = useState(0);
   const navigate = useNavigate();
 
   // Preference State
@@ -35,6 +36,7 @@ export const Profile: React.FC = () => {
       const trips = await tripsApi.getHistory();
       setTripCount(trips.length);
       setTotalSpent(trips.reduce((sum, t) => sum + t.budget, 0));
+      setTotalDays(trips.reduce((sum, t) => sum + t.days, 0));
 
       const profile = await tripsApi.getProfile();
       if (profile) {
@@ -99,28 +101,28 @@ export const Profile: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 py-12 space-y-12">
       {/* Messages */}
       {msg && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 text-sm font-semibold flex items-center gap-2">
+        <div className="p-4 bg-successSage dark:bg-successSage/20 text-successSage dark:text-successSage rounded-lg border border-successSage dark:border-successSage/50 text-sm font-semibold flex items-center gap-2">
           <Sparkles className="w-5 h-5 shrink-0 animate-pulse" />
           <span>{msg}</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-2xl border border-red-100 dark:border-red-900/50 text-sm font-semibold flex items-center gap-2">
+        <div className="p-4 bg-coral dark:bg-coral/20 text-coral dark:text-coral rounded-lg border border-coral dark:border-coral/50 text-sm font-semibold flex items-center gap-2">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      <div className="bg-white dark:bg-neutral-900 border border-slate-200/60 dark:border-neutral-800/60 rounded-3xl overflow-hidden shadow-xl">
+      <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg overflow-hidden shadow-xl">
         {/* Cover header */}
-        <div className="h-32 bg-gradient-to-r from-brand to-accent relative">
+        <div className="h-32 bg-gradient-to-r from-primary to-coral relative">
           <div className="absolute -bottom-12 left-8">
-            <div className="w-24 h-24 rounded-3xl bg-white dark:bg-neutral-850 p-2 shadow-lg">
-              <div className="w-full h-full rounded-2xl bg-brand/10 text-brand flex items-center justify-center font-bold text-3xl">
+            <div className="w-24 h-24 rounded-lg bg-warmWhite dark:bg-dark-card p-2 shadow-lg">
+              <div className="w-full h-full rounded-lg bg-primary/10 text-primary flex items-center justify-center font-semibold text-3xl">
                 {user?.name.charAt(0).toUpperCase()}
               </div>
             </div>
@@ -128,61 +130,63 @@ export const Profile: React.FC = () => {
         </div>
 
         {/* Profile Info */}
-        <div className="pt-16 p-8 space-y-6">
+        <div className="pt-20 p-12 space-y-6">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{user?.name}</h2>
-              <p className="text-sm text-slate-500 dark:text-neutral-400">Travel Explorer</p>
+              <h2 className="text-2xl font-semibold text-textSecondary dark:text-warmWhite">{user?.name}</h2>
+              <p className="text-sm text-textSecondary dark:text-dark-text-muted">
+                {tripCount} {tripCount === 1 ? 'trip' : 'trips'} planned · {totalDays} {totalDays === 1 ? 'day' : 'days'} traveled
+              </p>
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-550/10 hover:bg-red-500/20 text-red-650 dark:text-red-400 font-bold rounded-xl flex items-center gap-1.5 text-xs transition-colors border border-red-500/20"
+              className="px-4 py-2 bg-coral/10 hover:bg-coral/20 text-coral dark:text-coral font-semibold rounded-lg flex items-center gap-2 text-xs transition-colors border border-coral/20"
             >
               <LogOut className="w-4 h-4" /> Log Out
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-neutral-850">
-            <div className="flex items-center space-x-3 text-slate-650 dark:text-neutral-300">
-              <Mail className="w-5 h-5 text-slate-400" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-stoneMuted dark:border-dark-border">
+            <div className="flex items-center space-x-4 text-textSecondary dark:text-dark-text-muted">
+              <Mail className="w-5 h-5 text-textSecondary" />
               <div>
-                <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Email</span>
+                <span className="text-xs text-textSecondary block  font-semibold tracking-normal">Email</span>
                 <span className="text-sm font-semibold">{user?.email}</span>
               </div>
             </div>
             
-            <div className="flex items-center space-x-3 text-slate-650 dark:text-neutral-300">
-              <Calendar className="w-5 h-5 text-slate-400" />
+            <div className="flex items-center space-x-4 text-textSecondary dark:text-dark-text-muted">
+              <Calendar className="w-5 h-5 text-textSecondary" />
               <div>
-                <span className="text-[10px] text-slate-455 block uppercase font-bold tracking-wider">Member Since</span>
+                <span className="text-xs text-textSecondary block  font-semibold tracking-normal">Member Since</span>
                 <span className="text-sm font-semibold">{formatDate(user?.created_at)}</span>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-100 dark:border-neutral-850">
-            <div className="bg-slate-50 dark:bg-neutral-850 p-5 rounded-2xl border border-slate-150 dark:border-neutral-800/60">
-              <Compass className="w-5 h-5 text-brand mb-2" />
-              <span className="text-[10px] text-slate-450 dark:text-neutral-500 block uppercase font-bold">Trips Saved</span>
-              <span className="text-xl font-extrabold text-slate-800 dark:text-white">{tripCount}</span>
+          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-stoneMuted dark:border-dark-border">
+            <div className="bg-stoneMuted dark:bg-dark-card p-6 rounded-lg border border-stoneMuted dark:border-dark-border">
+              <Compass className="w-5 h-5 text-primary mb-2" />
+              <span className="text-xs text-textSecondary dark:text-dark-text-muted block  font-semibold">Trips Saved</span>
+              <span className="text-xl font-semibold text-textSecondary dark:text-warmWhite">{tripCount}</span>
             </div>
 
-            <div className="bg-slate-50 dark:bg-neutral-850 p-5 rounded-2xl border border-slate-150 dark:border-neutral-800/60">
-              <Wallet className="w-5 h-5 text-emerald-500 mb-2" />
-              <span className="text-[10px] text-slate-450 dark:text-neutral-500 block uppercase font-bold">Total Budget Plan</span>
-              <span className="text-xl font-extrabold text-slate-800 dark:text-white truncate block">{formatCurrency(totalSpent)}</span>
+            <div className="bg-stoneMuted dark:bg-dark-card p-6 rounded-lg border border-stoneMuted dark:border-dark-border">
+              <Wallet className="w-5 h-5 text-successSage mb-2" />
+              <span className="text-xs text-textSecondary dark:text-dark-text-muted block  font-semibold">Total Budget Plan</span>
+              <span className="text-xl font-semibold text-textSecondary dark:text-warmWhite truncate block">{formatCurrency(totalSpent)}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* TRAVEL PREFERENCES FORM */}
-      <div className="bg-white dark:bg-neutral-900 border border-slate-200/60 dark:border-neutral-800/60 rounded-3xl p-8 shadow-xl space-y-6">
+      <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-12 shadow-xl space-y-6">
         <div>
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-brand" /> Personalize Travel Preferences
+          <h3 className="text-xl font-semibold text-textSecondary dark:text-warmWhite flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" /> Personalize Travel Preferences
           </h3>
-          <p className="text-xs text-slate-500 dark:text-neutral-450 mt-1">
+          <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">
             Setting preferences here optimizes all generated daily itineraries, dining recommendations, and budget options automatically.
           </p>
         </div>
@@ -192,11 +196,11 @@ export const Profile: React.FC = () => {
             
             {/* Travel Style */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Travel Style</label>
+              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Travel Style</label>
               <select
                 value={travelStyle}
                 onChange={(e) => setTravelStyle(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="Adventure">🧗 Adventure & Hikes</option>
                 <option value="Relaxation">🧘 Relaxation & Spa</option>
@@ -208,11 +212,11 @@ export const Profile: React.FC = () => {
 
             {/* Budget Range */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Budget Range</label>
+              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Budget Range</label>
               <select
                 value={budgetRange}
                 onChange={(e) => setBudgetRange(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="Budget">Budget (Hostels / Street Food)</option>
                 <option value="Mid-Range">Mid-Range (Standard hotels / Bistro dining)</option>
@@ -222,25 +226,25 @@ export const Profile: React.FC = () => {
 
             {/* Food Preferences */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Dietary Preferences</label>
+              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Dietary Preferences</label>
               <input
                 type="text"
                 value={foodPreferences}
                 onChange={(e) => setFoodPreferences(e.target.value)}
                 placeholder="e.g. Vegetarian, Halal, Vegan, Gluten-Free"
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-slate-400"
+                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
               />
             </div>
 
             {/* Favorite Hotels */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Preferred Lodging Styles</label>
+              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Preferred Lodging Styles</label>
               <input
                 type="text"
                 value={preferredHotels}
                 onChange={(e) => setPreferredHotels(e.target.value)}
                 placeholder="e.g. Boutique Hotels, Beachfront, Hostels, Taj"
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-slate-400"
+                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
               />
             </div>
           </div>
@@ -248,39 +252,39 @@ export const Profile: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Preferred Activities */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Preferred Activities</label>
+              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Preferred Activities</label>
               <input
                 type="text"
                 value={preferredActivities}
                 onChange={(e) => setPreferredActivities(e.target.value)}
                 placeholder="e.g. Snorkeling, Art Galleries, Wine Tasting, Nightclubs"
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-slate-400"
+                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
               />
             </div>
 
             {/* Favorite Destinations */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Dream Destinations</label>
+              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Dream Destinations</label>
               <input
                 type="text"
                 value={favoriteDestinations}
                 onChange={(e) => setFavoriteDestinations(e.target.value)}
                 placeholder="e.g. Bali, Paris, Tokyo, Switzerland"
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand placeholder:text-slate-400"
+                className="w-full px-4 py-4 rounded-lg bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
               />
             </div>
           </div>
 
-          <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-neutral-850">
-            <div className="flex items-center space-x-2 text-xs text-slate-450 dark:text-neutral-550">
-              <Shield className="w-4 h-4 text-emerald-500" />
+          <div className="flex justify-between items-center pt-4 border-t border-stoneMuted dark:border-dark-border">
+            <div className="flex items-center space-x-2 text-xs text-textSecondary dark:text-dark-text-muted">
+              <Shield className="w-4 h-4 text-successSage" />
               <span>Secure storage. We do not sell preference profiles.</span>
             </div>
             
             <button
               type="submit"
               disabled={saveLoading}
-              className="px-6 py-3.5 bg-brand text-white font-bold rounded-2xl shadow-md shadow-brand/15 hover:bg-brand-600 flex items-center justify-center gap-2 transition-all text-sm disabled:opacity-50"
+              className="px-6 py-4 bg-primary text-warmWhite font-semibold rounded-lg shadow-md shadow-primary/15 hover:bg-primary flex items-center justify-center gap-2 transition-all text-sm disabled:opacity-50"
             >
               <Save className="w-4 h-4" /> {saveLoading ? 'Saving...' : 'Save Preferences'}
             </button>

@@ -81,22 +81,22 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
   };
 
   return (
-    <div className="bg-white dark:bg-neutral-900 border border-slate-200/60 dark:border-neutral-800/60 rounded-3xl overflow-hidden shadow-xl flex flex-col h-[480px]">
+    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg overflow-hidden shadow-xl flex flex-col h-[480px]">
       {/* Chat Header */}
-      <div className="bg-gradient-to-r from-brand to-cyan-500 p-4 text-white flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+      <div className="bg-gradient-to-r from-primary to-cyan-500 p-4 text-warmWhite flex items-center gap-2">
+        <div className="w-9 h-9 rounded-md bg-warmWhite/20 flex items-center justify-center">
           <MessageSquare className="w-5 h-5" />
         </div>
         <div>
-          <h4 className="font-bold text-sm">AI Copilot Chat</h4>
-          <p className="text-[10px] text-sky-100">In-context assistant for {destination}</p>
+          <h4 className="font-semibold text-sm">AI Copilot Chat</h4>
+          <p className="text-xs text-primary">In-context assistant for {destination}</p>
         </div>
       </div>
 
       {/* Message Feed */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 dark:bg-neutral-950/20 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-warmWhite/50 dark:bg-dark-bg/20 scrollbar-hide">
         {error && (
-          <div className="p-2.5 bg-red-50 dark:bg-red-950/25 border border-red-100 dark:border-red-900/50 rounded-xl text-red-600 dark:text-red-400 text-[10px] flex items-center gap-1">
+          <div className="p-2 bg-coral dark:bg-coral/25 border border-coral dark:border-coral/50 rounded-md text-coral dark:text-coral text-xs flex items-center gap-1">
             <AlertCircle className="w-3.5 h-3.5" /> {error}
           </div>
         )}
@@ -106,10 +106,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
             key={index}
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
-            <div className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed shadow-sm ${
+            <div className={`max-w-[85%] rounded-lg p-4 text-xs leading-relaxed shadow-sm ${
               msg.role === 'user'
-                ? 'bg-brand text-white rounded-tr-none'
-                : 'bg-white dark:bg-neutral-800 text-slate-800 dark:text-neutral-100 border border-slate-150 dark:border-neutral-800/60 rounded-tl-none'
+                ? 'bg-primary text-warmWhite rounded-sm-tr-none'
+                : 'bg-warmWhite dark:bg-dark-muted text-textPrimary dark:text-dark-text border border-stoneMuted dark:border-dark-border/60 rounded-sm-tl-none'
             }`}>
               {msg.text}
             </div>
@@ -117,10 +117,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white dark:bg-neutral-800 text-slate-500 rounded-2xl p-3 text-xs flex items-center gap-1.5 shadow-sm rounded-tl-none border border-slate-150 dark:border-neutral-800/60">
-              <span className="w-1.5 h-1.5 bg-brand rounded-full animate-bounce"></span>
-              <span className="w-1.5 h-1.5 bg-brand rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-              <span className="w-1.5 h-1.5 bg-brand rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+            <div className="bg-warmWhite dark:bg-dark-muted text-textSecondary rounded-lg p-4 text-xs flex items-center gap-2 shadow-sm rounded-sm-tl-none border border-stoneMuted dark:border-dark-border/60">
+              <span className="w-1.5 h-1.5 bg-primary rounded-lg animate-bounce"></span>
+              <span className="w-1.5 h-1.5 bg-primary rounded-lg animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+              <span className="w-1.5 h-1.5 bg-primary rounded-lg animate-bounce" style={{ animationDelay: '0.4s' }}></span>
             </div>
           </div>
         )}
@@ -128,18 +128,18 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
       </div>
 
       {/* Chat Input */}
-      <form onSubmit={handleSend} className="p-3 border-t border-slate-100 dark:border-neutral-850 flex gap-2">
+      <form onSubmit={handleSend} className="p-4 border-t border-stoneMuted/50 dark:border-dark-border flex gap-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask packing, dinner spots, weather tips..."
-          className="flex-1 px-4 py-2.5 text-xs bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand dark:text-white placeholder:text-slate-400"
+          className="flex-1 px-4 py-2 text-xs bg-warmWhite dark:bg-dark-elevated border border-stoneMuted dark:border-dark-border rounded-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary dark:text-dark-text placeholder:text-textSecondary"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="p-2.5 bg-brand text-white rounded-xl hover:bg-brand-600 disabled:opacity-50 transition-colors shadow-sm"
+          className="p-2 bg-primary text-warmWhite rounded-sm hover:bg-primary disabled:opacity-50 transition-colors shadow-sm"
         >
           <Send className="w-4 h-4" />
         </button>

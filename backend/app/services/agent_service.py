@@ -119,13 +119,64 @@ class SafetyAgent:
             except:
                 pass
                 
-        # Fallback tips
-        return [
-            f"Respect local cultural customs and dress codes in {destination}.",
-            "Keep emergency contact numbers handy and check regional safety guidelines.",
-            "Book transportation from authorized vendor desks to prevent taxi scams.",
-            "Stay hydrated and purchase travel health insurance before departure."
-        ]
+        # Fallback tips: make destination-specific and context-aware
+        dest = destination.lower()
+        if "goa" in dest:
+            return [
+                "Negotiate scooter/car rentals down to ₹300-400 per day and inspect for damages beforehand.",
+                "Wear comfortable beachwear, but cover up appropriately when visiting temples in Ponda.",
+                "Taste local Goan fish curry and feni, but avoid shacks with poor hygiene ratings.",
+                "Utilize Goa Miles app cabs for fixed transparent rates instead of local unmetered taxis."
+            ]
+        elif "bali" in dest:
+            return [
+                "Respect temple etiquette: always wear a sarong and sash at sacred Balinese sites.",
+                "Be cautious of the wild monkeys at Ubud Monkey Forest; secure your sunglasses and phone.",
+                "Avoid tap water entirely (including ice in remote areas) to prevent 'Bali Belly'.",
+                "Rent scooters only if experienced, and always wear a helmet to comply with local police."
+            ]
+        elif "dubai" in dest:
+            return [
+                "Dress modestly in malls and public places to respect Islamic traditions in Dubai.",
+                "Utilize the clean, air-conditioned Dubai Metro to travel between Downtown and Marina.",
+                "Stay hydrated as temperatures can exceed 40°C, and restrict outdoor walks to evenings.",
+                "Always ask for the meter to be turned on when riding official cream-colored taxis."
+            ]
+        elif "tokyo" in dest or "japan" in dest:
+            return [
+                "Purchase a Suica/Pasmo card or JR Pass for seamless navigation on Tokyo's metro systems.",
+                "Avoid eating or drinking while walking; utilize designated areas near vending machines.",
+                "Carry a small bag for trash, as public waste bins are extremely rare in Tokyo streets.",
+                "Keep left on escalators in Tokyo (right in Osaka) and keep voice volume low in trains."
+            ]
+        elif "paris" in dest or "france" in dest:
+            return [
+                "Watch out for active pickpockets near the Eiffel Tower, Louvre, and on Metro Line 1.",
+                "Always greet shopkeepers with a polite 'Bonjour' or 'Bonsoir' before asking questions.",
+                "Validate your metro tickets at the barrier and keep them until you exit the station.",
+                "Enjoy tap water safely by asking for 'une carafe d'eau' at Parisian bistros."
+            ]
+        else:
+            # Dynamic template fallback based on destination and interests
+            interest_tips = []
+            if any(i.lower() in ["beaches", "adventure", "water sports"] for i in interests):
+                interest_tips.append(f"Always check local tide schedules and weather flags before entering the water in {destination}.")
+            if any(i.lower() in ["culture", "history", "temples"] for i in interests):
+                interest_tips.append(f"Dress modestly and remove shoes when entering religious or historical sanctuaries in {destination}.")
+            if any(i.lower() in ["nightlife", "party"] for i in interests):
+                interest_tips.append(f"Drink responsibly and use verified ride-hailing apps for safe returns from {destination} nightlife zones.")
+            
+            # Pad with generic but destination-specific styled ones
+            while len(interest_tips) < 4:
+                if len(interest_tips) == 0:
+                    interest_tips.append(f"Ensure you carry local currency for street vendors and small cafes across {destination}.")
+                elif len(interest_tips) == 1:
+                    interest_tips.append(f"Download offline Google Maps of {destination} to navigate streets and transit lines easily.")
+                elif len(interest_tips) == 2:
+                    interest_tips.append(f"Keep emergency numbers and the address of your hotel in {destination} saved offline.")
+                else:
+                    interest_tips.append(f"Always purchase reliable travel health insurance prior to your stay in {destination}.")
+            return interest_tips
 
 class BudgetAgent:
     """Specialized agent responsible for calculating and auditing the budget breakdown."""

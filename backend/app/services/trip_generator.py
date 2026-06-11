@@ -288,10 +288,10 @@ def generate_mock_trip_v3(
         })
 
     travel_tips = [
-        f"Pack light clothes, but carry an umbrella because Day 2 indicates {weather_forecast[1]['condition'] if len(weather_forecast) > 1 else 'Rain'}.",
-        f"Keep your passport and local currency ({currency}) handy for street markets.",
-        "Book transfers in advance to stay within your transportation limit.",
-        "Take local recommendations for restaurants to find the freshest catch of the day!"
+        f"Pack light clothing for {destination}, but carry an umbrella as Day 2 shows {weather_forecast[1]['condition'] if len(weather_forecast) > 1 else 'Rain'}.",
+        f"Keep your passport and local currency ({currency}) handy for the bustling street markets in {destination}.",
+        f"Book local airport transfers in {destination} in advance to stay within your transportation limit.",
+        f"Ask locals in {destination} for restaurant recommendations to discover the best authentic food!"
     ]
 
     return {

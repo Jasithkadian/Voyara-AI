@@ -38,19 +38,19 @@ export const TripPlanner: React.FC = () => {
   }
 
   return (
-    <div className="min-h-[85vh] py-16 px-4 bg-gradient-mesh flex items-center justify-center">
+    <div className="min-h-[85vh] py-20 px-4 bg-gradient-mesh flex items-center justify-center">
       <div className="w-full">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-slate-850 dark:text-white flex items-center justify-center gap-2">
-            <Compass className="w-8 h-8 text-brand animate-spin-slow" /> AI Travel Copilot
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-semibold text-textSecondary dark:text-warmWhite flex items-center justify-center gap-2">
+            <Compass className="w-8 h-8 text-primary animate-spin-slow" /> Voira AI Trip Planner
           </h2>
-          <p className="text-sm text-slate-500 dark:text-neutral-450 mt-1">
+          <p className="text-sm text-textSecondary dark:text-dark-text-muted mt-1">
             Let artificial intelligence design your custom holiday itinerary and budget.
           </p>
         </div>
 
         {error && (
-          <div className="max-w-xl mx-auto mb-6 flex items-center gap-3 p-4 bg-red-50 dark:bg-red-950/20 text-red-650 dark:text-red-400 border border-red-100 dark:border-red-950/45 rounded-2xl">
+          <div className="max-w-xl mx-auto mb-6 flex items-center gap-4 p-4 bg-coral dark:bg-coral/20 text-coral dark:text-coral border border-coral dark:border-coral/45 rounded-lg">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <p className="text-xs sm:text-sm font-semibold">{error}</p>
           </div>

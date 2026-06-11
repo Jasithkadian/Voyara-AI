@@ -18,7 +18,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-slate-50 dark:bg-neutral-950 text-slate-900 dark:text-neutral-100 transition-colors duration-250 flex flex-col font-sans">
+        <div className="min-h-screen bg-warmWhite dark:bg-dark-bg text-textPrimary dark:text-dark-text transition-colors duration-250 flex flex-col font-sans">
           <Navbar />
           <main className="flex-1 w-full">
             <Routes>
@@ -38,10 +38,9 @@ function App() {
             </Routes>
           </main>
           
-          {/* Global Footer */}
-          <footer className="py-6 border-t border-slate-200/50 dark:border-neutral-800/40 text-center text-xs text-slate-400 dark:text-neutral-500 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md">
+          <footer className="py-6 border-t border-stoneMuted/50 dark:border-dark-border/40 text-center text-xs text-textSecondary dark:text-dark-text-muted bg-warmWhite/50 dark:bg-dark-card/50 backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-4">
-              © {new Date().getFullYear()} AI Travel Copilot V2. Built with React, FastAPI & Claude/OpenAI.
+              © {new Date().getFullYear()} Voira AI. All rights reserved.
             </div>
           </footer>
         </div>

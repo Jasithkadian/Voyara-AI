@@ -8,6 +8,8 @@ import { ItineraryCard } from '../components/ItineraryCard';
 import { HotelCard } from '../components/HotelCard';
 import { AttractionCard } from '../components/AttractionCard';
 import { RouteMap } from '../components/RouteMap';
+import { Button } from '../components/Button';
+import { Badge } from '../components/Badge';
 import { 
   Compass, Calendar, Wallet, MapPin, ArrowRight, Plus, 
   Trash2, Sparkles, Smile, RefreshCw, Save, MessageSquare, 
@@ -314,7 +316,7 @@ export const Dashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-brand animate-spin"></div>
+        <div className="w-12 h-12 rounded-lg border-4 border-stoneMuted border-t-primary animate-spin"></div>
       </div>
     );
   }
@@ -323,65 +325,67 @@ export const Dashboard: React.FC = () => {
   if (isTripView && activeTrip) {
     const plan = activeTrip.generated_plan;
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-6">
         
         {/* Error/Success Banner */}
         {error && (
-          <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-neutral-850 text-blue-650 dark:text-brand border border-blue-100 dark:border-neutral-800 rounded-2xl shadow-sm">
-            <AlertCircle className="w-5 h-5 shrink-0" />
+          <div className="flex items-center gap-4 p-comfortable bg-primary/5 dark:bg-dark-elevated text-primary dark:text-primary border border-primary/20 dark:border-dark-border rounded-md shadow-sm">
+            <AlertCircle className="w-4 h-4 shrink-0" />
             <p className="text-xs sm:text-sm font-semibold">{error}</p>
           </div>
         )}
 
         {/* Action Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-neutral-900 p-6 border border-slate-200/50 dark:border-neutral-800/40 rounded-3xl">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-warmWhite dark:bg-dark-card p-6 border border-stoneMuted/50 dark:border-dark-border/40 rounded-lg">
           <div>
-            <Link to="/dashboard" className="text-xs font-semibold text-slate-500 hover:text-brand flex items-center gap-1 mb-1.5">
+            <Link to="/dashboard" className="text-xs font-semibold text-textSecondary hover:text-primary flex items-center gap-1 mb-2">
               ← Back to Dashboard
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-850 dark:text-white">Your Copilot Itinerary</h1>
+            <h1 className="text-2xl sm:text-3xl font-sans font-semibold text-textPrimary dark:text-dark-text">Your Voira Itinerary</h1>
           </div>
           
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-4 w-full sm:w-auto">
             {!saveSuccess ? (
-              <button
+              <Button
+                variant="primary"
                 onClick={handleSaveTrip}
                 disabled={saveLoading}
-                className="flex-1 sm:flex-initial px-5 py-3 rounded-2xl bg-brand text-white font-bold text-sm hover:bg-brand-600 flex items-center justify-center gap-2 shadow-md shadow-brand/15 disabled:opacity-50 transition-all"
+                className="flex-1 sm:flex-initial"
               >
                 <Save className="w-4 h-4" /> {saveLoading ? 'Saving...' : 'Save Trip'}
-              </button>
+              </Button>
             ) : (
-              <span className="flex-1 sm:flex-initial text-center px-4 py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs rounded-xl border border-emerald-500/20">
+              <span className="flex-1 sm:flex-initial text-center px-4 py-2 bg-successSage/10 text-successSage font-semibold text-xs rounded-sm border border-successSage/20">
                 ✓ Saved to History
               </span>
             )}
             
-            <button
+            <Button
+              variant="destructive"
               onClick={() => setShowReplanModal(true)}
-              className="flex-1 sm:flex-initial px-5 py-3 rounded-2xl bg-accent text-white font-bold text-sm hover:bg-accent-600 flex items-center justify-center gap-2 shadow-md shadow-accent/15 transition-all"
+              className="flex-1 sm:flex-initial"
             >
-              <RefreshCw className="w-4 h-4" /> Replan Trip
-            </button>
+              <RefreshCw className="w-4 h-4" /> Regenerate Itinerary
+            </Button>
 
             {saveSuccess && (
               <Link
                 to="/chat"
                 state={{ activeTrip }}
-                className="p-3 rounded-2xl bg-slate-100 hover:bg-slate-205 dark:bg-neutral-850 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-300 transition-colors"
+                className="h-9 w-9 rounded-sm bg-stoneMuted hover:bg-stoneMuted/80 text-textPrimary flex items-center justify-center transition-colors"
                 title="Chat with Context"
               >
-                <MessageSquare className="w-5 h-5" />
+                <MessageSquare className="w-4 h-4" />
               </Link>
             )}
           </div>
         </div>
 
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           
           {/* Left: Overview, Timeline & Dining */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-12">
             <TripOverview trip={activeTrip} />
 
             {/* Route Map (Interactive Map) */}
@@ -398,56 +402,54 @@ export const Dashboard: React.FC = () => {
 
             {/* Recommended Flights Section */}
             {flights.length > 0 && (
-              <div className="bg-white dark:bg-neutral-900 border border-slate-200/60 dark:border-neutral-800/60 rounded-3xl p-6 shadow-xl space-y-4">
-                <h3 className="font-extrabold text-xl text-slate-800 dark:text-white flex items-center gap-2">
-                  <Plane className="w-6 h-6 text-brand" /> Recommended Flights
+              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-xl space-y-4">
+                <h3 className="font-sans font-semibold text-xl text-textPrimary dark:text-dark-text flex items-center gap-2">
+                  <Plane className="w-5 h-5 text-primary" /> Recommended Flights
                 </h3>
                 <div className="space-y-4">
                   {flights.map((flight, idx) => {
                     const isBooked = bookings.some(b => b.booking_type === 'Flight' && b.provider_name === flight.airline && b.details?.flightNumber === flight.flightNumber);
                     return (
-                      <div key={idx} className="p-4 bg-slate-50/50 dark:bg-neutral-850/30 rounded-2xl border border-slate-150 dark:border-neutral-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-sm transition-shadow">
-                        <div className="flex items-center space-x-3.5">
-                          <div className="w-12 h-12 rounded-xl bg-brand/10 text-brand flex items-center justify-center font-extrabold text-xs uppercase tracking-wider">
+                      <div key={idx} className="p-4 bg-warmWhite/50 dark:bg-dark-elevated/30 rounded-md border border-stoneMuted dark:border-dark-border/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.99] transition-all">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center font-semibold text-xs  tracking-normal">
                             {flight.airline.slice(0, 3)}
                           </div>
                           <div>
-                            <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Flight {flight.flightNumber}</span>
-                            <span className="text-sm font-bold text-slate-800 dark:text-white">{flight.airline}</span>
+                            <span className="text-xs text-textSecondary font-mono font-semibold block">Flight {flight.flightNumber}</span>
+                            <span className="text-sm font-semibold text-textPrimary dark:text-dark-text">{flight.airline}</span>
                           </div>
                         </div>
                         
                         <div className="grid grid-cols-3 gap-6 text-xs w-full sm:w-auto">
                           <div>
-                            <span className="text-slate-400 block mb-0.5">Depart</span>
-                            <span className="font-bold text-slate-700 dark:text-neutral-300">{flight.departure}</span>
+                            <span className="text-textSecondary block mb-1">Depart</span>
+                            <span className="font-semibold font-mono text-textPrimary dark:text-dark-text">{flight.departure}</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 block mb-0.5">Arrive</span>
-                            <span className="font-bold text-slate-700 dark:text-neutral-300">{flight.arrival}</span>
+                            <span className="text-textSecondary block mb-1">Arrive</span>
+                            <span className="font-semibold font-mono text-textPrimary dark:text-dark-text">{flight.arrival}</span>
                           </div>
                           <div>
-                            <span className="text-slate-400 block mb-0.5">Stops</span>
-                            <span className="font-bold text-slate-700 dark:text-neutral-300">{flight.stops} stop{flight.stops !== 1 ? 's' : ''}</span>
+                            <span className="text-textSecondary block mb-1">Stops</span>
+                            <span className="font-semibold text-textPrimary dark:text-dark-text">{flight.stops} stop{flight.stops !== 1 ? 's' : ''}</span>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-150">
+                        <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-t-0 pt-4 sm:pt-0 border-stoneMuted">
                           <div>
-                            <span className="text-[10px] text-slate-400 block">Total Fare</span>
-                            <span className="text-base font-extrabold text-slate-800 dark:text-white">{formatCurrency(flight.price)}</span>
+                            <span className="text-xs text-textSecondary block">Total Fare</span>
+                            <span className="text-base font-semibold text-coral font-mono">{formatCurrency(flight.price)}</span>
                           </div>
                           {isBooked ? (
-                            <span className="px-4 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs rounded-xl border border-emerald-500/20 flex items-center gap-1">
-                              <CheckCircle className="w-3.5 h-3.5" /> Booked
-                            </span>
+                            <Badge type="verified" label="Booked" />
                           ) : (
-                            <button
+                            <Button
+                              variant="primary"
                               onClick={() => handleBook('Flight', flight.airline, flight.price, { flightNumber: flight.flightNumber, departure: flight.departure, arrival: flight.arrival })}
-                              className="px-4 py-2.5 bg-brand hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-md transition-all"
                             >
                               Book Flight
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </div>
@@ -459,16 +461,17 @@ export const Dashboard: React.FC = () => {
             
             {/* Hotels recommendations list */}
             <div>
-              <h3 className="font-extrabold text-xl text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+              <h3 className="font-sans font-semibold text-xl text-textPrimary dark:text-dark-text mb-4 flex items-center gap-2">
                 🏨 Smart Hotel Matches
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {plan.hotelRecommendations.map((hotel, index) => {
                   const isBooked = bookings.some(b => b.booking_type === 'Hotel' && b.provider_name === hotel.name);
                   return (
                     <HotelCard 
                       key={index} 
                       hotel={hotel} 
+                      index={index}
                       isBooked={isBooked}
                       onBook={() => handleBook('Hotel', hotel.name, 6500.0, { hotelName: hotel.name, price: hotel.pricePerNight })}
                     />
@@ -482,63 +485,61 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Right: Budget Estimations & Tips */}
-          <div className="lg:col-span-4 space-y-8">
+          <div className="lg:col-span-4 space-y-12">
             <BudgetChart breakdown={plan.budgetBreakdown} targetBudget={activeTrip.budget} />
 
             {/* Bookings & Tickets panel */}
             {activeTrip && activeTrip.id !== 0 && (
-              <div className="bg-white dark:bg-neutral-900 border border-slate-200/60 dark:border-neutral-800/60 rounded-3xl p-6 shadow-sm space-y-4">
-                <h4 className="font-bold text-base text-slate-800 dark:text-white flex items-center gap-2">
+              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-sm space-y-4">
+                <h4 className="font-sans font-semibold text-base text-textPrimary dark:text-dark-text flex items-center gap-2">
                   🎟️ Booked Tickets & Reservations
                 </h4>
                 {bookings.length === 0 ? (
-                  <p className="text-xs text-slate-400 dark:text-neutral-500 py-2">
+                  <p className="text-xs text-textSecondary dark:text-dark-text-muted py-2">
                     No active flight or hotel tickets purchased for this trip yet. Use the booking matches to checkout.
                   </p>
                 ) : (
-                  <div className="space-y-3.5">
+                  <div className="space-y-4">
                     {bookings.map((booking) => (
-                      <div key={booking.id} className="p-4 bg-slate-50/50 dark:bg-neutral-850/30 rounded-2xl border border-slate-150 dark:border-neutral-800/60 text-xs space-y-2 relative group/item">
+                      <div key={booking.id} className="p-comfortable bg-warmWhite/50 dark:bg-dark-elevated/30 rounded-md border border-stoneMuted dark:border-dark-border/60 text-xs space-y-2 relative group/item hover:shadow-card-hover transition-all">
                         <div className="flex justify-between items-center">
-                          <span className="font-bold uppercase tracking-wider text-[9px] bg-brand/10 text-brand px-2 py-0.5 rounded">
-                            {booking.booking_type}
-                          </span>
-                          <span className={`font-bold ${
+                          <Badge type={booking.booking_type === 'Flight' ? 'direct' : 'recommender'} label={booking.booking_type} />
+                          <span className={`font-semibold ${
                             booking.status === 'Cancelled' 
-                              ? 'text-red-500' 
+                              ? 'text-coral' 
                               : booking.payment_status === 'Paid' 
-                                ? 'text-emerald-500' 
-                                : 'text-amber-500'
+                                ? 'text-successSage' 
+                                : 'text-warningAmber'
                           }`}>
                             {booking.status === 'Cancelled' ? 'Cancelled' : booking.payment_status}
                           </span>
                         </div>
                         
                         <div>
-                          <span className="font-bold text-slate-700 dark:text-neutral-200 block text-xs truncate">{booking.provider_name}</span>
-                          <span className="text-[10px] text-slate-400 block mt-0.5">Ref: {booking.booking_reference || 'Pending'}</span>
+                          <span className="font-semibold text-textPrimary dark:text-dark-text block text-xs truncate">{booking.provider_name}</span>
+                          <span className="text-xs text-textSecondary font-mono block mt-1">Ref: {booking.booking_reference || 'Pending'}</span>
                         </div>
 
                         {booking.confirmation_id && (
-                          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/20 px-2 py-1 rounded inline-block">
+                          <p className="text-xs text-successSage font-semibold bg-successSage/10 px-2 py-1 rounded-sm inline-block">
                             Conf ID: {booking.confirmation_id}
                           </p>
                         )}
 
-                        <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-neutral-800/65">
-                          <span className="font-extrabold text-slate-700 dark:text-neutral-300">{formatCurrency(booking.price)}</span>
+                        <div className="flex justify-between items-center pt-2 border-t border-stoneMuted/50 dark:border-dark-border/65">
+                          <span className="font-semibold text-coral font-mono">{formatCurrency(booking.price)}</span>
                           
                           {booking.status !== 'Cancelled' ? (
                             <button
                               disabled={cancelLoading === booking.id}
                               onClick={() => handleCancelBooking(booking.id)}
-                              className="text-[10px] text-red-500 hover:text-red-700 font-bold hover:underline"
+                              className="text-xs text-coral hover:text-coral font-semibold hover:underline"
                             >
                               {cancelLoading === booking.id ? 'Cancelling...' : 'Cancel Reservation'}
                             </button>
                           ) : (
                             booking.refund_status !== 'None' && (
-                              <span className="text-[10px] text-slate-400 italic font-medium">
+                              <span className="text-xs text-textSecondary italic font-normal">
                                 Refund: {booking.refund_status}
                               </span>
                             )
@@ -553,14 +554,14 @@ export const Dashboard: React.FC = () => {
 
             {/* Tips Card */}
             {plan.travelTips && plan.travelTips.length > 0 && (
-              <div className="bg-white dark:bg-neutral-900 border border-slate-200/60 dark:border-neutral-800/60 rounded-3xl p-6 shadow-sm">
-                <h4 className="font-bold text-base text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                  💡 Travel Copilot Tips
+              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-sm">
+                <h4 className="font-sans font-semibold text-base text-textPrimary dark:text-dark-text mb-4 flex items-center gap-2">
+                  💡 Voira AI Travel Tips
                 </h4>
-                <ul className="space-y-3">
+                <ul className="space-y-4">
                   {plan.travelTips.map((tip, index) => (
-                    <li key={index} className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-neutral-400 leading-relaxed">
-                      <span className="w-1.5 h-1.5 rounded-full bg-brand mt-1.5 shrink-0"></span>
+                    <li key={index} className="flex items-start gap-2 text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed">
+                      <span className="w-1.5 h-1.5 rounded-lg bg-primary mt-2 shrink-0"></span>
                       <span>{tip}</span>
                     </li>
                   ))}
@@ -568,25 +569,24 @@ export const Dashboard: React.FC = () => {
               </div>
             )}
           </div>
-
         </div>
 
         {/* REPLAN MODAL */}
         {showReplanModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm dark:bg-black/70 animate-fade-in">
-            <div className="relative w-full max-w-lg bg-white dark:bg-neutral-900 rounded-3xl p-8 border border-slate-100 dark:border-neutral-850 shadow-2xl overflow-hidden">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stoneMuted backdrop-blur-sm dark:bg-textPrimary/70 animate-fade-in">
+            <div className="relative w-full max-w-lg bg-warmWhite dark:bg-dark-card rounded-lg p-12 border border-stoneMuted dark:border-dark-border shadow-2xl overflow-hidden">
               <button
                 onClick={() => setShowReplanModal(false)}
-                className="absolute top-5 right-5 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-400 hover:text-neutral-200"
+                className="absolute top-5 right-5 p-2 rounded-sm hover:bg-stoneMuted dark:hover:bg-stoneMuted text-textSecondary hover:text-textPrimary"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-slate-850 dark:text-white flex items-center gap-2">
-                  <RefreshCw className="w-5 h-5 text-accent animate-spin-slow" /> Replan Trip Parameters
+                <h3 className="text-2xl font-sans font-semibold text-textPrimary dark:text-warmWhite flex items-center gap-2">
+                  <RefreshCw className="w-5 h-5 text-coral animate-spin-slow" /> Regenerate Itinerary Parameters
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">
+                <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">
                   Adjust preferences and let AI dynamically rewrite your itinerary, hotels, and budget breakdown.
                 </p>
               </div>
@@ -595,16 +595,18 @@ export const Dashboard: React.FC = () => {
                 
                 {/* Budget adjustment */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400 mb-1.5">
+                  <label className="block text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted mb-2">
                     Adjust Budget (INR)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-3 text-slate-450 font-bold text-sm">₹</span>
                     <input
-                      type="number"
-                      value={replanBudget}
-                      onChange={(e) => setReplanBudget(Number(e.target.value))}
-                      className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-brand"
+                      type="text"
+                      value={replanBudget ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(replanBudget) : ''}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '');
+                        setReplanBudget(val ? Number(val) : 0);
+                      }}
+                      className="w-full px-4 py-2 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-warmWhite text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -612,7 +614,7 @@ export const Dashboard: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   {/* Duration days */}
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400 mb-1.5">
+                    <label className="block text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted mb-2">
                       Trip Days
                     </label>
                     <input
@@ -621,13 +623,13 @@ export const Dashboard: React.FC = () => {
                       max={30}
                       value={replanDays}
                       onChange={(e) => setReplanDays(Number(e.target.value))}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-brand"
+                      className="w-full px-4 py-2 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   
                   {/* Travelers count */}
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400 mb-1.5">
+                    <label className="block text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted mb-2">
                       Travelers
                     </label>
                     <input
@@ -636,20 +638,20 @@ export const Dashboard: React.FC = () => {
                       max={20}
                       value={replanTravelers}
                       onChange={(e) => setReplanTravelers(Number(e.target.value))}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-brand"
+                      className="w-full px-4 py-2 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>
 
                 {/* Weather modifier */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400 mb-1.5">
+                  <label className="block text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted mb-2">
                     Weather Condition
                   </label>
                   <select
                     value={replanWeather}
                     onChange={(e) => setReplanWeather(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full px-4 py-2 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="Sunny">☀️ Sunny / Warm</option>
                     <option value="Rain">🌧️ Rainy / Monsoon</option>
@@ -661,7 +663,7 @@ export const Dashboard: React.FC = () => {
 
                 {/* Free form natural language change */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400 mb-1.5">
+                  <label className="block text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted mb-2">
                     Additional Instructions (Optional)
                   </label>
                   <textarea
@@ -669,17 +671,19 @@ export const Dashboard: React.FC = () => {
                     onChange={(e) => setReplanCustomText(e.target.value)}
                     placeholder="e.g. We want to skip beaches and focus on history. Or: Recommend vegetarian restaurants only."
                     rows={3}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-neutral-850 border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-white text-xs placeholder:text-slate-450 focus:outline-none focus:ring-1 focus:ring-brand resize-none"
+                    className="w-full px-4 py-2 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-warmWhite text-xs placeholder:text-textSecondary focus:outline-none focus:ring-1 focus:ring-primary resize-none"
                   />
                 </div>
 
-                <button
+                <Button
                   type="submit"
                   disabled={replanLoading}
-                  className="w-full py-3.5 mt-3 rounded-xl font-bold bg-accent text-white hover:bg-accent-600 shadow-md shadow-accent/15 flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors"
+                  variant="destructive"
+                  size="large"
+                  className="w-full mt-4"
                 >
                   {replanLoading ? 'Recalculating Plan...' : 'Regenerate Plan'}
-                </button>
+                </Button>
               </form>
             </div>
           </div>
@@ -687,22 +691,20 @@ export const Dashboard: React.FC = () => {
 
         {/* CHECKOUT MODAL */}
         {showCheckoutModal && checkoutItem && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm dark:bg-black/70 animate-fade-in">
-            <div className="relative w-full max-w-md bg-white dark:bg-neutral-900 rounded-3xl p-8 border border-slate-100 dark:border-neutral-850 shadow-2xl overflow-hidden">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stoneMuted backdrop-blur-sm dark:bg-textPrimary/70 animate-fade-in">
+            <div className="relative w-full max-w-md bg-warmWhite dark:bg-dark-card rounded-lg p-12 border border-stoneMuted dark:border-dark-border shadow-2xl overflow-hidden">
               <button
                 onClick={() => {
                   if (!checkoutLoading) setShowCheckoutModal(false);
                 }}
-                className="absolute top-5 right-5 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-400 hover:text-neutral-200"
+                className="absolute top-5 right-5 p-2 rounded-sm hover:bg-stoneMuted dark:hover:bg-stoneMuted text-textSecondary hover:text-textPrimary"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="mb-6">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand/10 text-brand rounded-full text-[10px] font-bold uppercase tracking-wider">
-                  Secure Checkout
-                </span>
-                <h3 className="text-2xl font-bold text-slate-850 dark:text-white mt-2">
+                <Badge type="recommender" label="Secure Checkout" />
+                <h3 className="text-2xl font-sans font-semibold text-textPrimary dark:text-warmWhite mt-2">
                   Confirm Reservation
                 </h3>
               </div>
@@ -710,105 +712,108 @@ export const Dashboard: React.FC = () => {
               {!paymentResult ? (
                 <div className="space-y-6">
                   {/* Item Summary */}
-                  <div className="p-4 bg-slate-50 dark:bg-neutral-850/60 rounded-2xl border border-slate-150 dark:border-neutral-800/80 space-y-3">
-                    <div className="flex justify-between items-center text-xs font-bold text-slate-455 uppercase">
+                  <div className="p-comfortable bg-stoneMuted dark:bg-dark-card rounded-md border border-stoneMuted dark:border-dark-border space-y-4">
+                    <div className="flex justify-between items-center text-xs font-semibold text-textSecondary ">
                       <span>Booking Type</span>
                       <span>Price</span>
                     </div>
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="font-extrabold text-sm text-slate-800 dark:text-white">{checkoutItem.provider}</h4>
-                        <span className="text-[10px] text-slate-455 block uppercase font-medium tracking-wider mt-0.5">{checkoutItem.type} Selection</span>
+                        <h4 className="font-semibold text-sm text-textPrimary dark:text-warmWhite">{checkoutItem.provider}</h4>
+                        <span className="text-xs text-textSecondary block  font-normal tracking-normal mt-1">{checkoutItem.type} Selection</span>
                       </div>
-                      <span className="text-base font-extrabold text-slate-800 dark:text-white">{formatCurrency(checkoutItem.price)}</span>
+                      <span className="text-base font-semibold text-coral font-mono">{formatCurrency(checkoutItem.price)}</span>
                     </div>
                   </div>
 
                   {/* Gateway selector */}
-                  <div className="space-y-2.5">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
+                  <div className="space-y-2">
+                    <label className="block text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">
                       Select Payment Gateway
                     </label>
                     <div className="grid grid-cols-2 gap-4">
                       <button
                         onClick={() => setSelectedGateway('Stripe')}
-                        className={`py-3.5 rounded-2xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                        className={`py-4 rounded-sm border font-semibold text-xs flex flex-col items-center gap-1 transition-all ${
                           selectedGateway === 'Stripe'
-                            ? 'border-indigo-500 bg-indigo-500/10 text-indigo-500'
-                            : 'border-slate-200 dark:border-neutral-800 bg-transparent text-slate-500 dark:text-neutral-400 hover:bg-slate-50 dark:hover:bg-neutral-850/50'
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-stoneMuted dark:border-dark-border bg-transparent text-textSecondary hover:bg-stoneMuted dark:hover:bg-stoneMuted'
                         }`}
                       >
                         <span className="text-sm">Stripe Gateway</span>
-                        <span className="text-[9px] uppercase opacity-75">Global Payments</span>
+                        <span className="text-xs  opacity-75">Global Payments</span>
                       </button>
                       
                       <button
                         onClick={() => setSelectedGateway('Razorpay')}
-                        className={`py-3.5 rounded-2xl border font-bold text-xs flex flex-col items-center gap-1 transition-all ${
+                        className={`py-4 rounded-sm border font-semibold text-xs flex flex-col items-center gap-1 transition-all ${
                           selectedGateway === 'Razorpay'
-                            ? 'border-blue-500 bg-blue-500/10 text-blue-500'
-                            : 'border-slate-200 dark:border-neutral-800 bg-transparent text-slate-500 dark:text-neutral-400 hover:bg-slate-50 dark:hover:bg-neutral-850/50'
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-stoneMuted dark:border-dark-border bg-transparent text-textSecondary hover:bg-stoneMuted dark:hover:bg-stoneMuted'
                         }`}
                       >
                         <span className="text-sm">Razorpay</span>
-                        <span className="text-[9px] uppercase opacity-75">UPI &amp; Netbanking</span>
+                        <span className="text-xs  opacity-75">UPI &amp; Netbanking</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Checkout Actions */}
                   {checkoutLoading ? (
-                    <div className="text-center py-6 space-y-3">
-                      <div className="w-10 h-10 rounded-full border-2 border-slate-300 border-t-brand animate-spin mx-auto" />
-                      <p className="text-xs text-slate-500 dark:text-neutral-400">Contacting secure gateway, authorizing payment...</p>
+                    <div className="text-center py-6 space-y-4">
+                      <div className="w-10 h-10 rounded-lg border-2 border-stoneMuted border-t-primary animate-spin mx-auto" />
+                      <p className="text-xs text-textSecondary dark:text-dark-text-muted">Contacting secure gateway, authorizing payment...</p>
                     </div>
                   ) : (
-                    <button
+                    <Button
+                      variant="primary"
+                      size="large"
                       onClick={executeCheckoutPayment}
-                      className="w-full py-4 rounded-2xl font-bold bg-brand text-white hover:bg-brand-600 shadow-md shadow-brand/15 text-xs flex items-center justify-center gap-1.5 transition-colors"
+                      className="w-full"
                     >
-                      <span>Authorize &amp; Pay {formatCurrency(checkoutItem.price)}</span>
-                    </button>
+                      Authorize &amp; Pay <span className="font-mono text-coral font-semibold">{formatCurrency(checkoutItem.price)}</span>
+                    </Button>
                   )}
                 </div>
               ) : (
                 <div className="space-y-6 text-center animate-fade-in">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto mb-2">
+                  <div className="w-12 h-12 rounded-lg bg-successSage/10 text-successSage flex items-center justify-center mx-auto mb-2">
                     <CheckCircle className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-slate-800 dark:text-white text-lg">Transaction Succeeded!</h4>
-                    <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">Your secure booking has been finalized with the provider.</p>
+                    <h4 className="font-sans font-semibold text-textPrimary dark:text-warmWhite text-lg">Transaction Succeeded!</h4>
+                    <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">Your secure booking has been finalized with the provider.</p>
                   </div>
 
-                  <div className="p-4 bg-slate-50 dark:bg-neutral-850/60 rounded-2xl text-left text-[11px] space-y-1.5 border border-slate-100 dark:border-neutral-800/40">
+                  <div className="p-comfortable bg-stoneMuted dark:bg-dark-card rounded-md text-left text-xs space-y-2 border border-stoneMuted dark:border-dark-border">
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Gateway Provider:</span>
-                      <span className="font-bold text-slate-700 dark:text-neutral-300">{selectedGateway}</span>
+                      <span className="text-textSecondary">Gateway Provider:</span>
+                      <span className="font-semibold text-textPrimary dark:text-dark-text-muted">{selectedGateway}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Booking Reference:</span>
-                      <span className="font-bold text-slate-700 dark:text-neutral-300">{paymentResult.booking_reference || 'BK-DEMO'}</span>
+                      <span className="text-textSecondary">Booking Reference:</span>
+                      <span className="font-semibold text-textPrimary dark:text-dark-text-muted">{paymentResult.booking_reference || 'BK-DEMO'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Confirmation ID:</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">{paymentResult.confirmation_id || 'FLY-CONF'}</span>
+                      <span className="text-textSecondary">Confirmation ID:</span>
+                      <span className="font-semibold text-successSage">{paymentResult.confirmation_id || 'FLY-CONF'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Amount Charged:</span>
-                      <span className="font-bold text-slate-700 dark:text-neutral-300">{formatCurrency(checkoutItem.price)}</span>
+                      <span className="text-textSecondary">Amount Charged:</span>
+                      <span className="font-semibold text-coral font-mono">{formatCurrency(checkoutItem.price)}</span>
                     </div>
                   </div>
 
-                  <button
+                  <Button
+                    variant="primary"
                     onClick={() => {
                       setShowCheckoutModal(false);
                       setPaymentResult(null);
                     }}
-                    className="w-full py-3 bg-brand text-white font-bold text-xs rounded-2xl hover:bg-brand-600 shadow-sm transition-colors"
+                    className="w-full"
                   >
                     Done
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -826,21 +831,21 @@ export const Dashboard: React.FC = () => {
   const uniqueDestinations = new Set(savedTrips.map(t => t.destination.toLowerCase())).size;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12">
       
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold text-slate-850 dark:text-white flex items-center gap-2">
-            Hi, {user?.name}! <Smile className="w-7 h-7 text-amber-500" />
+          <h2 className="text-3xl font-sans font-semibold text-textPrimary dark:text-warmWhite flex items-center gap-2">
+            Hi, {user?.name}! <Smile className="w-7 h-7 text-warningAmber" />
           </h2>
-          <p className="text-slate-500 dark:text-neutral-400 text-sm">
+          <p className="text-textSecondary dark:text-dark-text-muted text-sm">
             Welcome to your travel command center.
           </p>
         </div>
         <Link
           to="/planner"
-          className="px-5 py-3 bg-brand text-white font-semibold rounded-2xl shadow-md shadow-brand/15 hover:bg-brand-600 flex items-center gap-2 hover:-translate-y-0.5 transition-all text-sm"
+          className="h-11 px-6 bg-primary text-warmWhite font-semibold rounded-sm shadow-sm hover:opacity-95 flex items-center justify-center gap-2 hover:-translate-y-0.5 active:scale-[0.99] transition-all text-sm"
         >
           <Plus className="w-4 h-4" /> Plan a New Trip
         </Link>
@@ -848,60 +853,60 @@ export const Dashboard: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-neutral-900 border border-slate-200/50 dark:border-neutral-800/40 p-6 rounded-3xl shadow-sm">
-          <div className="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center mb-4">
+        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border p-6 rounded-md shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all">
+          <div className="w-10 h-10 rounded-md bg-primary/10 text-primary flex items-center justify-center mb-4">
             <Compass className="w-5 h-5" />
           </div>
-          <p className="text-xs text-slate-500 dark:text-neutral-400 font-semibold uppercase tracking-wider">Total Trips</p>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-850 dark:text-white mt-1">{totalTrips}</h3>
+          <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold  tracking-normal">Total Trips</p>
+          <h3 className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-warmWhite mt-1">{totalTrips} {totalTrips === 1 ? 'Trip' : 'Trips'}</h3>
         </div>
 
-        <div className="bg-white dark:bg-neutral-900 border border-slate-200/50 dark:border-neutral-800/40 p-6 rounded-3xl shadow-sm">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
+        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border p-6 rounded-md shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all">
+          <div className="w-10 h-10 rounded-md bg-successSage/10 text-successSage flex items-center justify-center mb-4">
             <Wallet className="w-5 h-5" />
           </div>
-          <p className="text-xs text-slate-500 dark:text-neutral-400 font-semibold uppercase tracking-wider">Allocated Budget</p>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-850 dark:text-white mt-1 truncate">{formatCurrency(totalBudget)}</h3>
+          <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold  tracking-normal">Allocated Budget</p>
+          <h3 className="text-2xl sm:text-3xl font-semibold text-coral font-mono mt-1 truncate">{formatCurrency(totalBudget)}</h3>
         </div>
 
-        <div className="bg-white dark:bg-neutral-900 border border-slate-200/50 dark:border-neutral-800/40 p-6 rounded-3xl shadow-sm">
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4">
+        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border p-6 rounded-md shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all">
+          <div className="w-10 h-10 rounded-md bg-coral/10 text-coral dark:text-coral flex items-center justify-center mb-4">
             <Calendar className="w-5 h-5" />
           </div>
-          <p className="text-xs text-slate-500 dark:text-neutral-400 font-semibold uppercase tracking-wider">Travel Days</p>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-850 dark:text-white mt-1">{totalDays} Days</h3>
+          <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold  tracking-normal">Travel Days</p>
+          <h3 className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-warmWhite mt-1">{totalDays} {totalDays === 1 ? 'Day' : 'Days'}</h3>
         </div>
 
-        <div className="bg-white dark:bg-neutral-900 border border-slate-200/50 dark:border-neutral-800/40 p-6 rounded-3xl shadow-sm">
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
+        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border p-6 rounded-md shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all">
+          <div className="w-10 h-10 rounded-md bg-coral/10 text-coral dark:text-coral flex items-center justify-center mb-4">
             <MapPin className="w-5 h-5" />
           </div>
-          <p className="text-xs text-slate-500 dark:text-neutral-400 font-semibold uppercase tracking-wider">Destinations</p>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-850 dark:text-white mt-1">{uniqueDestinations} Cities</h3>
+          <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold  tracking-normal">Destinations</p>
+          <h3 className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-warmWhite mt-1">{uniqueDestinations} {uniqueDestinations === 1 ? 'City' : 'Cities'}</h3>
         </div>
       </div>
 
       {/* Saved Trips Lists */}
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h3 className="font-extrabold text-xl text-slate-850 dark:text-white">Your Travel History</h3>
+          <h3 className="font-sans font-semibold text-xl text-textPrimary dark:text-warmWhite">Your Travel History</h3>
           {totalTrips > 0 && (
-            <Link to="/saved-trips" className="text-sm font-bold text-brand hover:underline flex items-center gap-1">
+            <Link to="/saved-trips" className="text-sm font-semibold text-primary hover:underline flex items-center gap-1">
               View List <ArrowRight className="w-4 h-4" />
             </Link>
           )}
         </div>
 
         {savedTrips.length === 0 ? (
-          <div className="text-center py-20 bg-white dark:bg-neutral-900 border border-dashed border-slate-200 dark:border-neutral-800 rounded-3xl p-8 shadow-sm">
-            <Sparkles className="w-10 h-10 text-slate-300 dark:text-neutral-600 mx-auto mb-3" />
-            <h4 className="font-bold text-slate-850 dark:text-white text-lg">No adventures planned yet</h4>
-            <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1 mb-6 max-w-sm mx-auto">
+          <div className="text-center py-20 bg-warmWhite dark:bg-dark-card border border-dashed border-stoneMuted dark:border-dark-border rounded-md p-12 shadow-sm">
+            <Sparkles className="w-10 h-10 text-textSecondary dark:text-dark-text-muted mx-auto mb-4" />
+            <h4 className="font-sans font-semibold text-textPrimary dark:text-warmWhite text-lg">No adventures planned yet</h4>
+            <p className="text-sm text-textSecondary dark:text-dark-text-muted mt-1 mb-6 max-w-sm mx-auto">
               Ready to travel? Let our AI travel coordinator prepare a bespoke plan for you.
             </p>
             <Link
               to="/planner"
-              className="px-6 py-3.5 bg-brand text-white font-semibold rounded-2xl shadow-md hover:bg-brand-600 transition-all text-sm inline-block"
+              className="h-11 px-6 bg-primary text-warmWhite font-semibold rounded-sm shadow-sm hover:opacity-95 inline-flex items-center justify-center transition-all text-sm animate-pulse-subtle"
             >
               Start Trip Planner
             </Link>
@@ -911,45 +916,43 @@ export const Dashboard: React.FC = () => {
             {savedTrips.slice(0, 3).map((trip) => (
               <div 
                 key={trip.id} 
-                className="bg-white dark:bg-neutral-900 border border-slate-200/50 dark:border-neutral-800/40 rounded-3xl p-5 hover:shadow-lg transition-all flex flex-col justify-between group cursor-pointer relative"
+                className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.99] transition-all flex flex-col justify-between group cursor-pointer relative"
                 onClick={() => navigate('/dashboard/trip', { state: { trip } })}
               >
                 <div>
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="bg-brand/10 text-brand px-3 py-1 rounded-xl text-xs font-bold uppercase">
-                      {trip.days} Days
-                    </span>
+                  <div className="flex justify-between items-start mb-4">
+                    <Badge type="duration" label={`${trip.days} ${trip.days === 1 ? 'Day' : 'Days'}`} />
                     <button
                       onClick={(e) => handleDeleteTrip(trip.id, e)}
-                      className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 dark:bg-red-950/20 dark:hover:bg-red-950/40 transition-colors"
+                      className="p-2 rounded-sm text-textSecondary hover:text-coral hover:bg-coral/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
                       title="Delete trip"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                   
-                  <h4 className="font-bold text-lg text-slate-855 dark:text-white line-clamp-1 group-hover:text-brand transition-colors">
+                  <h4 className="font-sans font-semibold text-lg text-textPrimary dark:text-warmWhite line-clamp-1 group-hover:text-primary transition-colors">
                     {trip.destination}
                   </h4>
                   
-                  <p className="text-xs text-slate-500 dark:text-neutral-400 flex items-center gap-1 mt-1">
-                    <MapPin className="w-3.5 h-3.5" /> From {trip.source}
+                  <p className="text-xs text-textSecondary dark:text-dark-text-muted flex items-center gap-1 mt-1">
+                    <MapPin className="w-4 h-4 text-primary" /> From {trip.source}
                   </p>
 
-                  <div className="mt-4 grid grid-cols-2 gap-2 text-xs border-t border-slate-100 dark:border-neutral-850 pt-3">
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-xs border-t border-stoneMuted dark:border-dark-border pt-4">
                     <div>
-                      <span className="text-slate-400 dark:text-neutral-500 block mb-0.5">Budget</span>
-                      <span className="font-bold text-slate-700 dark:text-neutral-300">{formatCurrency(trip.budget)}</span>
+                      <span className="text-textSecondary block mb-1">Budget</span>
+                      <span className="font-semibold text-coral font-mono">{formatCurrency(trip.budget)}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 dark:text-neutral-500 block mb-0.5">Travelers</span>
-                      <span className="font-bold text-slate-700 dark:text-neutral-300">{trip.travelers} Guests</span>
+                      <span className="text-textSecondary block mb-1">Travelers</span>
+                      <span className="font-semibold text-textPrimary dark:text-dark-text-muted">{trip.travelers} Guests</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 flex justify-end">
-                  <span className="text-xs font-semibold text-brand flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <div className="mt-4 pt-4 flex justify-end">
+                  <span className="text-xs font-semibold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                     View full itinerary <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>

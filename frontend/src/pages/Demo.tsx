@@ -28,7 +28,7 @@ export const Demo: React.FC = () => {
       description: 'Tropical beaches, historic Portuguese forts, and vibrant seafood dining.',
       duration: '3 Days',
       budget: '₹30,000',
-      bgGradient: 'from-amber-400 to-orange-500',
+      bgGradient: 'from-warningAmber to-warningAmber',
     },
     {
       id: 'bali',
@@ -37,7 +37,7 @@ export const Demo: React.FC = () => {
       description: 'Ubud rice terraces, sacred temples, cliffside fire dances, and forest retreats.',
       duration: '7 Days',
       budget: '₹59,000',
-      bgGradient: 'from-emerald-400 to-teal-500',
+      bgGradient: 'from-successSage to-successSage',
     },
     {
       id: 'dubai',
@@ -46,7 +46,7 @@ export const Demo: React.FC = () => {
       description: 'Burj Khalifa sky deck, desert dunes safaris, mega malls, and luxury dining.',
       duration: '5 Days',
       budget: '₹86,000',
-      bgGradient: 'from-sky-400 to-blue-500',
+      bgGradient: 'from-primary to-primary',
     },
     {
       id: 'switzerland',
@@ -55,7 +55,7 @@ export const Demo: React.FC = () => {
       description: 'Zurich old town, Grindelwald glacier walks, alpine cable cars, and Swiss chocolate.',
       duration: '6 Days',
       budget: '₹1,12,000',
-      bgGradient: 'from-rose-400 to-red-500',
+      bgGradient: 'from-coral to-coral',
     },
     {
       id: 'japan',
@@ -64,7 +64,7 @@ export const Demo: React.FC = () => {
       description: 'Tokyo crossings, Senso-ji temple tours, teamLab digital art, and Kyoto ryokans.',
       duration: '7 Days',
       budget: '₹87,000',
-      bgGradient: 'from-indigo-400 to-violet-500',
+      bgGradient: 'from-primary to-violet-500',
     },
   ];
 
@@ -104,21 +104,21 @@ export const Demo: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12">
       <div className="text-center max-w-2xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand/10 text-brand rounded-full text-xs font-bold uppercase tracking-wider">
-          <Sparkles className="w-3.5 h-3.5" /> Investor Demo Mode
+        <div className="inline-flex items-center gap-2 px-4 py-1 bg-primary/10 text-primary rounded-lg text-xs font-semibold  tracking-normal">
+          <Sparkles className="w-3.5 h-3.5" /> Voira Demo Sandbox
         </div>
-        <h2 className="text-4xl font-extrabold text-slate-850 dark:text-white tracking-tight">
+        <h2 className="text-4xl font-semibold text-textSecondary dark:text-warmWhite tracking-tight">
           One-Click Experience Sandbox
         </h2>
-        <p className="text-sm text-slate-500 dark:text-neutral-450 leading-relaxed">
-          Skip registration entirely. Launch high-fidelity pre-curated travel plans instantly and experience booking flows, route segments, and analytics immediately.
+        <p className="text-sm text-textSecondary dark:text-dark-text-muted leading-relaxed">
+          Experience the full product in 30 seconds. Launch high-fidelity pre-curated travel plans instantly and experience booking flows, route segments, and analytics immediately.
         </p>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-950/20 text-red-650 dark:text-red-400 rounded-2xl border border-red-150 text-center max-w-lg mx-auto">
+        <div className="p-4 bg-coral dark:bg-coral/20 text-coral dark:text-coral rounded-lg border border-coral text-center max-w-lg mx-auto">
           {error}
         </div>
       )}
@@ -130,31 +130,31 @@ export const Demo: React.FC = () => {
           return (
             <div
               key={dest.id}
-              className="bg-white dark:bg-neutral-900 border border-slate-200/50 dark:border-neutral-800/40 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between group"
+              className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col justify-between group"
             >
               <div>
                 {/* Visual Header Gradient block */}
-                <div className={`w-full h-32 bg-gradient-to-br ${dest.bgGradient} rounded-2xl mb-4 relative overflow-hidden flex items-end p-4`}>
-                  <div className="absolute inset-0 bg-black/10" />
-                  <div className="relative z-10 text-white">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-white/80">{dest.country}</span>
-                    <h3 className="font-extrabold text-2xl tracking-tight leading-none mt-1">{dest.name}</h3>
+                <div className={`w-full h-32 bg-gradient-to-br ${dest.bgGradient} rounded-lg mb-4 relative overflow-hidden flex items-end p-4`}>
+                  <div className="absolute inset-0 bg-textPrimary/10" />
+                  <div className="relative z-10 text-warmWhite">
+                    <span className="text-xs  font-semibold tracking-normal text-warmWhite/80">{dest.country}</span>
+                    <h3 className="font-semibold text-2xl tracking-tight leading-none mt-1">{dest.name}</h3>
                   </div>
-                  <Globe className="w-16 h-16 text-white/10 absolute -right-2 -bottom-2 group-hover:scale-110 transition-transform" />
+                  <Globe className="w-16 h-16 text-warmWhite/10 absolute -right-2 -bottom-2 group-hover:scale-110 transition-transform" />
                 </div>
 
-                <p className="text-xs text-slate-500 dark:text-neutral-450 leading-relaxed min-h-[50px]">
+                <p className="text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed min-h-[50px]">
                   {dest.description}
                 </p>
 
-                <div className="mt-6 flex justify-between items-center text-xs font-bold border-t border-slate-100 dark:border-neutral-850 pt-4">
+                <div className="mt-6 flex justify-between items-center text-xs font-semibold border-t border-stoneMuted dark:border-dark-border pt-4">
                   <div>
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Duration</span>
-                    <span className="text-slate-700 dark:text-neutral-300">{dest.duration}</span>
+                    <span className="text-xs  font-semibold text-textSecondary block tracking-normal">Duration</span>
+                    <span className="text-textSecondary dark:text-dark-text-muted">{dest.duration}</span>
                   </div>
                   <div>
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Estimated Cost</span>
-                    <span className="text-slate-700 dark:text-neutral-300">{dest.budget}</span>
+                    <span className="text-xs  font-semibold text-textSecondary block tracking-normal">Estimated Cost</span>
+                    <span className="text-textSecondary dark:text-dark-text-muted">{dest.budget}</span>
                   </div>
                 </div>
               </div>
@@ -163,15 +163,15 @@ export const Demo: React.FC = () => {
                 <button
                   onClick={() => handleLaunchDemo(dest)}
                   disabled={!!loadingDest}
-                  className={`w-full py-3.5 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm ${
+                  className={`w-full py-4 rounded-lg font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-sm ${
                     isProcessing
-                      ? 'bg-slate-100 dark:bg-neutral-850 text-slate-400 cursor-wait'
-                      : 'bg-brand hover:bg-brand-600 text-white hover:shadow-md'
+                      ? 'bg-stoneMuted dark:bg-dark-card text-textSecondary cursor-wait'
+                      : 'bg-primary hover:bg-primary text-warmWhite hover:shadow-md'
                   }`}
                 >
                   {isProcessing ? (
                     <>
-                      <div className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-brand animate-spin" />
+                      <div className="w-4 h-4 rounded-lg border-2 border-stoneMuted border-t-brand animate-spin" />
                       <span>Deploying Sandbox...</span>
                     </>
                   ) : (
@@ -187,11 +187,11 @@ export const Demo: React.FC = () => {
         })}
       </div>
 
-      <div className="max-w-2xl mx-auto bg-slate-50 dark:bg-neutral-850 border border-slate-100 dark:border-neutral-800 p-6 rounded-3xl flex items-start gap-4">
-        <ShieldCheck className="w-6 h-6 text-brand shrink-0 mt-0.5" />
+      <div className="max-w-2xl mx-auto bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border p-6 rounded-lg flex items-start gap-4">
+        <ShieldCheck className="w-6 h-6 text-primary shrink-0 mt-1" />
         <div className="space-y-1">
-          <h4 className="font-extrabold text-sm text-slate-800 dark:text-white">Sandbox Environment Details</h4>
-          <p className="text-[11px] text-slate-500 dark:text-neutral-400 leading-relaxed">
+          <h4 className="font-semibold text-sm text-textSecondary dark:text-warmWhite">Sandbox Environment Details</h4>
+          <p className="text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed">
             Selecting a package above provisions a valid guest session credentials automatically in your local browser cache. Any mock transaction checkout you test, expenses logged, or itinerary chat changes you ask will be saved persistently to the guest account database scope.
           </p>
         </div>
