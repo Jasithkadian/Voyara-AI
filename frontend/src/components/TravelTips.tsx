@@ -135,7 +135,7 @@ export const TravelTips: React.FC<TravelTipsProps> = ({ destination, startDate, 
     <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm hover:shadow-card-hover transition-all space-y-4">
       <div>
         <h4 className="font-sans font-semibold text-base text-textPrimary dark:text-warmWhite flex items-center gap-2">
-          voira Travel Tips
+          Travel Tips for {destination}
         </h4>
         <p className="text-xs text-textSecondary dark:text-dark-text-muted">
           Context-aware recommendations for {destination}.

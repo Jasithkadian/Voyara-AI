@@ -18,7 +18,7 @@ export const HeroSection: React.FC = () => {
           <div className="lg:col-span-7 space-y-12 text-center lg:text-left">
             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-primary/10 to-coral/10 dark:from-primary/20 dark:to-coral/20 text-primary px-4 py-2 rounded-lg text-xs font-semibold tracking-wide border border-primary/20 shadow-sm">
               <Sparkles className="w-4 h-4 text-coral animate-pulse" />
-              <span>Unveiling voira v4</span>
+              <span>AI-POWERED TRAVEL PLANNING</span>
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-textPrimary dark:text-dark-text leading-[1.08] font-sans">

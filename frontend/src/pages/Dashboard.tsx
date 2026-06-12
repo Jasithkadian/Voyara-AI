@@ -660,7 +660,7 @@ export const Dashboard: React.FC = () => {
                         <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-t-0 pt-4 sm:pt-0 border-stoneMuted">
                           <div>
                             <span className="text-xs text-textSecondary block">Total Fare</span>
-                            <span className="text-base font-semibold text-coral font-mono">{formatCurrency(flight.price)}</span>
+                            <span className="text-base font-semibold text-[#1E293B] dark:text-dark-text font-mono">{formatCurrency(flight.price)}</span>
                           </div>
                           {isBooked ? (
                             <Badge type="verified" label="Booked" />
@@ -1084,66 +1084,33 @@ export const Dashboard: React.FC = () => {
               </button>
 
               <div className="mb-6">
-                <Badge type="recommender" label="Secure Checkout" />
+                <Badge type="recommender" label="Secure Redirect" />
                 <h3 className="text-2xl font-sans font-semibold text-textPrimary dark:text-warmWhite mt-2">
-                  Confirm Reservation
+                  Book this {checkoutItem.type.toLowerCase()}
                 </h3>
               </div>
 
               {!paymentResult ? (
                 <div className="space-y-6">
-                  {/* Item Summary */}
                   <div className="p-comfortable bg-stoneMuted dark:bg-dark-card rounded-md border border-stoneMuted dark:border-dark-border space-y-4">
-                    <div className="flex justify-between items-center text-xs font-semibold text-textSecondary ">
-                      <span>Booking Type</span>
-                      <span>Price</span>
-                    </div>
-                    <div className="flex justify-between items-start">
+                    <p className="text-sm text-textSecondary dark:text-dark-text-muted leading-relaxed">
+                      You're about to be redirected to <strong>{checkoutItem.provider}</strong>'s official booking page to complete your reservation. Voira will save your selection to your itinerary.
+                    </p>
+                    <div className="flex justify-between items-start pt-4 border-t border-stoneMuted/30">
                       <div>
                         <h4 className="font-semibold text-sm text-textPrimary dark:text-warmWhite">{checkoutItem.provider}</h4>
-                        <span className="text-xs text-textSecondary block  font-normal tracking-normal mt-1">{checkoutItem.type} Selection</span>
+                        <span className="text-xs text-textSecondary block font-normal mt-1">
+                          {checkoutItem.type} {checkoutItem.details?.flightNumber || ''}
+                        </span>
                       </div>
-                      <span className="text-base font-semibold text-coral font-mono">{formatCurrency(checkoutItem.price)}</span>
+                      <span className="text-base font-semibold text-[#1E293B] dark:text-dark-text font-mono">{formatCurrency(checkoutItem.price)}</span>
                     </div>
                   </div>
 
-                  {/* Gateway selector */}
-                  <div className="space-y-2">
-                    <label className="block text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">
-                      Select Payment Gateway
-                    </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <button
-                        onClick={() => setSelectedGateway('Stripe')}
-                        className={`py-4 rounded-sm border font-semibold text-xs flex flex-col items-center gap-1 transition-all ${
-                          selectedGateway === 'Stripe'
-                            ? 'border-primary bg-primary/10 text-primary'
-                            : 'border-stoneMuted dark:border-dark-border bg-transparent text-textSecondary hover:bg-stoneMuted dark:hover:bg-stoneMuted'
-                        }`}
-                      >
-                        <span className="text-sm">Stripe Gateway</span>
-                        <span className="text-xs  opacity-75">Global Payments</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => setSelectedGateway('Razorpay')}
-                        className={`py-4 rounded-sm border font-semibold text-xs flex flex-col items-center gap-1 transition-all ${
-                          selectedGateway === 'Razorpay'
-                            ? 'border-primary bg-primary/10 text-primary'
-                            : 'border-stoneMuted dark:border-dark-border bg-transparent text-textSecondary hover:bg-stoneMuted dark:hover:bg-stoneMuted'
-                        }`}
-                      >
-                        <span className="text-sm">Razorpay</span>
-                        <span className="text-xs  opacity-75">UPI &amp; Netbanking</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Checkout Actions */}
                   {checkoutLoading ? (
                     <div className="text-center py-6 space-y-4">
                       <div className="w-10 h-10 rounded-lg border-2 border-stoneMuted border-t-primary animate-spin mx-auto" />
-                      <p className="text-xs text-textSecondary dark:text-dark-text-muted">Contacting secure gateway, authorizing payment...</p>
+                      <p className="text-xs text-textSecondary dark:text-dark-text-muted">Preparing secure redirect...</p>
                     </div>
                   ) : (
                     <Button
@@ -1152,7 +1119,7 @@ export const Dashboard: React.FC = () => {
                       onClick={executeCheckoutPayment}
                       className="w-full"
                     >
-                      Authorize &amp; Pay <span className="font-mono text-coral font-semibold">{formatCurrency(checkoutItem.price)}</span>
+                      Continue to {checkoutItem.provider} →
                     </Button>
                   )}
                 </div>
@@ -1218,10 +1185,12 @@ export const Dashboard: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-3xl font-sans font-semibold text-textPrimary dark:text-warmWhite flex items-center gap-2">
-            Hi, {user?.name}! <Smile className="w-7 h-7 text-warningAmber" />
+            Hi, {(user?.name === 'Investor Guest' ? 'Guest' : (user?.name?.split(' ')[0] || 'User'))}!
           </h2>
           <p className="text-textSecondary dark:text-dark-text-muted text-sm">
-            Welcome to your travel command center.
+            {savedTrips.length === 0 
+              ? "Where are you going next?" 
+              : "Ready for your next adventure?"}
           </p>
         </div>
         <Link

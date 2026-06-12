@@ -137,8 +137,7 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
   const tabs = [
     { id: 'list', label: 'My Saved Trips' },
     { id: 'timeline', label: 'Timeline' },
-    { id: 'expenses', label: 'Expenses' },
-    { id: 'analytics', label: 'Analytics' }
+    { id: 'expenses', label: 'Expenses' }
   ];
 
   return (

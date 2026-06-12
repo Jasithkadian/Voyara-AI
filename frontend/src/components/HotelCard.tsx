@@ -132,7 +132,7 @@ export const HotelCard: React.FC<HotelCardProps> = ({
                 onClick={onBook}
                 className="h-8 px-3.5 rounded-md font-semibold text-[11px] bg-primary text-warmWhite hover:bg-primary/90 active:scale-[0.97] transition-all whitespace-nowrap"
               >
-                Book Room
+                View Hotel
               </button>
             )
           ) : (

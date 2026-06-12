@@ -45,7 +45,7 @@ export const Sidebar: React.FC = () => {
 
   const isActive = (path: string) => {
     if (path === '/saved-trips') {
-      return location.pathname === '/saved-trips' || location.pathname === '/trip-timeline' || location.pathname === '/my-expenses' || location.pathname === '/analytics';
+      return location.pathname === '/saved-trips' || location.pathname === '/trip-timeline' || location.pathname === '/my-expenses';
     }
     return location.pathname === path;
   };
@@ -169,11 +169,12 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center justify-between p-2 rounded-md bg-stoneMuted/20 dark:bg-dark-muted/20 border border-stoneMuted/40 dark:border-dark-border/40">
           <Link to="/profile" className="flex items-center space-x-2.5 min-w-0 flex-1">
             <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
-              {user?.name.charAt(0).toUpperCase()}
+              {(user?.name === 'Investor Guest' ? 'Guest User' : (user?.name || user?.email?.split('@')[0] || 'U')).charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1 text-left">
-              <p className="text-xs font-bold text-textPrimary dark:text-dark-text truncate leading-none">{user?.name}</p>
-              <p className="text-[10px] text-textSecondary dark:text-dark-text-muted truncate mt-0.5">Premium Planner</p>
+              <p className="text-xs font-bold text-textPrimary dark:text-dark-text truncate leading-none">
+                {user?.name === 'Investor Guest' ? 'Guest User' : (user?.name || user?.email?.split('@')[0] || 'User')}
+              </p>
             </div>
           </Link>
           <button

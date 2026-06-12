@@ -51,6 +51,12 @@ function getSmartFallback(query: string, category: PhotoCategory): string {
     if (q.includes('japan') || q.includes('tokyo') || q.includes('kyoto') || q.includes('pagoda') || q.includes('art')) return list[4];
   }
 
+  if (category === 'hotel') {
+    if (q.includes('taj') || q.includes('exotica') || q.includes('goa')) return list[0];
+    if (q.includes('beach') || q.includes('resort')) return list[1];
+    if (q.includes('zostel') || q.includes('hostel')) return 'https://images.unsplash.com/photo-1555854817-5b2260d50c49?auto=format&fit=crop&w=800&q=80'; // Hostel/Dorm
+  }
+
   // Otherwise, return a deterministic hash index of the query to keep the same image for the same query
   let hash = 0;
   for (let i = 0; i < q.length; i++) {

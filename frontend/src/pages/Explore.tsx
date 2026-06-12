@@ -80,9 +80,6 @@ export const Explore: React.FC = () => {
       
       {/* Header section */}
       <div className="space-y-3 text-left">
-        <span className="bg-primary/10 text-primary border border-primary/10 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider inline-flex items-center gap-1">
-          <Compass className="w-3.5 h-3.5" /> Explore Modes
-        </span>
         <h1 className="text-3xl sm:text-4xl font-sans font-semibold text-textPrimary dark:text-dark-text">
           Find Your Next Adventure
         </h1>

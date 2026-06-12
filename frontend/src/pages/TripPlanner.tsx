@@ -451,7 +451,7 @@ export const TripPlanner: React.FC = () => {
                     className="w-2/3 py-3 bg-primary text-warmWhite font-semibold rounded-md text-xs flex items-center justify-center gap-2 shadow-md shadow-primary/20 animate-shimmer"
                   >
                     <Sparkles className="w-4 h-4 text-warningAmber" />
-                    <span>Generate AI Travel Plan</span>
+                    <span>Generate My Itinerary</span>
                   </button>
                 </div>
               </div>
