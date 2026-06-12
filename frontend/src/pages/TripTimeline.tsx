@@ -65,7 +65,7 @@ export const TripTimeline: React.FC = () => {
     } catch (err) {
       
     }
-  };
+  }
 
   const handleMonitorCheck = async () => {
     if (!selectedTrip) return;

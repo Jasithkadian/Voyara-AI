@@ -71,7 +71,7 @@ export const Profile: React.FC = () => {
     } catch (err) {
       
     }
-  };
+  }
 
   const handleSavePreferences = async (e: React.FormEvent) => {
     e.preventDefault();

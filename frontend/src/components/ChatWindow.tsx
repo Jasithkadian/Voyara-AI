@@ -52,7 +52,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();

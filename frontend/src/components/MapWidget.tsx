@@ -165,8 +165,14 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
         .addTo(map)
         .bindPopup(`
           <div class="font-sans p-1 text-[11px] text-left">
-            <strong class="text-textPrimary font-bold text-xs">${idx + 1}. ${item.name}</strong>
-            <p class="text-textSecondary text-[10px] mt-0.5">${item.category}</p>
+            <strong class="text-[var(--color-text-primary)] font-bold text-xs">${idx + 1}. ${item.name}</strong>
+            <p class="text-[var(--color-text-secondary)] text-[10px] mt-0.5">${item.category}</p>
+            ${item.price || item.rating ? `
+              <div class="mt-1 pt-1 border-t border-[var(--color-border-subtle)] flex items-center justify-between text-[10px]">
+                ${item.rating ? `<span class="font-bold flex items-center text-[var(--color-warning)]">★ ${item.rating}</span>` : ''}
+                ${item.price ? `<span class="font-mono font-bold text-[var(--color-accent)]">${item.price}</span>` : ''}
+              </div>
+            ` : ''}
           </div>
         `, { closeButton: false });
 

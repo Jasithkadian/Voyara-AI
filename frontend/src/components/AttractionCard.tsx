@@ -83,36 +83,4 @@ export const AttractionCard: React.FC<AttractionCardProps> = ({ attractions }) =
     </div>
   );
 };
-x-2 py-0.5 rounded-sm border ${getCategoryColor(attraction.category)}`}>
-                    {attraction.category}
-                  </span>
-                  {attraction.rating && (
-                    <div className="flex items-center gap-1 text-[11px] font-bold text-[var(--color-warning)]">
-                      <Star className="w-3.5 h-3.5 fill-[var(--color-warning)]" />
-                      <span>{attraction.rating}</span>
-                    </div>
-                  )}
-                </div>
 
-                <h4 className="text-[15px] font-semibold text-[var(--color-text-primary)] mb-1.5 leading-snug">
-                  {attraction.name}
-                </h4>
-
-                <p className="text-[13px] text-[var(--color-text-secondary)] leading-relaxed mb-4">
-                  {attraction.description}
-                </p>
-              </div>
-
-              {attraction.location && (
-                <div className="pt-4 border-t border-[var(--color-border-subtle)] flex items-center gap-1.5 text-[11px] font-medium text-[var(--color-text-secondary)]">
-                  <MapPin className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                  <span className="truncate">{attraction.location}</span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};

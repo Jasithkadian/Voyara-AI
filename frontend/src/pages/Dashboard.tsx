@@ -152,8 +152,49 @@ export const Dashboard: React.FC = () => {
   // Flights & Bookings States
   const [flights, setFlights] = useState<any[]>([]);
   const [flightsLoading, setFlightsLoading] = useState(false);
+  const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
+  const [flightSortKey, setFlightSortKey] = useState<'price' | 'duration' | 'departure'>('price');
   const [bookings, setBookings] = useState<any[]>([]);
   const [budgetCopilot, setBudgetCopilot] = useState<any>(null);
+
+  const [selectedHotel, setSelectedHotel] = useState<any>(null);
+  const [showHotelModal, setShowHotelModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>('');
+
+  const handleAddFlight = (flight: any) => {
+    setToastMessage(`✓ ${flight.airline} ${flight.flightNumber} added to your ${activeTrip?.destination} itinerary. Departs ${flight.departure} from ${activeTrip?.source}.`);
+    
+    // Simulate updating active trip budget
+    setActiveTrip(prev => {
+      if (!prev) return prev;
+      const updatedPlan = { ...prev.generated_plan };
+      updatedPlan.budgetBreakdown = {
+        ...updatedPlan.budgetBreakdown,
+        transportation_cost: flight.price
+      };
+      return { ...prev, generated_plan: updatedPlan };
+    });
+
+    setTimeout(() => setToastMessage(''), 5000);
+    setSelectedFlightId(null);
+  };
+
+  const handleAddHotel = (hotel: any) => {
+    setToastMessage(`✓ ${hotel.name} added to your itinerary.`);
+    
+    setActiveTrip(prev => {
+      if (!prev) return prev;
+      const updatedPlan = { ...prev.generated_plan };
+      updatedPlan.budgetBreakdown = {
+        ...updatedPlan.budgetBreakdown,
+        hotel_cost: parseInt((hotel.pricePerNight as string).replace(/[^0-9]/g, '')) * (prev.days || 5)
+      };
+      return { ...prev, generated_plan: updatedPlan };
+    });
+
+    setTimeout(() => setToastMessage(''), 5000);
+    setShowHotelModal(false);
+  };
 
   const fetchBudgetCopilot = async () => {
     if (!activeTrip || activeTrip.id === 0) return;
@@ -661,19 +702,50 @@ export const Dashboard: React.FC = () => {
                   <div className="p-4 border-b border-[var(--color-border-subtle)] flex justify-end bg-[var(--color-bg-hover)]">
                     <div className="flight-sort !mb-0">
                       <span>Sort by:</span>
-                      <button className="sort-btn active">Price ↑</button>
-                      <button className="sort-btn">Duration</button>
-                      <button className="sort-btn">Departure</button>
+                      <button 
+                        className={`sort-btn ${flightSortKey === 'price' ? 'active' : ''}`}
+                        onClick={() => setFlightSortKey('price')}
+                      >Price ↑</button>
+                      <button 
+                        className={`sort-btn ${flightSortKey === 'duration' ? 'active' : ''}`}
+                        onClick={() => setFlightSortKey('duration')}
+                      >Duration</button>
+                      <button 
+                        className={`sort-btn ${flightSortKey === 'departure' ? 'active' : ''}`}
+                        onClick={() => setFlightSortKey('departure')}
+                      >Departure</button>
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    {[...flights].sort((a, b) => a.price - b.price).map((flight, idx) => {
+                    {[...flights].map(f => {
+                      // Demo data injection if missing
+                      return {
+                        ...f,
+                        durationMinutes: f.durationMinutes || (f.airline === 'IndiGo' ? 150 : f.airline === 'Air India' ? 100 : 110),
+                        baggage: f.baggage || (f.airline === 'Air India' ? "23kg included" : "15kg"),
+                        cancellation: f.cancellation || (f.airline === 'IndiGo' ? "Non-refundable" : "Free cancel 24h"),
+                        trend: f.trend || (f.airline === 'IndiGo' ? 'pricier' : f.airline === 'Air India' ? 'cheaper' : 'neutral'),
+                        trendText: f.trendText || (f.airline === 'IndiGo' ? '↑ ₹300 vs last week' : f.airline === 'Air India' ? '↓ ₹150 vs yesterday' : '→ Same price for 3 days'),
+                        isBestValue: f.airline === 'Vistara',
+                        isRecommended: f.airline === 'Air India'
+                      };
+                    }).sort((a, b) => {
+                      switch(flightSortKey) {
+                        case 'price': return a.price - b.price;
+                        case 'duration': return a.durationMinutes - b.durationMinutes;
+                        case 'departure': return a.departure.localeCompare(b.departure);
+                        default: return 0;
+                      }
+                    }).map((flight, idx) => {
                       const isBooked = bookings.some(b => b.booking_type === 'Flight' && b.provider_name === flight.airline && b.details?.flightNumber === flight.flightNumber);
                       return (
                         <FlightRow 
-                          key={idx}
+                          key={flight.flightNumber + idx}
                           flight={flight}
                           isBooked={isBooked}
+                          isSelected={selectedFlightId === flight.flightNumber}
+                          isDimmed={selectedFlightId !== null && selectedFlightId !== flight.flightNumber}
+                          onSelect={() => setSelectedFlightId(selectedFlightId === flight.flightNumber ? null : flight.flightNumber)}
                           onBook={() => handleBook('Flight', flight.airline, flight.price, { flightNumber: flight.flightNumber, departure: flight.departure, arrival: flight.arrival })}
                         />
                       );
@@ -724,7 +796,11 @@ export const Dashboard: React.FC = () => {
                         hotel={hotel} 
                         index={index}
                         isBooked={isBooked}
-                        onBook={() => handleBook('Hotel', hotel.name, 6500.0, { hotelName: hotel.name, price: hotel.pricePerNight })}
+                        onBook={() => {
+                          setSelectedHotel(hotel);
+                          setHotelModalImageIdx(0);
+                          setShowHotelModal(true);
+                        }}
                       />
                     );
                   })}
@@ -735,10 +811,18 @@ export const Dashboard: React.FC = () => {
                     destination={activeTrip.destination}
                     items={plan.hotelRecommendations.map(hotel => ({
                       name: hotel.name,
-                      category: 'Hotel' as const
+                      category: 'Hotel' as const,
+                      price: hotel.pricePerNight,
+                      rating: hotel.rating,
+                      lat: hotel.name.includes("Taj Exotica") ? 15.1733 : hotel.name.includes("Lemon Tree") ? 15.5536 : 15.1648,
+                      lng: hotel.name.includes("Taj Exotica") ? 73.9561 : hotel.name.includes("Lemon Tree") ? 73.7716 : 73.9491
                     }))}
                     focusedIndex={null}
-                    onMarkerClick={() => {}}
+                    onMarkerClick={(idx) => {
+                      setSelectedHotel(plan.hotelRecommendations[idx]);
+                      setHotelModalImageIdx(0);
+                      setShowHotelModal(true);
+                    }}
                     height="450px"
                   />
                 </div>
