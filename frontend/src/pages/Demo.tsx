@@ -97,7 +97,7 @@ export const Demo: React.FC = () => {
       // 4. Redirect to the Dashboard focusing on this trip
       navigate('/dashboard/trip', { state: { trip: saveResult.trip } });
     } catch (err: any) {
-      console.error(err);
+      
       setError('Failed to deploy demo package. Please try again.');
     } finally {
       setLoadingDest(null);

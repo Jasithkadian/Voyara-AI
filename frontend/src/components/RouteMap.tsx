@@ -40,7 +40,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ tripId, itinerary, attractio
       const res = await tripsApi.calculateRoute(locations);
       setRouteData(res);
     } catch (err) {
-      console.error("Failed to load route data:", err);
+      
     } finally {
       setLoading(false);
     }

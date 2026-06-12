@@ -48,7 +48,7 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             localStorage.setItem('voira_preferred_currency', profile.preferred_currency);
           }
         })
-        .catch((err) => console.error("Failed to load currency profile setting", err));
+        .catch((err) => );
     }
   }, [isAuthenticated]);
 
@@ -64,7 +64,7 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           preferred_currency: code
         });
       } catch (err) {
-        console.error("Failed to sync currency preference to profile", err);
+        
       }
     }
   };

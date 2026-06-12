@@ -25,7 +25,7 @@ export const Sidebar: React.FC = () => {
       const list = await tripsApi.getNotifications();
       setNotifications(list);
     } catch (err) {
-      console.error('Failed to fetch notifications in Sidebar:', err);
+      
     }
   };
 
@@ -34,7 +34,7 @@ export const Sidebar: React.FC = () => {
       await tripsApi.markNotificationsRead();
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     } catch (err) {
-      console.error(err);
+      
     }
   };
 
@@ -175,7 +175,8 @@ export const Sidebar: React.FC = () => {
           </Link>
           <button
             onClick={handleLogout}
-            className="p-1.5 rounded text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] transition-all ml-1"
+            aria-label="Log Out"
+            className="p-2 rounded-full text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] transition-all ml-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-error)]"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />

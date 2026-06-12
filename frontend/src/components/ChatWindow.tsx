@@ -24,7 +24,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  const loadHistory = async () => {
+  async function loadHistory() {
     try {
       setLoading(true);
       const data = await aiApi.getChatHistory(tripId);
@@ -139,7 +139,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="p-2 bg-primary text-warmWhite rounded-sm hover:bg-primary disabled:opacity-50 transition-colors shadow-sm"
+          aria-label="Send message"
+          className="p-2 bg-[var(--color-primary)] text-white rounded-[var(--radius-sm)] hover:bg-[var(--color-primary-hover)] disabled:opacity-50 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
         >
           <Send className="w-4 h-4" />
         </button>

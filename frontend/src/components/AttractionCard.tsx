@@ -63,15 +63,27 @@ export const AttractionCard: React.FC<AttractionCardProps> = ({ attractions }) =
           <p className="text-sm font-medium text-[var(--color-text-secondary)]">No recommendations found in this category.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-left">
           {filteredAttractions.map((attraction, idx) => (
-            <div 
-              key={idx} 
-              className="p-comfortable rounded-[var(--radius-lg)] bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-sm border ${getCategoryColor(attraction.category)}`}>
+            <ActivityCard
+              key={idx}
+              name={attraction.name}
+              description={attraction.description}
+              time=""
+              location={attraction.location}
+              isAttraction={true}
+              category={attraction.category}
+              rating={attraction.rating}
+              cost={attraction.estimatedCost}
+              duration={attraction.recommendedDuration}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+x-2 py-0.5 rounded-sm border ${getCategoryColor(attraction.category)}`}>
                     {attraction.category}
                   </span>
                   {attraction.rating && (

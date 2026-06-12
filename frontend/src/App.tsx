@@ -12,9 +12,6 @@ import { Profile } from './pages/Profile';
 import { Chat } from './pages/Chat';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
-import { Expenses } from './pages/Expenses';
-import { Analytics } from './pages/Analytics';
-import { TripTimeline } from './pages/TripTimeline';
 import { Demo } from './pages/Demo';
 import { Onboarding } from './pages/Onboarding';
 import { SharedTrip } from './pages/SharedTrip';
@@ -25,7 +22,7 @@ function AppContent() {
 
   return (
     <div 
-      className={`min-h-screen bg-warmWhite dark:bg-dark-bg text-textPrimary dark:text-dark-text transition-colors duration-250 flex ${
+      className={`min-h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] transition-colors duration-300 flex ${
         isAuthenticated ? 'flex-row' : 'flex-col'
       } font-sans`}
     >

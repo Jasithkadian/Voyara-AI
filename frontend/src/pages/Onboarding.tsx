@@ -120,7 +120,7 @@ export const Onboarding: React.FC = () => {
       // 5. Navigate to Dashboard focused on this trip
       navigate('/dashboard/trip', { state: { trip: saveResult.trip } });
     } catch (err) {
-      console.error(err);
+      
       setError('Failed to deploy your onboarding trip sandbox.');
     } finally {
       setDeploying(false);

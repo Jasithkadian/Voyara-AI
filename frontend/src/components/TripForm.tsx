@@ -64,7 +64,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
         {/* Progress Line */}
         <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-0.5 bg-stoneMuted dark:bg-dark-muted -z-10">
           <div 
-            className="h-full bg-primary transition-all duration-500"
+            className="h-full bg-primary transition-all duration-300"
             style={{ width: `${((step - 1) / 2) * 100}%` }}
           />
         </div>

@@ -31,7 +31,7 @@ export const Analytics: React.FC = () => {
       const res = await tripsApi.getAnalytics();
       setData(res);
     } catch (err) {
-      console.error(err);
+      
       setError('Failed to fetch analytics metrics.');
     } finally {
       setLoading(false);

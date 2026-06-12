@@ -25,7 +25,7 @@ export const SharedTrip: React.FC = () => {
         const data = await tripsApi.getShared(token);
         setTrip(data);
       } catch (err: any) {
-        console.error("Failed to load shared trip:", err);
+        
         setError("This shared trip itinerary could not be found or is no longer public.");
       } finally {
         setLoading(false);
@@ -74,7 +74,7 @@ export const SharedTrip: React.FC = () => {
         
         {/* Public Shared Banner */}
         <div className="bg-gradient-to-r from-primary via-primary/90 to-cyan-500 rounded-xl p-8 text-warmWhite shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden group">
-          <div className="absolute right-0 top-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none transform translate-x-20 -translate-y-20 group-hover:scale-110 transition-transform duration-1000" />
+          <div className="absolute right-0 top-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none transform translate-x-20 -translate-y-20 group-hover:scale-110 transition-transform duration-300" />
           
           <div className="space-y-2 z-10">
             <span className="bg-white/20 text-white border border-white/10 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider inline-flex items-center gap-1">

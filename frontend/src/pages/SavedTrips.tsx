@@ -74,7 +74,7 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
     if (undoTimeoutId) {
       window.clearTimeout(undoTimeoutId);
       if (undoTrip) {
-        tripsApi.delete(undoTrip.id).catch(err => console.error(err));
+        tripsApi.delete(undoTrip.id).catch(err => );
       }
     }
 
@@ -90,7 +90,7 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
         setUndoTrip(null);
         setUndoTimeoutId(null);
       } catch (err) {
-        console.error('Failed to delete trip from backend:', err);
+        
       }
     }, 5000);
 
@@ -194,8 +194,9 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
                       <Badge type="duration" label={`${trip.days} ${trip.days === 1 ? 'Day' : 'Days'}`} />
                       <button
                         onClick={(e) => handleDeleteTrip(trip.id, e)}
-                        className="p-2 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] opacity-0 group-hover:opacity-100 transition-all duration-200"
-                        title="Delete Trip"
+                        aria-label="Delete trip"
+                        className="p-2 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] opacity-0 group-hover:opacity-100 transition-all duration-200 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-error)]"
+                        title="Delete trip"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

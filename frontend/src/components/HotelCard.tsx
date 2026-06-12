@@ -26,111 +26,99 @@ export const HotelCard: React.FC<HotelCardProps> = ({
   // Generate realistic reviews count based on hotel name length
   const reviewCount = Math.floor((hotel.name.length * 7) % 250) + 45;
 
-  return (
-    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-[12px] flex flex-row items-stretch h-[180px] shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.995] transition-all relative overflow-hidden group">
-      
-      {/* Top Accent bar for recommended */}
-      {isRecommended && (
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-cyan-400 z-20"></div>
-      )}
-
-      {/* Left Photo Strip */}
-      <div className="w-[120px] shrink-0 relative overflow-hidden bg-stoneMuted dark:bg-dark-muted">
-        {loading ? (
-          <div className="w-full h-full animate-pulse bg-stoneMuted dark:bg-dark-muted" />
-        ) : (
-          <img
-            src={photo}
-            alt={hotel.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          />
-        )}
-        {/* Subtle overlay */}
-        <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+  if (loading) {
+    return (
+      <div className="hotel-card p-4 flex gap-4">
+        <div className="w-[120px] h-full skeleton rounded-[var(--radius-sm)]" />
+        <div className="flex-1 space-y-3 py-2">
+          <div className="skeleton skeleton-text-lg" />
+          <div className="skeleton skeleton-text-sm w-[40%]" />
+          <div className="skeleton skeleton-text-xs w-[60%]" />
+          <div className="skeleton skeleton-text-sm w-[30%] mt-auto" />
+        </div>
       </div>
+    );
+  }
 
-      {/* Right Content */}
-      <div className="flex-1 flex flex-col justify-between p-comfortable min-w-0">
-        <div>
-          {/* Top Line: Title & Badges */}
-          <div className="flex justify-between items-start gap-2">
-            <h4 className="text-[16px] font-bold text-textPrimary dark:text-dark-text leading-snug truncate group-hover:text-primary transition-colors">
-              {hotel.name}
-            </h4>
-            {isBestValue && (
-              <span className="shrink-0 bg-coral/15 text-coral border border-coral/20 px-2 py-0.5 rounded-[4px] text-[10px] font-semibold uppercase tracking-wider">
-                Best Value
-              </span>
-            )}
-            {isRecommended && !isBestValue && (
-              <span className="shrink-0 bg-primary/10 text-primary border border-primary/10 px-2 py-0.5 rounded-[4px] text-[10px] font-semibold uppercase tracking-wider">
-                Our Pick
-              </span>
-            )}
-          </div>
+  return (
+    <div className="hotel-card">
+      {/* Photo (using CSS structure) */}
+      <img
+        src={photo}
+        alt={hotel.name}
+        className="hotel-card__image"
+      />
 
-          {/* Second Line: Star Rating & Review Count */}
-          <div className="flex items-center gap-2 mt-1">
-            <div className="flex items-center text-warningAmber">
-              {[...Array(5)].map((_, i) => {
-                const isFilled = i < Math.floor(Number(hotel.rating || 4));
-                return (
-                  <Star
-                    key={i}
-                    className={`w-3 h-3 ${
-                      isFilled ? 'fill-warningAmber stroke-warningAmber' : 'text-stoneMuted dark:text-dark-border'
-                    }`}
-                  />
-                );
-              })}
-            </div>
-            <span className="text-[11px] font-semibold text-warningAmber font-mono">
-              {hotel.rating || '4.2'}
+      {/* Body Content */}
+      <div className="hotel-card__body">
+        <div className="hotel-card__header">
+          <h4 className="hotel-card__name">
+            {hotel.name}
+          </h4>
+          {/* Badge Logic */}
+          {isBestValue && (
+            <span className="hotel-card__badge hotel-card__badge--best-value">
+              BEST VALUE
             </span>
-            <span className="text-[11px] text-textSecondary dark:text-dark-text-muted">
-              ({reviewCount} reviews)
+          )}
+          {isRecommended && !isBestValue && (
+            <span className="hotel-card__badge hotel-card__badge--our-pick">
+              OUR PICK
             </span>
-          </div>
+          )}
+        </div>
 
-          {/* Third Line: Amenity Icons */}
-          <div className="flex gap-2.5 mt-2.5">
-            <div title="High-speed WiFi" className="p-1 bg-stoneMuted/30 dark:bg-dark-muted/40 rounded-md text-textSecondary dark:text-dark-text-muted hover:text-primary transition-colors">
-              <Wifi className="w-3.5 h-3.5" />
-            </div>
-            <div title="Air Conditioning" className="p-1 bg-stoneMuted/30 dark:bg-dark-muted/40 rounded-md text-textSecondary dark:text-dark-text-muted hover:text-primary transition-colors">
-              <Wind className="w-3.5 h-3.5" />
-            </div>
-            <div title="Swimming Pool" className="p-1 bg-stoneMuted/30 dark:bg-dark-muted/40 rounded-md text-textSecondary dark:text-dark-text-muted hover:text-primary transition-colors">
-              <Waves className="w-3.5 h-3.5" />
-            </div>
-            <div title="Breakfast Included" className="p-1 bg-stoneMuted/30 dark:bg-dark-muted/40 rounded-md text-textSecondary dark:text-dark-text-muted hover:text-primary transition-colors">
-              <Coffee className="w-3.5 h-3.5" />
-            </div>
+        {/* Rating */}
+        <div className="hotel-card__rating">
+          <Star className="w-3.5 h-3.5 star" />
+          <span>{hotel.rating || '4.2'}</span>
+          <span className="text-[var(--color-text-muted)] font-sans ml-1 text-[11px] font-normal">
+            ({reviewCount} reviews)
+          </span>
+        </div>
+
+        {/* Location (Distance placeholder for now) */}
+        <div className="hotel-card__location">
+          <span>📍 1.2 km from center</span>
+        </div>
+
+        {/* Amenities */}
+        <div className="hotel-card__amenities">
+          <div className="hotel-card__amenity" title="High-speed WiFi">
+            <Wifi className="w-3.5 h-3.5" /> WiFi
+          </div>
+          <div className="hotel-card__amenity" title="Air Conditioning">
+            <Wind className="w-3.5 h-3.5" /> AC
+          </div>
+          <div className="hotel-card__amenity" title="Swimming Pool">
+            <Waves className="w-3.5 h-3.5" /> Pool
+          </div>
+          <div className="hotel-card__amenity" title="Breakfast Included">
+            <Coffee className="w-3.5 h-3.5" /> Breakfast
           </div>
         </div>
 
-        {/* Bottom Line: Price & Booking Action */}
-        <div className="flex justify-between items-center pt-2 border-t border-stoneMuted/40 dark:border-dark-border/40 gap-4 mt-auto">
-          {/* Price (Coral Accent) */}
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase text-textSecondary dark:text-dark-text-muted font-bold tracking-wider">
-              Price
-            </span>
-            <span className="price text-[var(--color-accent)] leading-none mt-0.5">
-              {hotel.pricePerNight}
-            </span>
-          </div>
+        {/* Price & Cancellation */}
+        <div className="hotel-card__price">
+          <div className="hotel-card__price-night">{hotel.pricePerNight}</div>
+          <div className="hotel-card__price-total">₹{parseInt((hotel.pricePerNight as string).replace(/[^0-9]/g, '')) * 5} total</div>
+        </div>
+        
+        <div className="hotel-card__cancellation">
+          Free cancellation until Jul 23
+        </div>
 
-          {/* Action button */}
+        {/* Action button */}
+        <div className="hotel-card__cta">
           {isRecommended ? (
             isBooked ? (
-              <span className="h-8 px-3 rounded-md font-semibold text-[11px] bg-successSage/15 text-successSage border border-successSage/20 flex items-center justify-center">
+              <button className="btn-secondary w-full" disabled>
                 ✓ Booked
-              </span>
+              </button>
             ) : (
               <button
                 onClick={onBook}
-                className="btn-primary h-8 px-3 text-[11px]"
+                className="btn-primary w-full"
               >
                 View Hotel
               </button>
@@ -143,14 +131,16 @@ export const HotelCard: React.FC<HotelCardProps> = ({
                   '_blank'
                 )
               }
-              className="btn-secondary h-8 px-3 text-[11px]"
+              className="btn-secondary w-full"
             >
               <span>View Hotel</span>
-              <ExternalLink className="w-3 h-3 shrink-0" />
+              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
             </button>
           )}
         </div>
       </div>
     </div>
   );
-};
+});
+
+HotelCard.displayName = 'HotelCard';

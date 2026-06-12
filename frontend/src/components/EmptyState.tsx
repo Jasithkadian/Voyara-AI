@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Compass, Calendar, Search, AlertCircle, RefreshCw, Plane, Home, ArrowRight } from 'lucide-react';
+import { Compass, Search, Plane, Home, ArrowRight } from 'lucide-react';
 
 export type EmptyStateType = 'no-trips' | 'no-flights' | 'no-hotels' | 'no-saved-trips';
 
@@ -159,7 +159,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <img 
               src={dest.image} 
               alt={dest.name} 
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent pointer-events-none" />
             <div className="relative z-10 text-warmWhite">

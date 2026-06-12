@@ -53,7 +53,7 @@ export const Expenses: React.FC = () => {
         setSelectedTrip(data[0]);
       }
     } catch (err) {
-      console.error(err);
+      
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export const Expenses: React.FC = () => {
       const expList = await tripsApi.getExpenses(selectedTrip.id);
       setExpenses(expList);
     } catch (err) {
-      console.error(err);
+      
     }
   };
 

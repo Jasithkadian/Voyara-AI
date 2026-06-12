@@ -176,14 +176,12 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
                           : ''
                       }`}
                     >
-                      <ActivityCard
+                      <RestaurantCard
                         name={restaurant.name}
                         description={`${restaurant.description} Try their signature recommendation.`}
-                        time={restaurant.recommendedMeal || 'Dinner'}
-                        duration="Dining"
-                        location={`${restaurant.cuisine} Cuisine`}
+                        meal={restaurant.recommendedMeal || 'Dinner'}
+                        cuisine={restaurant.cuisine}
                         cost={restaurant.estimatedCost}
-                        variant="activity" // Same high weight card
                         rating={(4.3 + (rIdx * 0.2)).toFixed(1)}
                       />
                     </div>
@@ -200,6 +198,17 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
             destination={destination}
             items={mapItems}
             focusedIndex={focusedIndex}
+            onMarkerClick={handleMarkerClick}
+            height="500px"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+};
+        focusedIndex={focusedIndex}
             onMarkerClick={handleMarkerClick}
             height="500px"
           />

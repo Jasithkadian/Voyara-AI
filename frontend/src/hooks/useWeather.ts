@@ -29,7 +29,7 @@ export const useWeather = (destination: string, startDate: string = '2026-06-12'
         });
         setWeather(response.data);
       } catch (err: any) {
-        console.error("Failed to fetch weather data", err);
+        
         setError(err.message || 'Failed to retrieve weather data.');
       } finally {
         setLoading(false);

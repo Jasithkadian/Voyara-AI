@@ -25,8 +25,8 @@ export const CommandPalette: React.FC = () => {
         setLoadingTrips(true);
         const data = await tripsApi.getHistory();
         setTrips(data);
-      } catch (err) {
-        console.error('Failed to load trips for command palette:', err);
+      } catch (_err) {
+        // Silent catch for background fetch
       } finally {
         setLoadingTrips(false);
       }

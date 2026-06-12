@@ -1,8 +1,6 @@
 import React from 'react';
 import { usePlacePhoto } from '../hooks/usePlacePhoto';
-import { Star, Clock, MapPin, Compass } from 'lucide-react';
-
-export type ActivityCardVariant = 'destination' | 'activity' | 'data';
+import { Clock, MapPin } from 'lucide-react';
 
 interface ActivityCardProps {
   name: string;
@@ -11,23 +9,24 @@ interface ActivityCardProps {
   duration?: string;
   location?: string;
   cost?: number | string;
+  isAttraction?: boolean; // If true, uses category badge colors instead of time colors
+  category?: string;
   rating?: string | number;
-  variant?: ActivityCardVariant;
   onClick?: () => void;
 }
 
-export const ActivityCard: React.FC<ActivityCardProps> = ({
+export const ActivityCard: React.FC<ActivityCardProps> = React.memo(({
   name,
   description,
   time,
   duration = '2 hours',
   location,
   cost = 0,
-  rating,
-  variant = 'activity',
+  isAttraction = false,
+  category,
   onClick,
 }) => {
-  const { photo, loading } = usePlacePhoto(name, 'activity');
+  const { photo, loading } = usePlacePhoto(name, isAttraction ? 'attraction' : 'activity');
 
   const formatCurrency = (val: number | string) => {
     if (typeof val === 'string') return val;
@@ -39,180 +38,78 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
     }).format(val);
   };
 
-  // Determine left border color for "data" variant
-  const getBorderColorClass = (timeString: string) => {
-    const t = timeString.toLowerCase();
-    if (t.includes('morning')) return 'border-l-[var(--color-warning)]';
-    if (t.includes('afternoon')) return 'border-l-sky-500';
-    return 'border-l-[var(--color-primary)]';
+  const getBadgeClass = () => {
+    if (isAttraction && category) {
+      const cat = category.toLowerCase();
+      if (cat.includes('adventure')) return 'activity-card__badge--adventure';
+      if (cat.includes('nature')) return 'activity-card__badge--nature';
+      if (cat.includes('culture')) return 'activity-card__badge--culture';
+      if (cat.includes('food')) return 'activity-card__badge--food';
+      if (cat.includes('nightlife')) return 'activity-card__badge--nightlife';
+      return 'activity-card__badge--default';
+    } else {
+      const t = time.toLowerCase();
+      if (t.includes('morning')) return 'activity-card__badge--morning';
+      if (t.includes('afternoon')) return 'activity-card__badge--afternoon';
+      if (t.includes('evening') || t.includes('night')) return 'activity-card__badge--evening';
+      return 'activity-card__badge--default';
+    }
   };
 
-  // Determine badge background color for "activity" variant
-  const getTimeBadgeColor = (timeString: string) => {
-    const t = timeString.toLowerCase();
-    if (t.includes('morning')) return 'bg-[var(--color-warning-bg)] text-[var(--color-warning)] border-[var(--color-warning-border)]';
-    if (t.includes('afternoon')) return 'bg-[var(--color-info-bg)] text-[var(--color-info)] border-[var(--color-info)]/20';
-    return 'bg-[var(--color-primary-light)] text-[var(--color-primary)] border-[var(--color-primary)]/20';
-  };
-
-  // 1. DESTINATION VARIANT (Full Photography)
-  if (variant === 'destination') {
+  if (loading) {
     return (
-      <div
-        onClick={onClick}
-        className="relative w-full h-[180px] rounded-lg overflow-hidden flex flex-col justify-end p-comfortable cursor-pointer select-none group border border-stoneMuted/40 dark:border-dark-border/30 shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.99] transition-all"
-      >
-        {loading ? (
-          <div className="absolute inset-0 bg-stoneMuted dark:bg-dark-muted animate-pulse" />
-        ) : (
-          <img
-            src={photo}
-            alt={name}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-102 transition-transform duration-750"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none" />
-
-        <div className="relative z-10 space-y-1 text-left">
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] font-semibold text-warmWhite bg-black/30 backdrop-blur-xs px-2 py-0.5 rounded-[4px] border border-warmWhite/20 uppercase tracking-wider">
-              {time}
-            </span>
-            {rating && (
-              <span className="flex items-center gap-0.5 text-[10px] font-semibold text-warningAmber bg-black/30 backdrop-blur-xs px-2 py-0.5 rounded-[4px] border border-warningAmber/20">
-                <Star className="w-2.5 h-2.5 fill-warningAmber stroke-warningAmber" />
-                {rating}
-              </span>
-            )}
-          </div>
-          <h4 className="font-sans text-[16px] font-bold text-warmWhite tracking-tight">
-            {name}
-          </h4>
-          <p className="text-[12px] text-warmWhite/75 line-clamp-2 leading-relaxed font-normal">
-            {description}
-          </p>
-          <div className="flex justify-between items-center pt-2 text-[11px] text-warmWhite/80 font-mono border-t border-warmWhite/20 mt-2">
-            <span>{duration}</span>
-            <span className="text-coral font-bold">{formatCurrency(cost)}</span>
+      <div className="card-base activity-card flex flex-col gap-4 hover:transform-none">
+        <div className="flex justify-between">
+          <div className="skeleton skeleton-text-xs w-16" />
+          <div className="skeleton skeleton-text-xs w-24" />
+        </div>
+        <div className="flex gap-3">
+          <div className="skeleton-image-sq skeleton shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="skeleton skeleton-text-sm" />
+            <div className="skeleton skeleton-text-xs w-full" />
+            <div className="skeleton skeleton-text-xs w-[80%]" />
           </div>
         </div>
       </div>
     );
   }
 
-  // 2. ACTIVITY VARIANT (Left-aligned 80px photo strip)
-  if (variant === 'activity') {
-    return (
-      <div
-        onClick={onClick}
-        className="flex flex-row items-stretch bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg overflow-hidden min-h-[130px] shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.99] transition-all cursor-pointer group"
-      >
-        {/* Photo Strip */}
-        <div className="w-[80px] shrink-0 relative bg-stoneMuted dark:bg-dark-muted overflow-hidden">
-          {loading ? (
-            <div className="w-full h-full animate-pulse bg-stoneMuted dark:bg-dark-muted" />
-          ) : (
-            <img
-              src={photo}
-              alt={name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
+  return (
+    <div 
+      className="card-base activity-card hover:transform-none" 
+      onClick={onClick}
+    >
+      <div className="activity-card__header">
+        <span className={`activity-card__badge ${getBadgeClass()}`}>
+          {isAttraction ? category : time}
+        </span>
+        <div className="activity-card__meta">
+          <span className="flex items-center gap-1 font-mono">
+            <Clock className="w-3.5 h-3.5" /> {duration}
+          </span>
+          <span className={cost === 0 || cost === 'Free' ? 'free' : 'price'}>
+            {formatCurrency(cost)}
+          </span>
+        </div>
+      </div>
+
+      <div className="activity-card__body">
+        <img src={photo} alt={name} className="activity-card__image" />
+        
+        <div className="activity-card__info">
+          <h4 className="activity-card__name">{name}</h4>
+          <p className="activity-card__desc">{description}</p>
+          {location && (
+            <div className="activity-card__location">
+              <MapPin className="w-3.5 h-3.5" />
+              <span>{location}</span>
+            </div>
           )}
         </div>
-
-        {/* Content */}
-        <div className="flex-1 p-comfortable flex flex-col justify-between min-w-0 text-left">
-          <div>
-            <div className="flex justify-between items-center gap-2 flex-wrap mb-1">
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-[4px] border ${getTimeBadgeColor(time)}`}>
-                {time}
-              </span>
-              <div className="flex items-center gap-3 text-[11px] text-textSecondary dark:text-dark-text-muted">
-                <span className="flex items-center gap-1 font-mono">
-                  <Clock className="w-3.5 h-3.5 shrink-0" /> {duration}
-                </span>
-                {rating && (
-                  <span className="flex items-center gap-0.5 font-semibold text-warningAmber">
-                    <Star className="w-3 h-3 fill-warningAmber stroke-warningAmber" />
-                    {rating}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <h4 className="text-[16px] font-bold text-textPrimary dark:text-dark-text group-hover:text-primary transition-colors leading-snug">
-              {name}
-            </h4>
-            <p className="text-[14px] font-normal text-textSecondary dark:text-dark-text-muted mt-1 leading-relaxed line-clamp-2">
-              {description}
-            </p>
-          </div>
-
-          <div className="flex justify-between items-center border-t border-stoneMuted/40 dark:border-dark-border/40 pt-2.5 mt-2 gap-4">
-            {location ? (
-              <span className="flex items-center gap-1 text-[11px] text-textSecondary dark:text-dark-text-muted truncate">
-                <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                {location}
-              </span>
-            ) : (
-              <span />
-            )}
-            <span className="font-mono text-xs font-semibold text-coral whitespace-nowrap shrink-0">
-              {formatCurrency(cost)}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 3. DATA VARIANT (No photography, white background, left-border color indicator)
-  return (
-    <div
-      onClick={onClick}
-      className={`flex flex-col justify-between bg-warmWhite dark:bg-dark-card border-y border-r border-l-[6px] ${getBorderColorClass(
-        time
-      )} border-y-stoneMuted/60 border-r-stoneMuted/60 dark:border-y-dark-border/60 dark:border-r-dark-border/60 rounded-lg p-comfortable min-h-[110px] shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.99] transition-all cursor-pointer group text-left`}
-    >
-      <div>
-        <div className="flex justify-between items-center gap-2 mb-1">
-          <span className="text-[10px] font-semibold text-textSecondary dark:text-dark-text-muted uppercase tracking-wider">
-            {time}
-          </span>
-          <div className="flex items-center gap-3 text-[11px] text-textSecondary dark:text-dark-text-muted font-mono">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 shrink-0" /> {duration}
-            </span>
-            {rating && (
-              <span className="flex items-center gap-0.5 text-warningAmber font-semibold">
-                <Star className="w-3 h-3 fill-warningAmber stroke-warningAmber" />
-                {rating}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <h4 className="text-[16px] font-bold text-textPrimary dark:text-dark-text group-hover:text-primary transition-colors leading-snug">
-          {name}
-        </h4>
-        <p className="text-[14px] font-normal text-textSecondary dark:text-dark-text-muted mt-1 leading-relaxed line-clamp-2">
-          {description}
-        </p>
-      </div>
-
-      <div className="flex justify-between items-center border-t border-stoneMuted/40 dark:border-dark-border/40 pt-2.5 mt-2.5 gap-4">
-        {location ? (
-          <span className="flex items-center gap-1 text-[11px] text-textSecondary dark:text-dark-text-muted truncate">
-            <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-            {location}
-          </span>
-        ) : (
-          <span />
-        )}
-        <span className="font-mono text-xs font-semibold text-coral whitespace-nowrap shrink-0">
-          {formatCurrency(cost)}
-        </span>
       </div>
     </div>
   );
-};
+});
+
+ActivityCard.displayName = 'ActivityCard';

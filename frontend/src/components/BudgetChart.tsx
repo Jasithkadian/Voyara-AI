@@ -128,7 +128,7 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
                   </div>
                   <div className="w-full bg-[var(--color-bg-hover)] h-1.5 rounded-full overflow-hidden">
                     <div 
-                      className="h-full rounded-full transition-all duration-500" 
+                      className="h-full rounded-full transition-all duration-300" 
                       style={{ backgroundColor: item.color, width: `${pct}%` }}
                     ></div>
                   </div>

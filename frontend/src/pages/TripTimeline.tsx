@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { tripsApi, SavedTrip, DailyPlan, Activity, Restaurant } from '../services/api';
+import { tripsApi, SavedTrip } from '../services/api';
 import { 
   Plane, MapPin, Home, Utensils, Compass, Calendar, AlertTriangle, 
-  RefreshCw, CheckCircle, Clock, ArrowLeftRight, Navigation
+  RefreshCw, CheckCircle, Clock, ArrowLeftRight
 } from 'lucide-react';
 import { EmptyState } from '../components/EmptyState';
 
@@ -44,7 +44,7 @@ export const TripTimeline: React.FC = () => {
         setSelectedTrip(data[0]);
       }
     } catch (err) {
-      console.error(err);
+      
     } finally {
       setLoading(false);
     }
@@ -57,13 +57,13 @@ export const TripTimeline: React.FC = () => {
     }
   }, [selectedTrip]);
 
-  const fetchBookings = async () => {
+  async function fetchBookings() {
     if (!selectedTrip) return;
     try {
       const bData = await tripsApi.getBookings(selectedTrip.id);
       setBookings(bData);
     } catch (err) {
-      console.error(err);
+      
     }
   };
 
@@ -83,7 +83,7 @@ export const TripTimeline: React.FC = () => {
         if (match) setSelectedTrip(match);
       }
     } catch (err) {
-      console.error(err);
+      
     } finally {
       setCheckingMonitor(false);
     }
@@ -91,8 +91,27 @@ export const TripTimeline: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="w-12 h-12 rounded-lg border-4 border-stoneMuted border-t-brand animate-spin"></div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)]">
+          <div className="space-y-2 w-1/2">
+            <div className="skeleton skeleton-text-lg" />
+            <div className="skeleton skeleton-text-sm w-3/4" />
+          </div>
+          <div className="skeleton skeleton-button w-64" />
+        </div>
+        
+        <div className="relative border-l-2 border-[var(--color-border)] ml-4 md:ml-12 pl-6 md:pl-12 space-y-12 py-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)]">
+              <div className="skeleton skeleton-text-sm w-32 mb-4" />
+              <div className="skeleton skeleton-text-lg w-64 mb-6" />
+              <div className="space-y-4">
+                <div className="h-24 skeleton rounded-[var(--radius-md)]" />
+                <div className="h-24 skeleton rounded-[var(--radius-md)]" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

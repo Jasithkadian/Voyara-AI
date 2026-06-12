@@ -52,7 +52,7 @@ export const Explore: React.FC = () => {
       const data = await tripsApi.explore(payload);
       setResults(data);
     } catch (err: any) {
-      console.error(err);
+      
       setError('Failed to fetch destination recommendations.');
     } finally {
       setLoading(false);
@@ -241,7 +241,7 @@ export const Explore: React.FC = () => {
                     <img 
                       src={dest.image} 
                       alt={dest.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     
                     {/* Match Score pill */}

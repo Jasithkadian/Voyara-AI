@@ -132,7 +132,7 @@ export const Dashboard: React.FC = () => {
       setPreviewingVersionId(null);
       setError('Itinerary restored to previous version successfully!');
     } catch (err) {
-      console.error(err);
+      
       setError('Failed to restore version to backend.');
     } finally {
       setLoading(false);
@@ -161,7 +161,7 @@ export const Dashboard: React.FC = () => {
       const response = await api.get(`/api/trips/${activeTrip.id}/budget-copilot`);
       setBudgetCopilot(response.data);
     } catch (err) {
-      console.error("Failed to fetch budget co-pilot:", err);
+      
     }
   };
 
@@ -195,7 +195,7 @@ export const Dashboard: React.FC = () => {
       setError(`✓ Public share link copied to clipboard: ${shareUrl}`);
       setTimeout(() => setError(''), 8000);
     } catch (err) {
-      console.error(err);
+      
       setError("Failed to generate public share token.");
       setTimeout(() => setError(''), 4000);
     } finally {
@@ -232,7 +232,7 @@ export const Dashboard: React.FC = () => {
       });
       setFlights(list);
     } catch (err) {
-      console.error("Failed to fetch flights:", err);
+      
     } finally {
       setFlightsLoading(false);
     }
@@ -244,7 +244,7 @@ export const Dashboard: React.FC = () => {
       const list = await tripsApi.getBookings(activeTrip.id);
       setBookings(list);
     } catch (err) {
-      console.error("Failed to fetch bookings:", err);
+      
     }
   };
 
@@ -306,7 +306,7 @@ export const Dashboard: React.FC = () => {
       fetchBookings();
       fetchBudgetCopilot();
     } catch (err) {
-      console.error(err);
+      
       setError("Secure checkout payment authorization failed.");
     } finally {
       setCheckoutLoading(false);
@@ -323,7 +323,7 @@ export const Dashboard: React.FC = () => {
       fetchBookings();
       setTimeout(() => setError(''), 4000);
     } catch (err) {
-      console.error(err);
+      
       setError("Cancellation request failed.");
     } finally {
       setCancelLoading(null);
@@ -464,8 +464,36 @@ export const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="w-12 h-12 rounded-lg border-4 border-stoneMuted border-t-primary animate-spin"></div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12 bg-[var(--color-bg-page)]">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="space-y-2">
+            <div className="skeleton skeleton-text-lg w-64" />
+            <div className="skeleton skeleton-text-sm w-48" />
+          </div>
+          <div className="skeleton skeleton-button" />
+        </div>
+
+        {/* Stats Cards Skeletons */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 rounded-[var(--radius-lg)]">
+              <div className="w-10 h-10 rounded-[var(--radius-md)] skeleton mb-4" />
+              <div className="skeleton skeleton-text-xs w-24 mb-2" />
+              <div className="skeleton skeleton-text-lg w-16" />
+            </div>
+          ))}
+        </div>
+
+        {/* List Skeleton */}
+        <div className="space-y-6">
+          <div className="skeleton skeleton-text-lg w-48" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-48 rounded-[var(--radius-lg)] skeleton" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -621,58 +649,43 @@ export const Dashboard: React.FC = () => {
             <ItineraryCard dailyPlan={plan.dailyItinerary} />
 
             {/* Recommended Flights Section */}
-            {flights.length > 0 && (
-              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-lg)] space-y-4">
-                <h3 className="text-xl font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
-                  <Plane className="w-5 h-5 text-[var(--color-primary)]" /> Recommended Flights
-                </h3>
-                <div className="space-y-4">
-                  {flights.map((flight, idx) => {
+            {flightsLoading ? (
+              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] space-y-0 overflow-hidden">
+                <div className="p-6 border-b border-[var(--color-border-subtle)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="skeleton skeleton-text-lg w-48" />
+                  <div className="skeleton skeleton-button" />
+                </div>
+                <div className="flex flex-col p-4 gap-4">
+                  <div className="h-20 skeleton rounded-[var(--radius-sm)]" />
+                  <div className="h-20 skeleton rounded-[var(--radius-sm)]" />
+                  <div className="h-20 skeleton rounded-[var(--radius-sm)]" />
+                </div>
+              </div>
+            ) : flights.length > 0 && (
+              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] space-y-0 overflow-hidden">
+                <div className="p-6 border-b border-[var(--color-border-subtle)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <h3 className="text-xl font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
+                    <Plane className="w-5 h-5 text-[var(--color-primary)]" /> Recommended Flights
+                  </h3>
+                  
+                  <div className="flight-sort !mb-0">
+                    <span>Sort by:</span>
+                    <button className="sort-btn active">Price ↑</button>
+                    <button className="sort-btn">Duration</button>
+                    <button className="sort-btn">Departure</button>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col">
+                  {[...flights].sort((a, b) => a.price - b.price).map((flight, idx) => {
                     const isBooked = bookings.some(b => b.booking_type === 'Flight' && b.provider_name === flight.airline && b.details?.flightNumber === flight.flightNumber);
                     return (
-                      <div key={idx} className="p-4 bg-[var(--color-bg-hover)] rounded-[var(--radius-md)] border border-[var(--color-border)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 active:scale-[0.99] transition-all">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 rounded-[var(--radius-md)] bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center font-bold text-xs tracking-normal">
-                            {flight.airline.slice(0, 3)}
-                          </div>
-                          <div>
-                            <span className="flight-code text-[var(--color-text-muted)] font-semibold block">Flight {flight.flightNumber}</span>
-                            <span className="text-sm font-semibold text-[var(--color-text-primary)]">{flight.airline}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-3 gap-6 text-xs w-full sm:w-auto">
-                          <div>
-                            <span className="text-[var(--color-text-muted)] block mb-1 uppercase font-bold tracking-wider text-[10px]">Depart</span>
-                            <span className="date-value text-[var(--color-text-primary)]">{flight.departure}</span>
-                          </div>
-                          <div>
-                            <span className="text-[var(--color-text-muted)] block mb-1 uppercase font-bold tracking-wider text-[10px]">Arrive</span>
-                            <span className="date-value text-[var(--color-text-primary)]">{flight.arrival}</span>
-                          </div>
-                          <div>
-                            <span className="text-[var(--color-text-muted)] block mb-1 uppercase font-bold tracking-wider text-[10px]">Stops</span>
-                            <span className="text-[var(--color-text-primary)] font-semibold">{flight.stops} stop{flight.stops !== 1 ? 's' : ''}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-t-0 pt-4 sm:pt-0 border-[var(--color-border-subtle)]">
-                          <div>
-                            <span className="text-[10px] text-[var(--color-text-muted)] uppercase font-bold tracking-wider block">Total Fare</span>
-                            <span className="price text-[var(--color-text-primary)]">{formatCurrency(flight.price)}</span>
-                          </div>
-                          {isBooked ? (
-                            <Badge type="verified" label="Booked" />
-                          ) : (
-                            <button
-                              onClick={() => handleBook('Flight', flight.airline, flight.price, { flightNumber: flight.flightNumber, departure: flight.departure, arrival: flight.arrival })}
-                              className="btn-primary"
-                            >
-                              Book Flight
-                            </button>
-                          )}
-                        </div>
-                      </div>
+                      <FlightRow 
+                        key={idx}
+                        flight={flight}
+                        isBooked={isBooked}
+                        onBook={() => handleBook('Flight', flight.airline, flight.price, { flightNumber: flight.flightNumber, departure: flight.departure, arrival: flight.arrival })}
+                      />
                     );
                   })}
                 </div>
@@ -1273,7 +1286,8 @@ export const Dashboard: React.FC = () => {
                     <Badge type="duration" label={`${trip.days} ${trip.days === 1 ? 'Day' : 'Days'}`} />
                     <button
                       onClick={(e) => handleDeleteTrip(trip.id, e)}
-                      className="p-2 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] opacity-0 group-hover:opacity-100 transition-all duration-200"
+                      aria-label="Delete trip"
+                      className="p-2 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] opacity-0 group-hover:opacity-100 transition-all duration-200 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-error)]"
                       title="Delete trip"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -1314,3 +1328,4 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 };
+

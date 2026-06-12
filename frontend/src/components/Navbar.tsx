@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
       const list = await tripsApi.getNotifications();
       setNotifications(list);
     } catch (err) {
-      console.error(err);
+      
     }
   };
 
@@ -47,7 +47,7 @@ export const Navbar: React.FC = () => {
       await tripsApi.markNotificationsRead();
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     } catch (err) {
-      console.error(err);
+      
     }
   };
 
@@ -293,13 +293,16 @@ export const Navbar: React.FC = () => {
             <div className="md:hidden flex items-center space-x-4">
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-sm bg-stoneMuted/30 dark:bg-dark-muted text-textPrimary dark:text-dark-text"
+                aria-label="Toggle theme"
+                className="p-2 rounded-sm bg-stoneMuted/30 dark:bg-dark-muted text-textPrimary dark:text-dark-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
               >
                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-2 rounded-sm bg-stoneMuted/30 dark:bg-dark-muted text-textPrimary dark:text-dark-text"
+                aria-label={isOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isOpen}
+                className="p-2 rounded-sm bg-stoneMuted/30 dark:bg-dark-muted text-textPrimary dark:text-dark-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
               >
                 {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>

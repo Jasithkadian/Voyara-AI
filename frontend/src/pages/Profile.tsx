@@ -18,7 +18,7 @@ const ProfileCollageItem: React.FC<ProfileCollageItemProps> = ({ destinationName
     <img
       src={photo}
       alt={destinationName}
-      className="w-full h-full object-cover object-center flex-1 brightness-[0.75] hover:scale-105 hover:brightness-[0.9] transition-all duration-500 min-w-[60px]"
+      className="w-full h-full object-cover object-center flex-1 brightness-[0.75] hover:scale-105 hover:brightness-[0.9] transition-all duration-300 min-w-[60px]"
     />
   );
 };
@@ -51,7 +51,7 @@ export const Profile: React.FC = () => {
     fetchProfileData();
   }, [isAuthenticated, navigate]);
 
-  const fetchProfileData = async () => {
+  async function fetchProfileData() {
     try {
       const trips = await tripsApi.getHistory();
       setSavedTrips(trips);
@@ -69,7 +69,7 @@ export const Profile: React.FC = () => {
         setPreferredActivities(profile.preferred_activities?.join(', ') || '');
       }
     } catch (err) {
-      console.error(err);
+      
     }
   };
 

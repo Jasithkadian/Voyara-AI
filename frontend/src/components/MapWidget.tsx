@@ -92,7 +92,7 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
   useEffect(() => {
     loadLeaflet()
       .then(() => setLeafletReady(true))
-      .catch(err => console.error(err));
+      .catch(err => );
   }, []);
 
   // Initialize Map

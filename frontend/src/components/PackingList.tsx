@@ -160,7 +160,7 @@ export const PackingList: React.FC<PackingListProps> = ({
               {/* Progress Bar */}
               <div className="w-full h-1.5 bg-[var(--color-bg-hover)] rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-[var(--color-primary)] transition-all duration-700 ease-out" 
+                  className="h-full bg-[var(--color-primary)] transition-all duration-300 ease-out" 
                   style={{ width: `${prog}%` }}
                 />
               </div>

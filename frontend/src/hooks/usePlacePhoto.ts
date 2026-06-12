@@ -144,7 +144,7 @@ export function usePlacePhoto(query: string, category: PhotoCategory): UsePlaceP
           setLoading(false);
         }
       } catch (err: any) {
-        console.error('Error fetching Pexels photo, loading fallback:', err);
+        
         if (isMounted) {
           const fallback = getSmartFallback(cleanQuery, category);
           localStorage.setItem(cacheKey, fallback);

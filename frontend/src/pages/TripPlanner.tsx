@@ -59,7 +59,7 @@ function parseNaturalLanguage(text: string): ParsedTripParams {
   let budget = 30000;
   const budgetMatch = t.match(/(?:₹|rs\.?|inr|)\s*(\d{1,3}(?:,\d{3})*|\d+)\s*(k|thousand|)/i);
   if (budgetMatch && budgetMatch[1]) {
-    let rawVal = budgetMatch[1].replace(/,/g, '');
+    const rawVal = budgetMatch[1].replace(/,/g, '');
     let val = parseInt(rawVal, 10);
     const suffix = (budgetMatch[2] || '').toLowerCase();
     if (suffix === 'k') {
@@ -151,7 +151,7 @@ export const TripPlanner: React.FC = () => {
   const [parsedParams, setParsedParams] = useState<ParsedTripParams | null>(null);
 
   const apiResultRef = useRef<any>(null);
-  const activeInputRef = useRef<TripGenerateInput | null>(null);
+  const [activeInput, setActiveInput] = useState<TripGenerateInput | null>(null);
 
   const handleNlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,7 +172,7 @@ export const TripPlanner: React.FC = () => {
       interests: parsedParams.interests,
     };
 
-    activeInputRef.current = input;
+    setActiveInput(input);
     setLoading(true);
     setIsApiReady(false);
     setError('');
@@ -188,7 +188,7 @@ export const TripPlanner: React.FC = () => {
   };
 
   const handleWizardSubmit = async (data: TripGenerateInput) => {
-    activeInputRef.current = data;
+    setActiveInput(data);
     setLoading(true);
     setIsApiReady(false);
     setError('');
@@ -204,11 +204,11 @@ export const TripPlanner: React.FC = () => {
   };
 
   const handleLoadingComplete = () => {
-    if (apiResultRef.current && activeInputRef.current) {
+    if (apiResultRef.current && activeInput) {
       navigate('/dashboard/trip', { 
         state: { 
           generatedPlan: apiResultRef.current, 
-          originalInput: activeInputRef.current 
+          originalInput: activeInput 
         } 
       });
     }
@@ -226,16 +226,14 @@ export const TripPlanner: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center bg-gradient-mesh py-12 px-4">
-        <LoadingState 
-          source={activeInputRef.current?.source || 'Delhi'}
-          destination={activeInputRef.current?.destination || 'Goa'}
-          budget={activeInputRef.current?.budget || 30000}
-          days={activeInputRef.current?.days || 5}
-          isApiReady={isApiReady}
-          onFinished={handleLoadingComplete}
-        />
-      </div>
+      <LoadingState 
+        source={activeInput?.source || 'Delhi'}
+        destination={activeInput?.destination || 'Goa'}
+        budget={activeInput?.budget || 30000}
+        days={activeInput?.days || 5}
+        isApiReady={isApiReady}
+        onFinished={handleLoadingComplete}
+      />
     );
   }
 
