@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import { AuthProvider } from './context/AuthProvider';
 import { CurrencyProvider } from './context/CurrencyProvider';
@@ -19,10 +20,22 @@ import { Demo } from './pages/Demo';
 import { Onboarding } from './pages/Onboarding';
 import { SharedTrip } from './pages/SharedTrip';
 import { Explore } from './pages/Explore';
+import { TripLoadingPage } from './pages/TripLoadingPage';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
+
+  useEffect(() => {
+    const darkRoutes = ['/planner', '/dashboard', '/chat', '/saved-trips', '/my-expenses', '/profile', '/analytics', '/trip-timeline'];
+    const isDarkRoute = darkRoutes.some(route => location.pathname.startsWith(route));
+    
+    if (isDarkRoute) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [location.pathname]);
 
   return (
     <div 
@@ -39,6 +52,7 @@ function AppContent() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/planner" element={<TripPlanner />} />
+              <Route path="/planner/loading" element={<TripLoadingPage />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/share/:token" element={<SharedTrip />} />
@@ -69,6 +83,7 @@ function AppContent() {
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/saved-trips" element={<SavedTrips defaultTab="list" />} />
                   <Route path="/planner" element={<TripPlanner />} />
+                  <Route path="/planner/loading" element={<TripLoadingPage />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/analytics" element={<SavedTrips defaultTab="analytics" />} />
                   <Route path="/trip-timeline" element={<SavedTrips defaultTab="timeline" />} />

@@ -729,6 +729,43 @@ export const Dashboard: React.FC = () => {
     return formatPrice(val);
   };
 
+  // Route guard for trip view loading / missing data
+  if (isTripView) {
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-[#07080f] text-white flex items-center justify-center">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+            <p className="text-sm text-stone-400">Retrieving itinerary...</p>
+          </div>
+        </div>
+      );
+    }
+    if (!activeTrip || !activeTrip.generated_plan) {
+      return (
+        <div className="min-h-screen bg-[#07080f] text-white flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white/[0.03] border border-white/10 rounded-3xl p-8 text-center space-y-6 shadow-2xl backdrop-blur-xl animate-fade-in">
+            <div className="w-14 h-14 bg-rose-500/10 text-rose-400 rounded-full flex items-center justify-center mx-auto">
+              <AlertCircle className="w-7 h-7" />
+            </div>
+            <h3 className="text-xl font-bold font-sans">No Itinerary Data</h3>
+            <p className="text-xs text-stone-400 leading-relaxed font-sans">
+              We couldn't retrieve the details for this travel plan. You might have reloaded the page, or the session expired.
+            </p>
+            <div className="flex justify-center gap-4 pt-4">
+              <Link to="/planner" className="btn-primary px-6 py-2.5 text-xs font-semibold">
+                Plan a New Trip
+              </Link>
+              <Link to="/dashboard" className="btn-secondary px-6 py-2.5 text-xs font-semibold text-stone-300 bg-white/5 border-white/10 hover:bg-white/10">
+                Go to Dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12 bg-[var(--color-bg-page)]">

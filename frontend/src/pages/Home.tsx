@@ -153,37 +153,37 @@ export const Home: React.FC = () => {
       icon: Plane,
       title: 'Flight Agent',
       desc: 'Orchestrates real-time airline matrices, flight durations, layovers, and custom seat selections.',
-      color: 'text-blue-400 bg-blue-500/10'
+      color: 'text-blue-600 bg-blue-50'
     },
     {
       icon: Hotel,
       title: 'Stay Agent',
       desc: 'Matches handpicked hotels matching your daily budget, location scores, and guest reviews.',
-      color: 'text-purple-400 bg-purple-500/10'
+      color: 'text-purple-600 bg-purple-50'
     },
     {
       icon: Wallet,
       title: 'Budget Agent',
       desc: 'Performs expense breakdowns, audits activity costs, and allocates a 10% safety emergency buffer.',
-      color: 'text-emerald-400 bg-emerald-500/10'
+      color: 'text-emerald-600 bg-emerald-50'
     },
     {
       icon: Utensils,
       title: 'Food Agent',
       desc: 'Scrapes local food joints, cuisines, and top-rated restaurants matching your dietary profile.',
-      color: 'text-orange-400 bg-orange-500/10'
+      color: 'text-orange-600 bg-orange-50'
     },
     {
       icon: Compass,
       title: 'Local Guide Agent',
       desc: 'Assembles customized day itineraries with optimal sightseeing order and travel directions.',
-      color: 'text-pink-400 bg-pink-500/10'
+      color: 'text-pink-600 bg-pink-50'
     },
     {
       icon: CloudSun,
       title: 'Weather Agent',
       desc: 'Monitors regional rainfall warnings to automatically swap outdoor excursions with indoor museum tours.',
-      color: 'text-cyan-400 bg-cyan-500/10'
+      color: 'text-cyan-600 bg-cyan-50'
     }
   ];
 
@@ -211,24 +211,24 @@ export const Home: React.FC = () => {
   ];
 
   return (
-    <div className="bg-[#0b0c16] text-white min-h-screen">
+    <div className="bg-white text-slate-900 min-h-screen">
       <HeroSection />
 
       {/* Destination Discovery Section */}
       <section className="py-24 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <span className="text-xs font-bold text-purple-400 uppercase tracking-widest block">Destination Discovery</span>
-          <h2 className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight">
+          <span className="text-xs font-bold text-purple-600 uppercase tracking-widest block font-sans">Destination Discovery</span>
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-slate-900 tracking-tight">
             Plan Your Next Escape
           </h2>
-          <p className="text-stone-400 text-sm max-w-xl mx-auto leading-relaxed">
+          <p className="text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
             Select one of our handpicked locations to pre-populate parameters into the AI Travel Copilot.
           </p>
         </div>
 
         {/* Tab switch bar */}
         <div className="flex justify-center mb-12">
-          <div className="flex space-x-1 bg-white/5 border border-white/10 p-1 rounded-xl overflow-x-auto scrollbar-hide max-w-full">
+          <div className="flex space-x-1 bg-slate-100 border border-slate-200/60 p-1 rounded-xl overflow-x-auto scrollbar-hide max-w-full">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -236,7 +236,7 @@ export const Home: React.FC = () => {
                 className={`px-4 py-2 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                    : 'text-stone-400 hover:text-white'
+                    : 'text-slate-500 hover:text-slate-950'
                 }`}
               >
                 {tab.label}
@@ -262,20 +262,20 @@ export const Home: React.FC = () => {
                   whileHover={{ y: -8, scale: 1.02 }}
                   transition={{ type: 'spring', stiffness: 300 }}
                   onClick={() => handlePromptClick(dest.prompt)}
-                  className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl hover:shadow-purple-500/10 transition-all cursor-pointer group relative aspect-[3/4]"
+                  className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-md hover:shadow-purple-500/10 transition-all cursor-pointer group relative aspect-[3/4]"
                 >
                   <img 
-                    src={dest.image} 
-                    alt={dest.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 absolute inset-0 -z-10" 
+                     src={dest.image} 
+                     alt={dest.name}
+                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 absolute inset-0 -z-10" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 flex flex-col justify-end p-6 z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/5 flex flex-col justify-end p-6 z-10" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 z-20 space-y-2">
-                    <h3 className="font-bold text-lg text-white group-hover:text-purple-400 transition-colors flex items-center justify-between">
+                    <h3 className="font-bold text-lg text-white group-hover:text-purple-300 transition-colors flex items-center justify-between">
                       <span>{dest.name}</span>
                       <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all transform translate-x-1" />
                     </h3>
-                    <p className="text-xs text-stone-300 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-stone-200 line-clamp-2 leading-relaxed">
                       {dest.description}
                     </p>
                   </div>
@@ -287,14 +287,14 @@ export const Home: React.FC = () => {
       </section>
 
       {/* AI Agents Capabilities Section */}
-      <section className="py-24 bg-white/[0.01] border-y border-white/5">
+      <section className="py-24 bg-slate-50/50 border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-            <span className="text-xs font-bold text-purple-400 uppercase tracking-widest block font-sans">Autonomous Network</span>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight">
+            <span className="text-xs font-bold text-purple-600 uppercase tracking-widest block font-sans">Autonomous Network</span>
+            <h2 className="text-3xl sm:text-4xl font-display font-bold text-slate-900 tracking-tight">
               Meet Your Autonomous Agent Team
             </h2>
-            <p className="text-stone-400 text-sm max-w-xl mx-auto leading-relaxed">
+            <p className="text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
               Instead of searching dozens of platforms, Voyara orchestration agents run parallel searches, cross-checks, and optimize itineraries instantly.
             </p>
           </div>
@@ -306,15 +306,15 @@ export const Home: React.FC = () => {
                 <motion.div 
                   key={idx} 
                   whileHover={{ scale: 1.02, y: -4 }}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl hover:shadow-purple-500/5 transition-all text-left flex flex-col items-start space-y-4 hover:border-purple-500/25 backdrop-blur-md"
+                  className="bg-white border border-slate-200/60 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all text-left flex flex-col items-start space-y-4 hover:border-purple-500/25"
                 >
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${agent.color}`}>
                     <Icon className="w-6 h-6" />
                   </div>
-                  <h3 className="font-bold text-base text-white tracking-tight">
+                  <h3 className="font-bold text-base text-slate-900 tracking-tight">
                     {agent.title}
                   </h3>
-                  <p className="text-xs text-stone-400 leading-relaxed font-medium">
+                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
                     {agent.desc}
                   </p>
                 </motion.div>
@@ -325,28 +325,28 @@ export const Home: React.FC = () => {
       </section>
 
       {/* Airbnb-style Trust Badges */}
-      <section className="py-20 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
+      <section className="py-20 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center text-slate-900">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div className="flex flex-col items-center space-y-3">
-            <div className="p-4 bg-blue-500/10 text-blue-400 rounded-2xl">
+            <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-sm text-white">Interactive Sandbox Engine</h4>
-            <p className="text-xs text-stone-400 max-w-xs leading-relaxed font-medium">Pre-provisioned guest keys in 30 seconds for test evaluations without credentials.</p>
+            <h4 className="font-bold text-sm text-slate-900">Interactive Sandbox Engine</h4>
+            <p className="text-xs text-slate-500 max-w-xs leading-relaxed font-medium">Pre-provisioned guest keys in 30 seconds for test evaluations without credentials.</p>
           </div>
           <div className="flex flex-col items-center space-y-3">
-            <div className="p-4 bg-amber-500/10 text-amber-400 rounded-2xl">
+            <div className="p-4 bg-amber-50 text-amber-600 rounded-2xl">
               <Star className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-sm text-white">Dynamic Budget Matrix</h4>
-            <p className="text-xs text-stone-400 max-w-xs leading-relaxed font-medium">Track your stays, meals, and flight bookings against dynamic targets with emergency offsets.</p>
+            <h4 className="font-bold text-sm text-slate-900">Dynamic Budget Matrix</h4>
+            <p className="text-xs text-slate-500 max-w-xs leading-relaxed font-medium">Track your stays, meals, and flight bookings against dynamic targets with emergency offsets.</p>
           </div>
           <div className="flex flex-col items-center space-y-3">
-            <div className="p-4 bg-purple-500/10 text-purple-400 rounded-2xl">
+            <div className="p-4 bg-purple-50 text-purple-600 rounded-2xl">
               <RefreshCw className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-sm text-white">Autonomous Weather Shifts</h4>
-            <p className="text-xs text-stone-400 max-w-xs leading-relaxed font-medium">Auto-tracks regional rainfall and monsoon warnings to swap outdoor events with indoor experiences.</p>
+            <h4 className="font-bold text-sm text-slate-900">Autonomous Weather Shifts</h4>
+            <p className="text-xs text-slate-500 max-w-xs leading-relaxed font-medium">Auto-tracks regional rainfall and monsoon warnings to swap outdoor events with indoor experiences.</p>
           </div>
         </div>
       </section>
@@ -357,7 +357,7 @@ export const Home: React.FC = () => {
           <div className="absolute inset-0 bg-grid-pattern opacity-10" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-8">
             <span className="text-[10px] font-bold text-white/90 bg-white/10 px-4 py-1.5 rounded-full inline-block uppercase tracking-wider">Demo Ready</span>
-            <h2 className="text-4xl sm:text-5xl font-display font-bold tracking-tight leading-none">
+            <h2 className="text-4xl sm:text-5xl font-display font-bold tracking-tight leading-none text-white">
               Explore Voyara Today.
             </h2>
             <p className="text-sm sm:text-base text-stone-200 max-w-lg mx-auto leading-relaxed">

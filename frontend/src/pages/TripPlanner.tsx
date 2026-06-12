@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TripForm } from '../components/TripForm';
 import { LoadingState } from '../components/LoadingState';
@@ -24,6 +24,7 @@ const INTEREST_LABELS: Record<string, string> = {
 
 export const TripPlanner: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, loginGuest } = useAuth();
   
   // Zustand Store hooks
@@ -43,6 +44,13 @@ export const TripPlanner: React.FC = () => {
   const apiResultRef = useRef<TripPlan | null>(null);
   const [activeInput, setActiveInput] = useState<TripGenerateInput | null>(null);
 
+  // Listen to redirect errors (e.g., from loading screen failure)
+  useEffect(() => {
+    if (location.state?.error) {
+      setError(location.state.error);
+    }
+  }, [location.state]);
+
   // Background Auto-guest Login on mount
   useEffect(() => {
     const performAutoGuest = async () => {
@@ -55,7 +63,7 @@ export const TripPlanner: React.FC = () => {
       }
     };
     performAutoGuest();
-  }, [isAuthenticated, loginGuest]);
+  }, [isAuthenticated, loading, loginGuest]);
 
   // Sync state if coming from Homepage
   useEffect(() => {
@@ -91,19 +99,8 @@ export const TripPlanner: React.FC = () => {
     setParsedParams(parsed);
   };
 
-  const handleConfirmedGenerate = async () => {
+  const handleConfirmedGenerate = () => {
     if (!parsedParams) return;
-    
-    // Double check authentication
-    let loggedIn = isAuthenticated;
-    if (!loggedIn) {
-      try {
-        await loginGuest();
-        loggedIn = true;
-      } catch (err) {
-        console.error("Guest login failed:", err);
-      }
-    }
 
     const input: TripGenerateInput = {
       source: 'Delhi', // Default source city
@@ -114,69 +111,37 @@ export const TripPlanner: React.FC = () => {
       interests: parsedParams.interests,
     };
 
-    setActiveInput(input);
-    setLoading(true);
-    setIsApiReady(false);
-    setError('');
+    // Store in Zustand
+    setTripPrompt(nlQuery || input.destination + ' trip');
+    setTripData({
+      destination: input.destination,
+      budget: input.budget,
+      duration: input.days,
+      travelers: input.travelers,
+      moods: input.interests,
+      dates: parsedParams.dates || 'Upcoming dates',
+      generatedItinerary: null
+    });
 
-    try {
-      const generatedPlan = await tripsApi.generate(input);
-      apiResultRef.current = generatedPlan;
-      setIsApiReady(true);
-    } catch (err) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      setError(error.response?.data?.detail || 'Failed to generate your trip plan. Please try again.');
-      setLoading(false);
-    }
+    // Navigate immediately to loading screen
+    navigate('/planner/loading', { state: { input } });
   };
 
-  const handleWizardSubmit = async (data: TripGenerateInput) => {
-    let loggedIn = isAuthenticated;
-    if (!loggedIn) {
-      try {
-        await loginGuest();
-        loggedIn = true;
-      } catch (err) {
-        console.error("Guest login failed:", err);
-      }
-    }
+  const handleWizardSubmit = (data: TripGenerateInput) => {
+    // Store in Zustand
+    setTripPrompt(data.destination + ' trip');
+    setTripData({
+      destination: data.destination,
+      budget: data.budget,
+      duration: data.days,
+      travelers: data.travelers,
+      moods: data.interests,
+      dates: 'Upcoming dates',
+      generatedItinerary: null
+    });
 
-    setActiveInput(data);
-    setLoading(true);
-    setIsApiReady(false);
-    setError('');
-
-    try {
-      const generatedPlan = await tripsApi.generate(data);
-      apiResultRef.current = generatedPlan;
-      setIsApiReady(true);
-    } catch (err) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      setError(error.response?.data?.detail || 'Failed to generate your trip plan. Please try again.');
-      setLoading(false);
-    }
-  };
-
-  const handleLoadingComplete = () => {
-    if (apiResultRef.current && activeInput) {
-      setGeneratedItinerary(apiResultRef.current);
-      setTripPrompt(nlQuery || activeInput.destination + ' trip');
-      setTripData({
-        destination: activeInput.destination,
-        budget: activeInput.budget,
-        duration: activeInput.days,
-        travelers: activeInput.travelers,
-        moods: activeInput.interests,
-        activeTripId: 0 // Unsaved initially
-      });
-
-      navigate('/dashboard/trip', { 
-        state: { 
-          generatedPlan: apiResultRef.current, 
-          originalInput: activeInput 
-        } 
-      });
-    }
+    // Navigate immediately to loading screen
+    navigate('/planner/loading', { state: { input: data } });
   };
 
   const handleReset = () => {
@@ -214,18 +179,7 @@ export const TripPlanner: React.FC = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <LoadingState 
-        source={activeInput?.source || 'Delhi'}
-        destination={activeInput?.destination || 'Goa'}
-        budget={activeInput?.budget || 30000}
-        days={activeInput?.days || 5}
-        isApiReady={isApiReady}
-        onFinished={handleLoadingComplete}
-      />
-    );
-  }
+
 
   const currentStep = parsedParams ? 2 : 1;
 

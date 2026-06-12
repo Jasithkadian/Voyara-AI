@@ -1088,7 +1088,7 @@ html {
   --color-success: #10B981;
 }
 
-.bg-gradient-mesh {
+.dark .bg-gradient-mesh, .bg-gradient-mesh-dark {
   background-color: #07080f !important;
   background-image: 
     radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.12) 0px, transparent 50%),

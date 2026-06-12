@@ -138,10 +138,10 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <div className="relative overflow-hidden py-24 bg-gradient-mesh border-b border-white/5">
+    <div className="relative overflow-hidden py-24 bg-gradient-mesh border-b border-slate-100">
       {/* Mesh gradients absolute backgrounds */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[rgba(124,58,237,0.12)] rounded-full blur-[120px] -z-10 animate-pulse-subtle" />
-      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-[rgba(37,99,235,0.08)] rounded-full blur-[100px] -z-10" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[rgba(124,58,237,0.06)] rounded-full blur-[120px] -z-10 animate-pulse-subtle" />
+      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-[rgba(37,99,235,0.04)] rounded-full blur-[100px] -z-10" style={{ animationDelay: '2s' }} />
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
@@ -151,9 +151,10 @@ export const HeroSection: React.FC = () => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center space-x-2 bg-purple-500/10 text-purple-300 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-purple-500/20 shadow-sm backdrop-blur-md"
+              className="inline-flex items-center space-x-2 bg-purple-50/10 text-purple-700 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-purple-100 shadow-sm"
+              style={{ backgroundColor: 'rgba(124, 58, 237, 0.05)', color: 'rgb(109, 40, 217)' }}
             >
-              <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+              <Sparkles className="w-4 h-4 text-purple-600 animate-pulse" />
               <span>AUTONOMOUS AI TRAVEL AGENT</span>
             </motion.div>
             
@@ -161,10 +162,10 @@ export const HeroSection: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-display font-bold text-5xl sm:text-6xl text-white tracking-tight leading-none"
+              className="font-display font-bold text-5xl sm:text-6xl text-slate-900 tracking-tight leading-none"
             >
               Travel planning, <br />
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent font-extrabold">
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-extrabold">
                 reimagined.
               </span>
             </motion.h1>
@@ -173,7 +174,7 @@ export const HeroSection: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="hero-subheadline text-base sm:text-lg text-stone-300 dark:text-stone-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-sans"
+              className="hero-subheadline text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-sans"
             >
               Voyara is your autonomous travel concierge. Describe your dream vacation in plain English, and our subagents will instantly build, optimize, and continuously monitor your itinerary, hotels, flights, and weather changes.
             </motion.p>
@@ -187,17 +188,17 @@ export const HeroSection: React.FC = () => {
             >
               <form 
                 onSubmit={handleSearchSubmit}
-                className="bg-white/5 border border-white/10 p-2.5 rounded-2xl shadow-2xl flex flex-row gap-3 backdrop-blur-xl hover:border-purple-500/30 transition-all group"
+                className="bg-white border border-slate-200 p-2.5 rounded-2xl shadow-lg shadow-slate-100/60 flex flex-row gap-3 hover:border-purple-300 transition-all group"
               >
                 <div className="flex items-center gap-3 px-4 flex-grow py-2 md:py-0">
-                  <Search className="w-5 h-5 text-stone-400 group-hover:text-purple-400 transition-colors" />
+                  <Search className="w-5 h-5 text-slate-400 group-hover:text-purple-600 transition-colors" />
                   <div className="relative flex-grow h-8 flex items-center">
                     <input 
                       type="text" 
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       required
-                      className="bg-transparent text-sm text-white placeholder-stone-500 focus:outline-none w-full font-semibold relative z-10"
+                      className="bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none w-full font-semibold relative z-10"
                     />
                     <AnimatePresence mode="wait">
                       {!query && (
@@ -207,7 +208,7 @@ export const HeroSection: React.FC = () => {
                           animate={{ opacity: 0.5, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
                           transition={{ duration: 0.3 }}
-                          className="absolute left-0 text-sm text-stone-400 font-normal select-none pointer-events-none"
+                          className="absolute left-0 text-sm text-slate-400 font-normal select-none pointer-events-none"
                         >
                           {PLACEHOLDERS[placeholderIndex]}
                         </motion.span>
@@ -223,8 +224,8 @@ export const HeroSection: React.FC = () => {
                     onClick={toggleListening}
                     className={`p-2 rounded-xl border transition-colors flex items-center justify-center shrink-0 ${
                       isListening 
-                        ? 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse' 
-                        : 'border-white/10 text-stone-400 hover:text-white bg-white/5 hover:bg-white/10'
+                        ? 'bg-red-50 text-red-600 border-red-200 animate-pulse' 
+                        : 'border-slate-200 text-slate-500 hover:text-slate-950 bg-slate-50 hover:bg-slate-100'
                     }`}
                     title={isListening ? 'Listening... Click to stop' : 'Search by Voice'}
                   >
@@ -243,8 +244,8 @@ export const HeroSection: React.FC = () => {
 
               {/* Speech-to-Text active status */}
               {isListening && (
-                <div className="text-[10px] font-bold text-red-400 tracking-wider flex items-center gap-1.5 justify-center lg:justify-start px-2 uppercase">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
+                <div className="text-[10px] font-bold text-red-600 tracking-wider flex items-center gap-1.5 justify-center lg:justify-start px-2 uppercase">
+                  <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping" />
                   <span>Listening carefully... Speak now</span>
                 </div>
               )}
@@ -253,7 +254,7 @@ export const HeroSection: React.FC = () => {
             {/* Suggested Prompts helper chips */}
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2 justify-center lg:justify-start max-w-xl mx-auto lg:mx-0">
-                <span className="text-xs text-stone-400 font-semibold py-1">Try:</span>
+                <span className="text-xs text-slate-500 font-semibold py-1">Try:</span>
                 {[
                   '5 days in Goa under 20k',
                   'Honeymoon in Bali',
@@ -263,7 +264,7 @@ export const HeroSection: React.FC = () => {
                     key={idx}
                     type="button"
                     onClick={() => setQuery(p)}
-                    className="text-xs bg-white/5 border border-white/10 text-stone-300 hover:text-white hover:bg-white/10 px-3 py-1 rounded-full transition-colors font-medium"
+                    className="text-xs bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-3 py-1 rounded-full transition-colors font-medium"
                   >
                     {p}
                   </button>
@@ -272,26 +273,26 @@ export const HeroSection: React.FC = () => {
 
               {/* Recent Searches history chips */}
               {recentSearches.length > 0 && (
-                <div className="flex flex-wrap gap-2 justify-center lg:justify-start max-w-xl mx-auto lg:mx-0 border-t border-white/5 pt-3">
-                  <span className="text-xs text-stone-400 font-semibold py-1 flex items-center gap-1">
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-start max-w-xl mx-auto lg:mx-0 border-t border-slate-100 pt-3">
+                  <span className="text-xs text-slate-500 font-semibold py-1 flex items-center gap-1">
                     <History className="w-3.5 h-3.5" /> Recent Searches:
                   </span>
                   {recentSearches.map((p, idx) => (
                     <div
                       key={idx}
-                      className="group relative flex items-center text-xs bg-white/5 border border-white/10 hover:border-white/20 text-stone-300 rounded-full pl-3 pr-2.5 py-1 transition-all"
+                      className="group relative flex items-center text-xs bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-600 rounded-full pl-3 pr-2.5 py-1 transition-all"
                     >
                       <button
                         type="button"
                         onClick={() => setQuery(p)}
-                        className="font-medium mr-1.5 hover:text-white"
+                        className="font-medium mr-1.5 hover:text-slate-900"
                       >
                         {p}
                       </button>
                       <button
                         type="button"
                         onClick={(e) => clearRecentSearch(e, p)}
-                        className="text-stone-500 hover:text-stone-300 transition-colors"
+                        className="text-slate-400 hover:text-slate-600 transition-colors"
                         title="Remove search"
                       >
                         <X className="w-2.5 h-2.5" />
@@ -307,19 +308,19 @@ export const HeroSection: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="grid grid-cols-3 gap-12 pt-10 max-w-md mx-auto lg:mx-0 border-t border-white/10"
+              className="grid grid-cols-3 gap-12 pt-10 max-w-md mx-auto lg:mx-0 border-t border-slate-200"
             >
               <div>
-                <p className="text-3xl font-extrabold text-white tracking-tight">125k+</p>
-                <p className="text-xs text-stone-400 font-semibold mt-1">Trips Optimized</p>
+                <p className="text-3xl font-extrabold text-slate-900 tracking-tight">125k+</p>
+                <p className="text-xs text-slate-500 font-semibold mt-1">Trips Optimized</p>
               </div>
               <div>
-                <p className="text-3xl font-extrabold text-white tracking-tight">180+</p>
-                <p className="text-xs text-stone-400 font-semibold mt-1">Cities Mapped</p>
+                <p className="text-3xl font-extrabold text-slate-900 tracking-tight">180+</p>
+                <p className="text-xs text-slate-500 font-semibold mt-1">Cities Mapped</p>
               </div>
               <div>
-                <p className="text-3xl font-extrabold text-white tracking-tight">4.96★</p>
-                <p className="text-xs text-stone-400 font-semibold mt-1">Investor Rating</p>
+                <p className="text-3xl font-extrabold text-slate-900 tracking-tight">4.96★</p>
+                <p className="text-xs text-slate-500 font-semibold mt-1">Investor Rating</p>
               </div>
             </motion.div>
           </div>
@@ -330,25 +331,25 @@ export const HeroSection: React.FC = () => {
               initial={{ opacity: 0, x: 40, rotate: 1 }}
               animate={{ opacity: 1, x: 0, rotate: 0 }}
               transition={{ duration: 0.8, type: 'spring' }}
-              className="relative mx-auto w-full max-w-[400px] aspect-[4/5] bg-gradient-to-tr from-blue-500/10 via-purple-500/5 to-pink-500/10 rounded-3xl p-6 border border-white/10 shadow-2xl flex flex-col justify-between overflow-hidden backdrop-blur-3xl"
+              className="relative mx-auto w-full max-w-[400px] aspect-[4/5] bg-gradient-to-tr from-blue-500/5 via-purple-500/3 to-pink-500/5 rounded-3xl p-6 border border-slate-200 shadow-xl flex flex-col justify-between overflow-hidden backdrop-blur-3xl"
             >
               {/* Graphic background shapes */}
-              <div className="absolute top-0 right-0 w-44 h-44 bg-purple-500/10 rounded-full blur-3xl -mr-20 -mt-20" />
-              <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-blue-500/10 rounded-full blur-3xl" />
+              <div className="absolute top-0 right-0 w-44 h-44 bg-purple-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
+              <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-blue-500/5 rounded-full blur-3xl" />
 
               {/* Destination Tag */}
               <div className="flex justify-between items-start z-10">
-                <div className="bg-black/40 backdrop-blur-xl p-3 px-4 rounded-2xl border border-white/10 shadow-lg flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/20 text-blue-300 rounded-xl">
+                <div className="bg-white/90 backdrop-blur-md p-3 px-4 rounded-2xl border border-slate-100 shadow-md flex items-center gap-3">
+                  <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
                     <Globe className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] text-stone-400 block font-semibold tracking-wider uppercase">Active Agent</span>
-                    <span className="text-xs font-bold text-white">Bali, Indonesia</span>
+                    <span className="text-[10px] text-slate-400 block font-semibold tracking-wider uppercase">Active Agent</span>
+                    <span className="text-xs font-bold text-slate-800">Bali, Indonesia</span>
                   </div>
                 </div>
                 
-                <span className="bg-emerald-500/15 text-emerald-300 font-bold text-[10px] tracking-wider uppercase px-3.5 py-1.5 rounded-full border border-emerald-500/20 shadow-md">
+                <span className="bg-emerald-50 text-emerald-700 font-bold text-[10px] tracking-wider uppercase px-3.5 py-1.5 rounded-full border border-emerald-100 shadow-md" style={{ backgroundColor: 'rgb(236, 253, 245)', color: 'rgb(4, 120, 87)', borderColor: 'rgb(167, 243, 208)' }}>
                   Verified Route
                 </span>
               </div>
@@ -356,37 +357,37 @@ export const HeroSection: React.FC = () => {
               {/* Daily segment preview card */}
               <motion.div 
                 whileHover={{ scale: 1.03, y: -2 }}
-                className="bg-black/50 backdrop-blur-2xl p-5 rounded-2xl shadow-2xl border border-white/10 transform rotate-1 translate-x-3 z-10 space-y-3"
+                className="bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-xl border border-slate-100 transform rotate-1 translate-x-3 z-10 space-y-3"
               >
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Day 2 • 09:30 AM</span>
-                  <span className="text-[10px] bg-white/5 text-stone-300 px-2.5 py-1 rounded-full font-semibold">28°C Sunny</span>
+                  <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">Day 2 • 09:30 AM</span>
+                  <span className="text-[10px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-semibold">28°C Sunny</span>
                 </div>
-                <h4 className="text-xs font-bold text-white leading-snug">Tegalalang Rice Terraces Excursion</h4>
-                <p className="text-[11px] text-stone-400 leading-relaxed line-clamp-2">
+                <h4 className="text-xs font-bold text-slate-800 leading-snug">Tegalalang Rice Terraces Excursion</h4>
+                <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
                   Explore cascading green hillsides, enjoy the iconic jungle swing, and enjoy coconut juice.
                 </p>
-                <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-stone-400">
-                  <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-stone-400" /> Ubud</span>
-                  <span className="font-bold text-pink-400 font-mono">Est: ₹800</span>
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                  <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400" /> Ubud</span>
+                  <span className="font-bold text-pink-500 font-mono">Est: ₹800</span>
                 </div>
               </motion.div>
 
               {/* Mini Budget breakdown card */}
               <motion.div 
                 whileHover={{ scale: 1.03, y: -2 }}
-                className="bg-black/50 backdrop-blur-2xl p-5 rounded-2xl shadow-2xl border border-white/10 transform -rotate-2 -translate-x-3 z-10 self-start w-5/6 space-y-3"
+                className="bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-xl border border-slate-100 transform -rotate-2 -translate-x-3 z-10 self-start w-5/6 space-y-3"
               >
-                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">Cost Matrix Summary</span>
+                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest block">Cost Matrix Summary</span>
                 <div className="flex justify-between items-end">
-                  <span className="text-xl font-bold text-pink-400 font-mono">₹59,000</span>
-                  <span className="text-[10px] text-stone-400 font-semibold">7 Days • 2 Guests</span>
+                  <span className="text-xl font-bold text-pink-500 font-mono">₹59,000</span>
+                  <span className="text-[10px] text-slate-500 font-semibold">7 Days • 2 Guests</span>
                 </div>
                 <div className="space-y-2 pt-1">
-                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full" style={{ width: '68%' }} />
                   </div>
-                  <div className="flex justify-between text-[10px] text-stone-400 font-medium">
+                  <div className="flex justify-between text-[10px] text-slate-500 font-medium">
                     <span>Flights &amp; Hotel (68%)</span>
                     <span>Activities (32%)</span>
                   </div>
