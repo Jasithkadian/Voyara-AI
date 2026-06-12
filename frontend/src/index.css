@@ -138,7 +138,7 @@
 }
 
 @layer components {
-  /* PRIMARY — main actions */
+  /* PRIMARY — main actions, 1 per screen */
   .btn-primary {
     background: var(--color-primary);
     color: white;
@@ -166,7 +166,7 @@
   }
   .btn-secondary:hover { background: var(--color-bg-hover); border-color: var(--color-border-strong); }
 
-  /* CTA — single most important action */
+  /* CTA — single most important action (generate, start planning) */
   .btn-cta {
     background: var(--gradient-brand);
     color: white;
@@ -179,7 +179,7 @@
   }
   .btn-cta:hover { opacity: 0.92; box-shadow: var(--shadow-lg); transform: translateY(-1px); }
 
-  /* GHOST — low-emphasis actions */
+  /* GHOST — low-emphasis actions, tertiary */
   .btn-ghost {
     background: transparent;
     color: var(--color-text-secondary);

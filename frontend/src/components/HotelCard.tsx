@@ -113,10 +113,10 @@ export const HotelCard: React.FC<HotelCardProps> = ({
         <div className="flex justify-between items-center pt-2 border-t border-stoneMuted/40 dark:border-dark-border/40 gap-4 mt-auto">
           {/* Price (Coral Accent) */}
           <div className="flex flex-col">
-            <span className="text-[10px] uppercase text-textSecondary dark:text-dark-text-muted font-semibold tracking-wider">
+            <span className="text-[10px] uppercase text-textSecondary dark:text-dark-text-muted font-bold tracking-wider">
               Price
             </span>
-            <span className="text-[15px] font-bold text-coral font-mono leading-none mt-0.5">
+            <span className="price text-[var(--color-accent)] leading-none mt-0.5">
               {hotel.pricePerNight}
             </span>
           </div>
@@ -130,7 +130,7 @@ export const HotelCard: React.FC<HotelCardProps> = ({
             ) : (
               <button
                 onClick={onBook}
-                className="h-8 px-3.5 rounded-md font-semibold text-[11px] bg-primary text-warmWhite hover:bg-primary/90 active:scale-[0.97] transition-all whitespace-nowrap"
+                className="btn-primary h-8 px-3 text-[11px]"
               >
                 View Hotel
               </button>
@@ -143,7 +143,7 @@ export const HotelCard: React.FC<HotelCardProps> = ({
                   '_blank'
                 )
               }
-              className="h-8 px-3 rounded-md border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-dark-text-muted hover:bg-stoneMuted/30 dark:hover:bg-dark-muted font-semibold text-[11px] flex items-center gap-1 transition-all whitespace-nowrap"
+              className="btn-secondary h-8 px-3 text-[11px]"
             >
               <span>View Hotel</span>
               <ExternalLink className="w-3 h-3 shrink-0" />

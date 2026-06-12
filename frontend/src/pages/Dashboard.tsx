@@ -485,32 +485,31 @@ export const Dashboard: React.FC = () => {
         )}
 
         {/* Action Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-warmWhite dark:bg-dark-card p-6 border border-stoneMuted/50 dark:border-dark-border/40 rounded-lg">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--color-bg-card)] p-6 border border-[var(--color-border)] rounded-[var(--radius-lg)]">
           <div>
-            <Link to="/dashboard" className="text-xs font-semibold text-textSecondary hover:text-primary flex items-center gap-1 mb-2">
+            <Link to="/dashboard" className="btn-ghost mb-2 -ml-3.5">
               ← Back to Dashboard
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-sans font-semibold text-textPrimary dark:text-dark-text">Your voira Itinerary</h1>
+            <h1 className="page-title">Your voira Itinerary</h1>
           </div>
           
           <div className="flex items-center gap-4 w-full sm:w-auto">
             {!saveSuccess ? (
-              <Button
-                variant="primary"
+              <button
                 onClick={handleSaveTrip}
                 disabled={saveLoading}
-                className="flex-1 sm:flex-initial"
+                className="btn-primary flex-1 sm:flex-initial"
               >
                 <Save className="w-4 h-4" /> {saveLoading ? 'Saving...' : 'Save Trip'}
-              </Button>
+              </button>
             ) : (
-              <span className="flex-1 sm:flex-initial text-center px-4 py-2 bg-successSage/10 text-successSage font-semibold text-xs rounded-sm border border-successSage/20">
+              <span className="flex-1 sm:flex-initial text-center px-4 py-2 bg-[var(--color-success-bg)] text-[var(--color-success)] font-bold text-[10px] uppercase tracking-wider rounded-[var(--radius-sm)] border border-[var(--color-success-border)]">
                 ✓ Saved to History
               </span>
             )}
             
             <Button
-              variant="destructive"
+              variant="secondary"
               onClick={() => setShowReplanModal(true)}
               className="flex-1 sm:flex-initial"
             >
@@ -556,7 +555,7 @@ export const Dashboard: React.FC = () => {
                   }}
                   className="flex-1 sm:flex-initial"
                 >
-                  <Clock className="w-4 h-4 text-textSecondary" /> Version History
+                  <Clock className="w-4 h-4" /> Versions
                 </Button>
               </>
             )}
@@ -565,7 +564,7 @@ export const Dashboard: React.FC = () => {
               <Link
                 to="/chat"
                 state={{ activeTrip }}
-                className="h-9 w-9 rounded-sm bg-stoneMuted hover:bg-stoneMuted/80 text-textPrimary flex items-center justify-center transition-colors"
+                className="btn-primary p-2 w-10 h-10"
                 title="Chat with Context"
               >
                 <MessageSquare className="w-4 h-4" />
@@ -1179,7 +1178,7 @@ export const Dashboard: React.FC = () => {
   const uniqueDestinations = new Set(savedTrips.map(t => t.destination.toLowerCase())).size;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12 bg-[var(--color-bg-page)]">
       
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -1208,7 +1207,7 @@ export const Dashboard: React.FC = () => {
             <Compass className="w-5 h-5" />
           </div>
           <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">Total Trips</p>
-          <h3 className="stat-number mt-1">{totalTrips}</h3>
+          <h3 className="stat-number text-[var(--color-text-primary)] mt-1">{totalTrips}</h3>
         </div>
 
         <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all">
@@ -1224,85 +1223,85 @@ export const Dashboard: React.FC = () => {
             <Calendar className="w-5 h-5" />
           </div>
           <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">Travel Days</p>
-          <h3 className="stat-number mt-1">{totalDays}</h3>
+          <h3 className="stat-number text-[var(--color-text-primary)] mt-1">{totalDays}</h3>
         </div>
 
         <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all">
-          <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-accent-light)] text-[var(--color-accent)] flex items-center justify-center mb-4">
+          <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center mb-4">
             <MapPin className="w-5 h-5" />
           </div>
           <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">Destinations</p>
-          <h3 className="stat-number mt-1">{uniqueDestinations}</h3>
+          <h3 className="stat-number text-[var(--color-text-primary)] mt-1">{uniqueDestinations}</h3>
         </div>
       </div>
 
       {/* Saved Trips Lists */}
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h3 className="font-sans font-semibold text-xl text-textPrimary dark:text-warmWhite">Your Travel History</h3>
+          <h3 className="section-headline text-xl">Your Travel History</h3>
           {totalTrips > 0 && (
-            <Link to="/saved-trips" className="text-sm font-semibold text-primary hover:underline flex items-center gap-1">
+            <Link to="/saved-trips" className="text-sm font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1">
               View List <ArrowRight className="w-4 h-4" />
             </Link>
           )}
         </div>
 
         {savedTrips.length === 0 ? (
-          <div className="text-center py-20 bg-warmWhite dark:bg-dark-card border border-dashed border-stoneMuted dark:border-dark-border rounded-md p-12 shadow-sm">
-            <Sparkles className="w-10 h-10 text-textSecondary dark:text-dark-text-muted mx-auto mb-4" />
-            <h4 className="font-sans font-semibold text-textPrimary dark:text-warmWhite text-lg">No adventures planned yet</h4>
-            <p className="text-sm text-textSecondary dark:text-dark-text-muted mt-1 mb-6 max-w-sm mx-auto">
+          <div className="text-center py-20 bg-[var(--color-bg-card)] border border-dashed border-[var(--color-border)] rounded-[var(--radius-xl)] p-12 shadow-[var(--shadow-sm)]">
+            <Sparkles className="w-10 h-10 text-[var(--color-text-muted)] mx-auto mb-4" />
+            <h4 className="font-semibold text-[var(--color-text-primary)] text-lg">No adventures planned yet</h4>
+            <p className="text-sm text-[var(--color-text-secondary)] mt-1 mb-6 max-w-sm mx-auto">
               Ready to travel? Let our AI travel coordinator prepare a bespoke plan for you.
             </p>
             <Link
               to="/planner"
-              className="h-11 px-6 bg-primary text-warmWhite font-semibold rounded-sm shadow-sm hover:opacity-95 inline-flex items-center justify-center transition-all text-sm animate-pulse-subtle"
+              className="btn-cta"
             >
               Start Trip Planner
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {savedTrips.slice(0, 3).map((trip) => (
               <div 
                 key={trip.id} 
-                className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.99] transition-all flex flex-col justify-between group cursor-pointer relative"
+                className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-8 hover:shadow-[var(--shadow-md)] hover:-translate-y-1 active:scale-[0.99] transition-all flex flex-col justify-between group cursor-pointer relative shadow-[var(--shadow-sm)]"
                 onClick={() => navigate('/dashboard/trip', { state: { trip } })}
               >
                 <div>
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start mb-6">
                     <Badge type="duration" label={`${trip.days} ${trip.days === 1 ? 'Day' : 'Days'}`} />
                     <button
                       onClick={(e) => handleDeleteTrip(trip.id, e)}
-                      className="p-2 rounded-sm text-textSecondary hover:text-coral hover:bg-coral/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                      className="p-2 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] opacity-0 group-hover:opacity-100 transition-all duration-200"
                       title="Delete trip"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                   
-                  <h4 className="font-sans font-semibold text-lg text-textPrimary dark:text-warmWhite line-clamp-1 group-hover:text-primary transition-colors">
+                  <h4 className="trip-name line-clamp-1 group-hover:text-[var(--color-primary)] transition-colors">
                     {trip.destination}
                   </h4>
                   
-                  <p className="text-xs text-textSecondary dark:text-dark-text-muted flex items-center gap-1 mt-1">
-                    <MapPin className="w-4 h-4 text-primary" /> From {trip.source}
+                  <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] flex items-center gap-1.5 mt-2 font-medium">
+                    <MapPin className="w-4 h-4 text-[var(--color-primary)]" /> From {trip.source}
                   </p>
 
-                  <div className="mt-4 grid grid-cols-2 gap-2 text-xs border-t border-stoneMuted dark:border-dark-border pt-4">
+                  <div className="mt-8 grid grid-cols-2 gap-6 border-t border-[var(--color-border-subtle)] pt-6 text-[var(--text-xs)]">
                     <div>
-                      <span className="text-textSecondary block mb-1">Budget</span>
-                      <span className="font-semibold text-coral font-mono">{formatCurrency(trip.budget)}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block mb-1">Budget</span>
+                      <span className="price text-[var(--color-accent)]">{formatCurrency(trip.budget)}</span>
                     </div>
                     <div>
-                      <span className="text-textSecondary block mb-1">Travelers</span>
-                      <span className="font-semibold text-textPrimary dark:text-dark-text-muted">{trip.travelers} Guests</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block mb-1">Travelers</span>
+                      <span className="font-bold text-[var(--color-text-primary)]">{trip.travelers} Guests</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 flex justify-end">
-                  <span className="text-xs font-semibold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <div className="mt-8 pt-4 flex justify-end">
+                  <span className="btn-ghost text-[var(--color-primary)] font-bold group-hover:translate-x-1 transition-transform p-0 hover:bg-transparent flex items-center gap-1">
                     View full itinerary <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>

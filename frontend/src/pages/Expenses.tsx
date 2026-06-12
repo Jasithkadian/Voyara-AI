@@ -197,15 +197,17 @@ export const Expenses: React.FC = () => {
   };
 
   const totalSpent = Object.values(spentByCategory).reduce((sum, val) => sum + val, 0);
-  const remainingBudget = (selectedTrip?.budget || 0) - totalSpent;
+  const totalBudget = selectedTrip?.budget || 0;
+  const remainingBudget = totalBudget - totalSpent;
+  const isLowBudget = remainingBudget > 0 && remainingBudget < (totalBudget * 0.15); // Less than 15% remaining
 
-  // Chart 1: Spent Pie Data
+  // Chart 1: Spent Pie Data - Exactly mapped to design system hexes as per Step 6
   const spentPieData = [
-    { name: 'Hotels', value: spentByCategory.Hotels, color: '#1A56DB' },
-    { name: 'Food', value: spentByCategory.Food, color: '#F97316' },
-    { name: 'Transport', value: spentByCategory.Transport, color: '#64748B' },
-    { name: 'Activities', value: spentByCategory.Activities, color: '#059669' },
-    { name: 'Misc', value: spentByCategory.Miscellaneous, color: '#94A3B8' }
+    { name: 'Hotels', value: spentByCategory.Hotels, color: '#1A56DB' },      // var(--color-primary)
+    { name: 'Food', value: spentByCategory.Food, color: '#F97316' },        // Orange 500
+    { name: 'Transport', value: spentByCategory.Transport, color: '#64748B' }, // Slate 500
+    { name: 'Activities', value: spentByCategory.Activities, color: '#059669' }, // var(--color-success)
+    { name: 'Misc', value: spentByCategory.Miscellaneous, color: '#94A3B8' }  // Slate 400
   ].filter(item => item.value > 0);
 
   // Chart 2: Planned vs Actual Bar Data
@@ -230,14 +232,14 @@ export const Expenses: React.FC = () => {
 
         {/* Trip Switcher Selector */}
         <div className="flex items-center space-x-2 w-full sm:w-auto">
-          <span className="text-[var(--text-xs)] text-[var(--color-text-secondary)] font-semibold hidden md:inline uppercase tracking-wider">Track Trip:</span>
+          <span className="text-[var(--text-xs)] text-[var(--color-text-secondary)] font-bold hidden md:inline uppercase tracking-wider">Track Trip:</span>
           <select
             value={selectedTrip?.id || ''}
             onChange={(e) => {
               const match = trips.find(t => t.id === Number(e.target.value));
               setSelectedTrip(match || null);
             }}
-            className="w-full sm:w-auto px-4 py-2 text-[var(--text-xs)] bg-[var(--color-bg-hover)] border border-[var(--color-border)] rounded-[var(--radius-sm)] text-[var(--color-text-primary)] font-semibold focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2 text-[var(--text-xs)] bg-[var(--color-bg-hover)] border border-[var(--color-border)] rounded-[var(--radius-sm)] text-[var(--color-text-primary)] font-bold focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] cursor-pointer"
           >
             {trips.map(t => (
               <option key={t.id} value={t.id}>

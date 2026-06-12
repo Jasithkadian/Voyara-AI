@@ -132,13 +132,13 @@ export const TravelTips: React.FC<TravelTipsProps> = ({ destination, startDate, 
   const tips = getTips();
 
   return (
-    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm hover:shadow-card-hover transition-all space-y-4">
-      <div>
-        <h4 className="font-sans font-semibold text-base text-textPrimary dark:text-warmWhite flex items-center gap-2">
+    <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-8 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all space-y-6">
+      <div className="text-left">
+        <h4 className="section-headline">
           Travel Tips for {destination}
         </h4>
-        <p className="text-xs text-textSecondary dark:text-dark-text-muted">
-          Context-aware recommendations for {destination}.
+        <p className="text-sm text-[var(--color-text-secondary)] mt-1 font-medium">
+          Context-aware recommendations for your journey.
         </p>
       </div>
 
@@ -146,17 +146,17 @@ export const TravelTips: React.FC<TravelTipsProps> = ({ destination, startDate, 
         {tips.map((tip, idx) => {
           const Icon = tip.icon;
           const bgClass = tip.type === 'warning' 
-            ? 'bg-warningAmber/10 border-warningAmber/30 text-warningAmber' 
+            ? 'bg-[var(--color-warning-bg)] border-[var(--color-warning-border)] text-[var(--color-warning)]' 
             : tip.type === 'success' 
-            ? 'bg-successSage/10 border-successSage/30 text-successSage' 
-            : 'bg-primary/5 border-primary/20 text-primary';
+            ? 'bg-[var(--color-success-bg)] border-[var(--color-success-border)] text-[var(--color-success)]' 
+            : 'bg-[var(--color-info-bg)] border-[var(--color-info)]/20 text-[var(--color-info)]';
 
           return (
-            <div key={idx} className={`p-4 rounded-md border flex items-start gap-3 text-xs leading-relaxed ${bgClass}`}>
+            <div key={idx} className={`p-5 rounded-[var(--radius-md)] border flex items-start gap-4 text-[13px] leading-relaxed text-left ${bgClass}`}>
               <Icon className="w-5 h-5 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold block mb-1">{tip.title}</span>
-                <span className="text-textSecondary dark:text-dark-text-muted">{tip.text}</span>
+                <span className="font-bold block mb-1 text-[var(--color-text-primary)]">{tip.title}</span>
+                <span className="text-[var(--color-text-secondary)]">{tip.text}</span>
               </div>
             </div>
           );

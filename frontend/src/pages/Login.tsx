@@ -95,7 +95,7 @@ export const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-lg font-semibold bg-primary text-warmWhite hover:bg-primary shadow-md shadow-primary/20 disabled:opacity-50 transition-all duration-300"
+              className="btn-primary w-full h-12"
             >
               {loading ? 'Signing In...' : 'Sign In'}
             </button>
@@ -104,7 +104,7 @@ export const Login: React.FC = () => {
               type="button"
               disabled={loading}
               onClick={handleGuestLogin}
-              className="w-full py-4 rounded-lg font-semibold border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-dark-text-muted hover:bg-stoneMuted/30 dark:hover:bg-dark-muted/30 transition-all duration-300"
+              className="btn-secondary w-full h-12"
             >
               Continue as Guest
             </button>

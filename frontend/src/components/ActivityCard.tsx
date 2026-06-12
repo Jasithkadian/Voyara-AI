@@ -42,17 +42,17 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
   // Determine left border color for "data" variant
   const getBorderColorClass = (timeString: string) => {
     const t = timeString.toLowerCase();
-    if (t.includes('morning')) return 'border-l-warningAmber'; // amber
-    if (t.includes('afternoon')) return 'border-l-teal-500 dark:border-l-teal-400'; // teal
-    return 'border-l-[#1A1A2E] dark:border-l-primary'; // navy / primary
+    if (t.includes('morning')) return 'border-l-[var(--color-warning)]';
+    if (t.includes('afternoon')) return 'border-l-sky-500';
+    return 'border-l-[var(--color-primary)]';
   };
 
   // Determine badge background color for "activity" variant
   const getTimeBadgeColor = (timeString: string) => {
     const t = timeString.toLowerCase();
-    if (t.includes('morning')) return 'bg-warningAmber/10 text-warningAmber border-warningAmber/20';
-    if (t.includes('afternoon')) return 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20';
-    return 'bg-primary/10 text-primary border-primary/20';
+    if (t.includes('morning')) return 'bg-[var(--color-warning-bg)] text-[var(--color-warning)] border-[var(--color-warning-border)]';
+    if (t.includes('afternoon')) return 'bg-[var(--color-info-bg)] text-[var(--color-info)] border-[var(--color-info)]/20';
+    return 'bg-[var(--color-primary-light)] text-[var(--color-primary)] border-[var(--color-primary)]/20';
   };
 
   // 1. DESTINATION VARIANT (Full Photography)

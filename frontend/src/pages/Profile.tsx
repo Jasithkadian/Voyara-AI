@@ -154,19 +154,19 @@ export const Profile: React.FC = () => {
               <div className="absolute inset-0 bg-black/15 pointer-events-none" />
             </div>
           ) : (
-            <div className="absolute inset-0 bg-[#1A1A2E] flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 bg-[#0F172A] flex items-center justify-center overflow-hidden">
               <svg className="absolute inset-0 w-full h-full opacity-35" viewBox="0 0 800 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M-50,150 C100,80 250,220 400,120 C550,20 700,160 850,90" fill="none" stroke="#0A84FF" strokeWidth="2.5" />
-                <path d="M-50,170 C110,100 260,240 410,140 C560,40 710,180 860,110" fill="none" stroke="#0A84FF" strokeWidth="1.5" />
-                <path d="M-50,130 C90,60 240,200 390,100 C540,0 690,140 840,70" fill="none" stroke="#0A84FF" strokeWidth="1.5" />
-                <path d="M-50,190 C120,120 270,260 420,160 C570,60 720,200 870,130" fill="none" stroke="#FF6F61" strokeWidth="1" />
-                <path d="M-50,110 C80,40 230,180 380,80 C530,-20 680,120 830,50" fill="none" stroke="#0A84FF" strokeWidth="1" />
-                <circle cx="150" cy="80" r="3" fill="#FF6F61" />
-                <circle cx="450" cy="140" r="3" fill="#0A84FF" />
-                <circle cx="650" cy="60" r="3" fill="#FF6F61" />
+                <path d="M-50,150 C100,80 250,220 400,120 C550,20 700,160 850,90" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" />
+                <path d="M-50,170 C110,100 260,240 410,140 C560,40 710,180 860,110" fill="none" stroke="var(--color-primary)" strokeWidth="1.5" />
+                <path d="M-50,130 C90,60 240,200 390,100 C540,0 690,140 840,70" fill="none" stroke="var(--color-primary)" strokeWidth="1.5" />
+                <path d="M-50,190 C120,120 270,260 420,160 C570,60 720,200 870,130" fill="none" stroke="var(--color-accent)" strokeWidth="1" />
+                <path d="M-50,110 C80,40 230,180 380,80 C530,-20 680,120 830,50" fill="none" stroke="var(--color-primary)" strokeWidth="1" />
+                <circle cx="150" cy="80" r="3" fill="var(--color-accent)" />
+                <circle cx="450" cy="140" r="3" fill="var(--color-primary)" />
+                <circle cx="650" cy="60" r="3" fill="var(--color-accent)" />
               </svg>
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-coral/10" />
-              <span className="relative z-10 text-[10px] font-semibold text-warmWhite/40 uppercase tracking-widest pointer-events-none select-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-primary)]/10 via-transparent to-[var(--color-accent)]/10" />
+              <span className="relative z-10 text-[10px] font-bold text-white/40 uppercase tracking-widest pointer-events-none select-none">
                 voira • Explore the Unexplored
               </span>
             </div>

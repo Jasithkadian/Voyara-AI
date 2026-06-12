@@ -152,11 +152,11 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
 
           {/* Recommended Restaurants Section - clearly labeled, high card weight */}
           {currentDayData?.restaurants && currentDayData.restaurants.length > 0 && (
-            <div className="pt-8 border-t border-stoneMuted/50 dark:border-dark-border mt-8">
-              <h4 className="font-display font-bold text-[18px] text-textPrimary dark:text-dark-text mb-4 flex items-center gap-2">
-                <Utensils className="w-5 h-5 text-coral shrink-0" /> Culinary Spots & Dining
+            <div className="pt-10 border-t border-[var(--color-border-subtle)] mt-10">
+              <h4 className="font-display font-semibold text-[var(--text-xl)] text-[var(--color-text-primary)] mb-4 flex items-center gap-2">
+                <Utensils className="w-5 h-5 text-[var(--color-accent)] shrink-0" /> Culinary Spots & Dining
               </h4>
-              <p className="text-xs text-textSecondary dark:text-dark-text-muted mb-6">
+              <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mb-8">
                 Handpicked restaurants matching your dietary profile.
               </p>
               
@@ -207,4 +207,6 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
       </div>
     </div>
   );
+};
+
 };

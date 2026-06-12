@@ -67,13 +67,13 @@ export const Analytics: React.FC = () => {
     );
   }
 
-  // Colors for Pie chart
+  // Colors for Pie chart - Exactly mapped to design system hexes as per Step 6
   const COLORS = [
-    'var(--color-primary-blue)',
-    'var(--color-coral-accent)',
-    'var(--color-success)',
-    'var(--color-warning)',
-    'var(--color-text-secondary)',
+    '#1A56DB', // Hotels
+    '#F97316', // Food
+    '#64748B', // Transport
+    '#059669', // Activities
+    '#94A3B8', // Misc
   ];
 
   // Data mapping for Recharts
@@ -94,10 +94,10 @@ export const Analytics: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12">
       <div>
-        <h2 className="text-3xl font-semibold text-textSecondary dark:text-warmWhite flex items-center gap-2">
-          <TrendingUp className="w-8 h-8 text-primary" /> Analytics Dashboard
+        <h2 className="page-title flex items-center gap-2">
+          <TrendingUp className="w-8 h-8 text-[var(--color-primary)]" /> Analytics Dashboard
         </h2>
-        <p className="text-sm text-textSecondary dark:text-dark-text-muted mt-1">
+        <p className="text-base text-[var(--color-text-secondary)] mt-1">
           Real-time metrics tracking travel plans, conversion rates, revenues, and destinations.
         </p>
       </div>
@@ -105,74 +105,74 @@ export const Analytics: React.FC = () => {
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Trips Planned */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 shadow-sm hover:shadow-card-hover transition-all relative overflow-hidden group">
-          <div className="absolute right-0 top-0 w-24 h-24 bg-primary/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
+        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all relative overflow-hidden group">
+          <div className="absolute right-0 top-0 w-24 h-24 bg-[var(--color-primary)]/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
           <div className="flex items-center gap-4">
-            <div className="p-4 bg-primary/10 text-primary rounded-lg">
+            <div className="p-4 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-[var(--radius-md)]">
               <Calendar className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted  tracking-normal block">Trips Generated</span>
-              <h3 className="text-3xl font-semibold text-textSecondary dark:text-warmWhite mt-1">{data.tripsPlanned}</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Trips Generated</span>
+              <h3 className="stat-number text-[var(--color-text-primary)] mt-1">{data.tripsPlanned}</h3>
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-2 text-xs text-successSage font-semibold">
+          <div className="mt-4 flex items-center gap-2 text-[var(--text-xs)] text-[var(--color-success)] font-bold">
             <ArrowUpRight className="w-3.5 h-3.5" />
             <span>+14.5% vs last month</span>
           </div>
         </div>
 
         {/* Trips Saved */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 shadow-sm hover:shadow-card-hover transition-all relative overflow-hidden group">
-          <div className="absolute right-0 top-0 w-24 h-24 bg-primary/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
+        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all relative overflow-hidden group">
+          <div className="absolute right-0 top-0 w-24 h-24 bg-[var(--color-primary)]/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
           <div className="flex items-center gap-4">
-            <div className="p-4 bg-primary/10 text-primary rounded-lg">
+            <div className="p-4 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-[var(--radius-md)]">
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted  tracking-normal block">Trips Saved</span>
-              <h3 className="text-3xl font-semibold text-textSecondary dark:text-warmWhite mt-1">{data.tripsSaved}</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Trips Saved</span>
+              <h3 className="stat-number text-[var(--color-text-primary)] mt-1">{data.tripsSaved}</h3>
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-2 text-xs text-successSage font-semibold">
+          <div className="mt-4 flex items-center gap-2 text-[var(--text-xs)] text-[var(--color-success)] font-bold">
             <ArrowUpRight className="w-3.5 h-3.5" />
             <span>+8.2% conversion to save</span>
           </div>
         </div>
 
         {/* Bookings Created */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 shadow-sm hover:shadow-card-hover transition-all relative overflow-hidden group">
-          <div className="absolute right-0 top-0 w-24 h-24 bg-successSage/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
+        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all relative overflow-hidden group">
+          <div className="absolute right-0 top-0 w-24 h-24 bg-[var(--color-success)]/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
           <div className="flex items-center gap-4">
-            <div className="p-4 bg-successSage/10 text-successSage rounded-lg">
+            <div className="p-4 bg-[var(--color-success-bg)] text-[var(--color-success)] rounded-[var(--radius-md)]">
               <ShoppingBag className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted  tracking-normal block">Bookings Created</span>
-              <h3 className="text-3xl font-semibold text-textSecondary dark:text-warmWhite mt-1">{data.bookingsCreated}</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Bookings Created</span>
+              <h3 className="stat-number text-[var(--color-text-primary)] mt-1">{data.bookingsCreated}</h3>
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-2 text-xs text-successSage font-semibold">
+          <div className="mt-4 flex items-center gap-2 text-[var(--text-xs)] text-[var(--color-success)] font-bold">
             <ArrowUpRight className="w-3.5 h-3.5" />
             <span>{data.bookingConversion}% Conversion</span>
           </div>
         </div>
 
         {/* Total Revenue */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-6 shadow-sm hover:shadow-card-hover transition-all relative overflow-hidden group">
-          <div className="absolute right-0 top-0 w-24 h-24 bg-warningAmber/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
+        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all relative overflow-hidden group">
+          <div className="absolute right-0 top-0 w-24 h-24 bg-[var(--color-warning)]/5 rounded-sm-bl-full transition-transform group-hover:scale-110" />
           <div className="flex items-center gap-4">
-            <div className="p-4 bg-warningAmber/10 text-warningAmber rounded-lg">
+            <div className="p-4 bg-[var(--color-warning-bg)] text-[var(--color-warning)] rounded-[var(--radius-md)]">
               <DollarSign className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted  tracking-normal block">Total Revenue</span>
-              <h3 className="text-2xl font-semibold text-coral font-mono mt-2">{formatCurrency(data.revenueGenerated)}</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Total Revenue</span>
+              <h3 className="price text-[var(--color-text-primary)] mt-1">{formatCurrency(data.revenueGenerated)}</h3>
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-2 text-xs text-successSage font-semibold">
+          <div className="mt-4 flex items-center gap-2 text-[var(--text-xs)] text-[var(--color-success)] font-bold">
             <ArrowUpRight className="w-3.5 h-3.5" />
-            <span className="font-mono text-coral">Avg Budget: {formatCurrency(data.averageBudget)}</span>
+            <span className="price text-[var(--color-accent)]">Avg Budget: {formatCurrency(data.averageBudget)}</span>
           </div>
         </div>
       </div>
@@ -194,140 +194,141 @@ export const Analytics: React.FC = () => {
                 <span>Direct Flight & Hotel Conversion Rate</span>
                 <span>{data.bookingConversion}%</span>
               </div>
-              <div className="w-full bg-stoneMuted dark:bg-dark-card h-3 rounded-lg overflow-hidden">
-                <div 
-                  className="bg-gradient-to-r from-primary to-primary h-full rounded-lg transition-all duration-1000" 
-                  style={{ width: `${Math.min(data.bookingConversion * 2, 100)}%` }} 
-                />
+              <div className="w-full bg-[var(--color-bg-hover)] border border-[var(--color-border)] h-3 rounded-[var(--radius-full)] overflow-hidden">
+              <div 
+              className="bg-[var(--color-primary)] h-full rounded-[var(--radius-full)] transition-all duration-1000" 
+              style={{ width: `${Math.min(data.bookingConversion * 2, 100)}%` }} 
+              />
               </div>
-            </div>
+              </div>
 
-            <div>
-              <div className="flex justify-between text-xs font-semibold text-textSecondary dark:text-dark-text-muted mb-2">
-                <span>User Retention & Engagement</span>
-                <span>{data.userRetention}%</span>
+              <div>
+              <div className="flex justify-between text-[var(--text-xs)] font-bold text-[var(--color-text-secondary)] mb-2">
+              <span>User Retention & Engagement</span>
+              <span>{data.userRetention}%</span>
               </div>
-              <div className="w-full bg-stoneMuted dark:bg-dark-card h-3 rounded-lg overflow-hidden">
-                <div 
-                  className="bg-gradient-to-r from-successSage to-successSage h-full rounded-lg transition-all duration-1000" 
-                  style={{ width: `${data.userRetention}%` }} 
-                />
+              <div className="w-full bg-[var(--color-bg-hover)] border border-[var(--color-border)] h-3 rounded-[var(--radius-full)] overflow-hidden">
+              <div 
+              className="bg-[var(--color-success)] h-full rounded-[var(--radius-full)] transition-all duration-1000" 
+              style={{ width: `${data.userRetention}%` }} 
+              />
               </div>
-            </div>
-            
-            <div className="pt-4 border-t border-stoneMuted dark:border-dark-border flex justify-between text-center">
+              </div>
+
+              <div className="pt-4 border-t border-[var(--color-border)] flex justify-between text-center">
               <div className="flex-1">
-                <span className="text-xs text-textSecondary  font-semibold tracking-normal">Churn</span>
-                <span className="block text-lg font-semibold text-textSecondary dark:text-dark-text-muted">{(100 - data.userRetention).toFixed(1)}%</span>
+              <span className="text-[10px] text-[var(--color-text-muted)] font-bold uppercase tracking-wider block">Churn</span>
+              <span className="block text-lg font-bold text-[var(--color-text-primary)]">{(100 - data.userRetention).toFixed(1)}%</span>
               </div>
-              <div className="w-px bg-stoneMuted dark:bg-dark-card" />
+              <div className="w-px bg-[var(--color-border)]" />
               <div className="flex-1">
-                <span className="text-xs text-textSecondary  font-semibold tracking-normal">Target Conversion</span>
-                <span className="block text-lg font-semibold text-textSecondary dark:text-dark-text-muted">45.0%</span>
+              <span className="text-[10px] text-[var(--color-text-muted)] font-bold uppercase tracking-wider block">Target Conversion</span>
+              <span className="block text-lg font-bold text-[var(--color-text-primary)]">45.0%</span>
               </div>
-            </div>
-          </div>
-        </div>
+              </div>
+              </div>
+              </div>
 
-        {/* User demographics & conversion info */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm flex flex-col justify-between">
-          <div>
-            <h4 className="font-semibold text-textSecondary dark:text-warmWhite text-lg mb-1 flex items-center gap-2">
-              <Users className="w-5 h-5 text-successSage" /> Platform Retention & Loyalty
-            </h4>
-            <p className="text-xs text-textSecondary dark:text-dark-text-muted mb-6">User stickiness based on repeat travel inquiries and saved itineraries.</p>
-          </div>
+              {/* User demographics & conversion info */}
+              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)] flex flex-col justify-between">
+              <div>
+              <h4 className="font-semibold text-[var(--color-text-primary)] text-lg mb-1 flex items-center gap-2">
+              <Users className="w-5 h-5 text-[var(--color-success)]" /> Platform Retention & Loyalty
+              </h4>
+              <p className="text-xs text-[var(--color-text-secondary)] mb-6">User stickiness based on repeat travel inquiries and saved itineraries.</p>
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-successSage/50 dark:bg-successSage/10 rounded-lg border border-successSage/50 dark:border-successSage/20">
-              <span className="text-xs font-semibold text-textSecondary ">Repeat Travelers</span>
-              <h5 className="text-2xl font-semibold text-successSage dark:text-successSage mt-1">72.4%</h5>
-              <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">Users generating &gt; 2 trips</p>
-            </div>
-            <div className="p-4 bg-coral/50 dark:bg-coral/10 rounded-lg border border-coral/50 dark:border-coral/20">
-              <span className="text-xs font-semibold text-textSecondary ">Net Promoter Score</span>
-              <h5 className="text-2xl font-semibold text-coral dark:text-coral mt-1">78</h5>
-              <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">Stellar user satisfaction</p>
-            </div>
-          </div>
+              <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-[var(--color-success-bg)] rounded-[var(--radius-md)] border border-[var(--color-success-border)]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-success)]">Repeat Travelers</span>
+              <h5 className="text-2xl font-bold text-[var(--color-success)] mt-1">72.4%</h5>
+              <p className="text-[10px] text-[var(--color-text-secondary)] mt-1">Users generating &gt; 2 trips</p>
+              </div>
+              <div className="p-4 bg-[var(--color-accent-light)] rounded-[var(--radius-md)] border border-[var(--color-accent)]/20">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-accent)]">Net Promoter Score</span>
+              <h5 className="text-2xl font-bold text-[var(--color-accent)] mt-1">78</h5>
+              <p className="text-[10px] text-[var(--color-text-secondary)] mt-1">Stellar user satisfaction</p>
+              </div>
+              </div>
 
-          <div className="bg-stoneMuted dark:bg-dark-card p-4 rounded-lg text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed border border-stoneMuted dark:border-dark-border">
-            <strong>Autonomous Recommendation Highlight:</strong> Our hybrid recommendation engine matches 93% of user preferences with flight &amp; hotel selections, improving booking conversion by 12% MoM.
-          </div>
-        </div>
-      </div>
+              <div className="bg-[var(--color-bg-hover)] p-4 rounded-[var(--radius-md)] text-[var(--text-xs)] text-[var(--color-text-secondary)] leading-relaxed border border-[var(--color-border)]">
+              <strong>Autonomous Recommendation Highlight:</strong> Our hybrid recommendation engine matches 93% of user preferences with flight &amp; hotel selections, improving booking conversion by 12% MoM.
+              </div>
+              </div>
+              </div>
 
-      {/* Visual Chart Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Popular Destinations Chart */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm">
-          <h4 className="font-semibold text-textSecondary dark:text-warmWhite text-lg mb-1 flex items-center gap-2">
-            <PieIcon className="w-5 h-5 text-primary" /> Popular Destinations
-          </h4>
-          <p className="text-xs text-textSecondary dark:text-dark-text-muted mb-6">Distribution of trip destinations planned by users globally.</p>
-          <div className="h-64 flex items-center justify-center">
-            {destinationData.length > 0 ? (
+              {/* Visual Chart Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Popular Destinations Chart */}
+              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)]">
+              <h4 className="font-semibold text-[var(--color-text-primary)] text-lg mb-1 flex items-center gap-2">
+              <PieIcon className="w-5 h-5 text-[var(--color-primary)]" /> Popular Destinations
+              </h4>
+              <p className="text-xs text-[var(--color-text-secondary)] mb-6">Distribution of trip destinations planned by users globally.</p>
+              <div className="h-64 flex items-center justify-center">
+              {destinationData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={destinationData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="Count"
-                  >
-                    {destinationData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: '1px solid var(--color-stone-muted)' }}
-                  />
-                  <Legend 
-                    layout="horizontal" 
-                    verticalAlign="bottom" 
-                    align="center"
-                    iconType="circle"
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <span className="text-xs text-textSecondary">No popular destinations recorded.</span>
-            )}
-          </div>
-        </div>
-
-        {/* Budget comparison chart */}
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-6 shadow-sm">
-          <h4 className="font-semibold text-textSecondary dark:text-warmWhite text-lg mb-1 flex items-center gap-2">
-            <BarChart2 className="w-5 h-5 text-primary" /> Budget Benchmark Comparison
-          </h4>
-          <p className="text-xs text-textSecondary dark:text-dark-text-muted mb-6">Average planned package cost breakdown per destination (INR).</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={budgetComparisonData}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              <PieChart>
+              <Pie
+                data={destinationData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+                paddingAngle={5}
+                dataKey="Count"
               >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="destination" />
-                <YAxis />
-                <Tooltip 
-                  formatter={(value) => [`₹${(value as number).toLocaleString('en-IN')}`, 'Average Budget']}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid var(--color-stone-muted)' }}
-                />
-                <Bar dataKey="Avg Budget" fill="var(--color-primary-blue)" radius={[8, 8, 0, 0]}>
-                  {budgetComparisonData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
+                {destinationData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip 
+                contentStyle={{ borderRadius: 'var(--radius-md)', border: 'none', boxShadow: 'var(--shadow-md)' }}
+              />
+              <Legend 
+                layout="horizontal" 
+                verticalAlign="bottom" 
+                align="center"
+                iconType="circle"
+                wrapperStyle={{ fontSize: 11, paddingTop: 20 }}
+              />
+              </PieChart>
+              </ResponsiveContainer>
+              ) : (
+              <span className="text-xs text-[var(--color-text-muted)]">No popular destinations recorded.</span>
+              )}
+              </div>
+              </div>
+
+              {/* Budget comparison chart */}
+              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)]">
+              <h4 className="font-semibold text-[var(--color-text-primary)] text-lg mb-1 flex items-center gap-2">
+              <BarChart2 className="w-5 h-5 text-[var(--color-primary)]" /> Budget Benchmark Comparison
+              </h4>
+              <p className="text-xs text-[var(--color-text-secondary)] mb-6">Average planned package cost breakdown per destination (INR).</p>
+              <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+              data={budgetComparisonData}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border-subtle)" />
+              <XAxis dataKey="destination" fontSize={11} stroke="var(--color-text-secondary)" tickLine={false} />
+              <YAxis fontSize={11} stroke="var(--color-text-secondary)" tickLine={false} />
+              <Tooltip 
+              formatter={(value) => [`₹${(value as number).toLocaleString('en-IN')}`, 'Average Budget']}
+              contentStyle={{ borderRadius: 'var(--radius-md)', border: 'none', boxShadow: 'var(--shadow-md)' }}
+              />
+              <Bar dataKey="Avg Budget" fill="var(--color-primary)" radius={[8, 8, 0, 0]}>
+              {budgetComparisonData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+              </Bar>
               </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
+              </ResponsiveContainer>
+              </div>
+              </div>
+              </div>
     </div>
   );
 };

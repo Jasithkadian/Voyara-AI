@@ -39,13 +39,13 @@ export const TripOverview: React.FC<TripOverviewProps> = ({ trip }) => {
 
       <div className="grid grid-cols-2 gap-4 w-full md:w-auto min-w-[240px]">
         <div className="bg-stoneMuted dark:bg-dark-card p-4 rounded-lg border border-stoneMuted dark:border-dark-border">
-          <span className="text-xs text-textSecondary dark:text-dark-text-muted block font-semibold  tracking-normal">Target Budget</span>
-          <span className="text-lg font-semibold text-coral font-mono mt-1 block">{formatCurrency(trip.budget)}</span>
+          <span className="text-[10px] text-[var(--color-text-muted)] block font-bold uppercase tracking-wider">Target Budget</span>
+          <span className="price text-[var(--color-text-primary)] mt-1 block">{formatCurrency(trip.budget)}</span>
         </div>
         
         <div className="bg-stoneMuted dark:bg-dark-card p-4 rounded-lg border border-stoneMuted dark:border-dark-border">
-          <span className="text-xs text-textSecondary dark:text-dark-text-muted block font-semibold  tracking-normal">Plan Cost</span>
-          <span className="text-lg font-semibold text-coral font-mono mt-1 block">
+          <span className="text-[10px] text-[var(--color-text-muted)] block font-bold uppercase tracking-wider">Plan Cost</span>
+          <span className="price text-[var(--color-text-primary)] mt-1 block">
             {formatCurrency(trip.generated_plan.budgetBreakdown.total_cost)}
           </span>
         </div>

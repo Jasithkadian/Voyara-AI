@@ -65,17 +65,17 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
       <div className="relative z-10 w-full flex justify-between items-end gap-2 pointer-events-none">
         <div className="flex flex-col text-left">
           {/* Region Label */}
-          <span className="font-sans text-[12px] text-warmWhite/75 font-normal tracking-wide uppercase mb-0.5">
+          <span className="text-[10px] text-warmWhite/75 font-bold tracking-wider uppercase mb-0.5">
             {region}
           </span>
           {/* Destination Name */}
-          <h3 className="font-display text-[20px] font-bold text-warmWhite leading-tight tracking-tight">
+          <h3 className="destination-name text-warmWhite leading-tight tracking-tight">
             {name}
           </h3>
         </div>
 
         {/* Price Indicator */}
-        <span className="font-sans text-[12px] font-semibold text-coral bg-black/40 backdrop-blur-xs border border-coral/30 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+        <span className="price text-[var(--color-accent)] bg-black/40 backdrop-blur-xs border border-[var(--color-accent)]/30 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
           {displayPrice}
         </span>
       </div>

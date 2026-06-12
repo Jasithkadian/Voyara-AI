@@ -126,59 +126,65 @@ export const PackingList: React.FC<PackingListProps> = ({
   };
 
   return (
-    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-sm space-y-6">
-      <div className="border-b border-stoneMuted/50 dark:border-dark-border/50 pb-4">
-        <h4 className="font-sans font-semibold text-lg text-textPrimary dark:text-dark-text">
+    <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-8 shadow-[var(--shadow-sm)] space-y-8">
+      <div className="border-b border-[var(--color-border-subtle)] pb-6 text-left">
+        <h4 className="font-sans font-semibold text-lg text-[var(--color-text-primary)]">
           🧳 Smart Packing Assistant
         </h4>
-        <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">
+        <p className="text-sm text-[var(--color-text-secondary)] mt-1">
           Activity and weather adaptive checklist compiled for your trip to {destination}.
         </p>
       </div>
 
-      <div className="space-y-6 max-h-[480px] overflow-y-auto pr-2">
+      <div className="space-y-10 max-h-[550px] overflow-y-auto pr-3 text-left">
         {categories.map((cat, catIdx) => {
           if (cat.items.length === 0) return null;
           const prog = getProgress(cat);
           
           return (
-            <div key={catIdx} className="space-y-3">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  {cat.icon}
-                  <span className="text-xs font-semibold text-textPrimary dark:text-dark-text">
+            <div key={catIdx} className="space-y-4">
+              <div className="flex justify-between items-end">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-[var(--radius-md)] bg-[var(--color-bg-hover)] border border-[var(--color-border)] text-[var(--color-primary)]">
+                    {cat.icon}
+                  </div>
+                  <span className="text-[var(--text-sm)] font-bold text-[var(--color-text-primary)] uppercase tracking-wider">
                     {cat.name}
                   </span>
                 </div>
-                <span className="text-[10px] font-mono font-semibold text-textSecondary dark:text-dark-text-muted">
+                <span className="text-[var(--text-xs)] font-mono font-bold text-[var(--color-primary)]">
                   {prog}%
                 </span>
               </div>
               
               {/* Progress Bar */}
-              <div className="w-full h-1 bg-stoneMuted/30 dark:bg-dark-muted rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-[var(--color-bg-hover)] rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-primary to-cyan-400 transition-all duration-500" 
+                  className="h-full bg-[var(--color-primary)] transition-all duration-700 ease-out" 
                   style={{ width: `${prog}%` }}
                 />
               </div>
 
               {/* Items List */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                 {cat.items.map((item, itemIdx) => (
                   <button
                     key={item.id}
                     onClick={() => handleToggle(catIdx, itemIdx)}
-                    className="flex items-center gap-3 p-2 bg-stoneMuted/20 dark:bg-dark-muted/20 border border-stoneMuted/30 dark:border-dark-border/20 rounded-md text-left transition-colors hover:bg-stoneMuted/30 dark:hover:bg-dark-muted/40"
+                    className={`flex items-center gap-4 p-3.5 rounded-[var(--radius-md)] border transition-all text-left ${
+                      item.checked 
+                        ? 'bg-[var(--color-bg-active)] border-[var(--color-primary)]/20' 
+                        : 'bg-[var(--color-bg-card)] border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] hover:border-[var(--color-border-strong)]'
+                    }`}
                   >
-                    <span className="shrink-0 text-textSecondary dark:text-dark-text-muted">
+                    <span className={`shrink-0 ${item.checked ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'}`}>
                       {item.checked ? (
-                        <CheckSquare className="w-4 h-4 text-primary" />
+                        <CheckSquare className="w-5 h-5 fill-[var(--color-primary)]/5" />
                       ) : (
-                        <Square className="w-4 h-4" />
+                        <Square className="w-5 h-5" />
                       )}
                     </span>
-                    <span className={`text-xs ${item.checked ? 'line-through text-textSecondary/80 dark:text-dark-text-muted/80' : 'text-textPrimary dark:text-dark-text'}`}>
+                    <span className={`text-[13px] font-medium ${item.checked ? 'line-through text-[var(--color-text-muted)]' : 'text-[var(--color-text-primary)]'}`}>
                       {item.name}
                     </span>
                   </button>

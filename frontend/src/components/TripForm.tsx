@@ -165,7 +165,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
 
           <button
             type="submit"
-            className="w-full h-11 bg-primary text-warmWhite font-semibold rounded-sm hover:opacity-95 active:scale-[0.98] transition-all mt-4 flex items-center justify-center gap-2 text-sm"
+            className="btn-primary w-full h-11 mt-4"
           >
             <span>Continue</span>
             <ChevronRight className="w-4 h-4" />
@@ -175,34 +175,34 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
 
       {step === 2 && (
         <form onSubmit={handleNext} className="space-y-6">
-          <div className="space-y-4">
-            <label className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted flex items-center gap-2">
+          <div className="space-y-4 text-left">
+            <label className="text-xs font-bold uppercase tracking-wider text-textSecondary dark:text-dark-text-muted flex items-center gap-2">
               <Calendar className="w-4 h-4 text-primary" /> Trip Duration (Days)
             </label>
             <div className="flex items-center space-x-4">
               <button
                 type="button"
                 onClick={() => setDays(Math.max(1, days - 1))}
-                className="w-12 h-12 rounded-sm bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text flex items-center justify-center font-semibold text-lg transition-colors border border-stoneMuted/30 dark:border-dark-border"
+                className="w-12 h-12 rounded-sm bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text flex items-center justify-center font-bold text-lg transition-colors border border-stoneMuted/30 dark:border-dark-border"
               >
                 -
               </button>
-              <span className="text-2xl font-semibold w-12 text-center text-textPrimary dark:text-dark-text">
+              <span className="text-2xl font-bold w-12 text-center text-textPrimary dark:text-dark-text">
                 {days}
               </span>
               <button
                 type="button"
                 onClick={() => setDays(days + 1)}
-                className="w-12 h-12 rounded-sm bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text flex items-center justify-center font-semibold text-lg transition-colors border border-stoneMuted/30 dark:border-dark-border"
+                className="w-12 h-12 rounded-sm bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text flex items-center justify-center font-bold text-lg transition-colors border border-stoneMuted/30 dark:border-dark-border"
               >
                 +
               </button>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted flex items-center gap-2">
-              <Wallet className="w-4 h-4 text-successSage" /> Package Budget (INR)
+          <div className="space-y-2 text-left">
+            <label className="text-xs font-bold uppercase tracking-wider text-textSecondary dark:text-dark-text-muted flex items-center gap-2">
+              <Wallet className="w-4 h-4 text-[var(--color-success)]" /> Package Budget (INR)
             </label>
             <div className="relative">
               <input
@@ -214,7 +214,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
                   setBudget(val ? Number(val) : 0);
                 }}
                 placeholder="e.g. ₹30,000"
-                className="w-full px-4 py-4 rounded-sm bg-warmWhite dark:bg-dark-elevated border border-stoneMuted dark:border-dark-border text-coral dark:text-coral focus:outline-none focus:ring-1 focus:ring-primary font-mono text-lg transition-all"
+                className="w-full px-4 py-4 rounded-sm bg-warmWhite dark:bg-dark-elevated border border-stoneMuted dark:border-dark-border text-[var(--color-text-primary)] focus:outline-none focus:ring-1 focus:ring-primary font-mono text-lg transition-all font-bold"
               />
             </div>
             <p className="text-xs text-textSecondary leading-normal">
@@ -226,13 +226,13 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
             <button
               type="button"
               onClick={handleBack}
-              className="w-1/3 h-11 bg-stoneMuted text-textPrimary hover:bg-opacity-90 active:scale-[0.98] font-semibold rounded-sm flex items-center justify-center gap-2 transition-all text-sm"
+              className="btn-secondary w-1/3"
             >
               <ChevronLeft className="w-4 h-4" /> Back
             </button>
             <button
               type="submit"
-              className="w-2/3 h-11 bg-primary text-warmWhite hover:opacity-95 active:scale-[0.98] font-semibold rounded-sm flex items-center justify-center gap-2 transition-all text-sm"
+              className="btn-primary w-2/3 h-11"
             >
               <span>Continue</span>
               <ChevronRight className="w-4 h-4" />
@@ -243,8 +243,8 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
 
       {step === 3 && (
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted flex items-center gap-2 mb-2">
+          <div className="space-y-2 text-left">
+            <label className="text-xs font-bold uppercase tracking-wider text-textSecondary dark:text-dark-text-muted flex items-center gap-2 mb-2">
               <Compass className="w-4 h-4 text-primary" /> Travel Interests (Select multiple)
             </label>
             <div className="grid grid-cols-2 gap-4 max-h-72 overflow-y-auto pr-1 scrollbar-thin py-1">
@@ -257,7 +257,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
                     onClick={() => handleInterestToggle(interest.id)}
                     className={`h-[90px] rounded-lg relative overflow-hidden text-left transition-all duration-300 flex items-end p-3 border-2 group select-none ${
                       isSelected
-                        ? 'border-coral shadow-md'
+                        ? 'border-[var(--color-accent)] shadow-md'
                         : 'border-stoneMuted/40 dark:border-dark-border/40 hover:border-primary/50'
                     }`}
                     style={{
@@ -271,7 +271,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
 
                     {/* Selected Coral Tint Overlay (20% opacity) */}
                     {isSelected && (
-                      <div className="absolute inset-0 bg-coral/20 pointer-events-none" />
+                      <div className="absolute inset-0 bg-[var(--color-accent)]/20 pointer-events-none" />
                     )}
 
                     {/* Interest Label Text */}
@@ -280,7 +280,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
                         {interest.label}
                       </span>
                       {isSelected && (
-                        <CheckCircle2 className="w-4 h-4 text-coral shrink-0 drop-shadow-sm" />
+                        <CheckCircle2 className="w-4 h-4 text-[var(--color-accent)] shrink-0 drop-shadow-sm" />
                       )}
                     </div>
                   </button>
@@ -294,14 +294,14 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
               type="button"
               onClick={handleBack}
               disabled={loading}
-              className="w-1/3 h-11 bg-stoneMuted text-textPrimary hover:bg-opacity-90 active:scale-[0.98] font-semibold rounded-sm flex items-center justify-center gap-2 transition-all text-sm disabled:opacity-50"
+              className="btn-secondary w-1/3 disabled:opacity-50"
             >
               <ChevronLeft className="w-4 h-4" /> Back
             </button>
             <button
               type="submit"
               disabled={loading || selectedInterests.length === 0}
-              className="w-2/3 h-11 bg-primary text-warmWhite font-semibold rounded-sm active:scale-[0.98] transition-all disabled:opacity-50 text-sm flex items-center justify-center gap-2 animate-shimmer"
+              className="btn-cta w-2/3 animate-shimmer disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -310,7 +310,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 animate-pulse text-warningAmber" /> 
+                  <Sparkles className="w-4 h-4 animate-pulse text-[var(--color-warning)]" /> 
                   <span>Generate Travel Plan</span>
                 </>
               )}

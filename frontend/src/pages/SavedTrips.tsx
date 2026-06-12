@@ -237,7 +237,7 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
                   </div>
 
                   <div className="mt-8 pt-4 flex justify-end">
-                    <span className="btn-ghost text-[var(--color-primary)] font-bold group-hover:translate-x-1 transition-transform p-0 hover:bg-transparent">
+                    <span className="btn-ghost text-[var(--color-primary)] font-bold group-hover:translate-x-1 transition-transform p-0 hover:bg-transparent flex items-center gap-1">
                       View full plan <ArrowRight className="w-4 h-4" />
                     </span>
                   </div>
