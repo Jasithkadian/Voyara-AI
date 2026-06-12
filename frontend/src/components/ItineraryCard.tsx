@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
 import { DailyPlan } from '../services/api';
-import { Calendar, Sun, CloudRain, CloudSun, Utensils, CheckCircle, X } from 'lucide-react';
+import { Calendar, Sun, CloudRain, CloudSun, Utensils, CheckCircle, X, RefreshCw, Clock, Coffee, Sunset } from 'lucide-react';
 import { ActivityCard } from './ActivityCard';
 import { RestaurantCard } from './RestaurantCard';
 import { MapWidget, MapMarkerItem } from './MapWidget';
 import { useWeather } from '../hooks/useWeather';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ItineraryCardProps {
   dailyPlan: DailyPlan[];
   destination?: string;
+  tripId?: number;
+  onRegenerateDay?: (dayNumber: number) => Promise<void>;
 }
 
-export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destination = 'Goa' }) => {
+export const ItineraryCard: React.FC<ItineraryCardProps> = ({ 
+  dailyPlan, 
+  destination = 'Goa', 
+  tripId = 0,
+  onRegenerateDay 
+}) => {
   const [activeDay, setActiveDay] = useState(1);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [fadeState, setFadeState] = useState<'in' | 'out'>('in');
   const [showMobileMap, setShowMobileMap] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   
   const { weather: fetchedWeather } = useWeather(destination, '2026-06-12', dailyPlan.length);
 
@@ -31,27 +40,82 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
     }, 150);
   };
 
+  const handleRegenerate = async () => {
+    if (!onRegenerateDay) return;
+    setRegenerating(true);
+    try {
+      await onRegenerateDay(activeDay);
+    } catch (err) {
+      console.error("Failed to regenerate day:", err);
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
   const getWeatherIcon = (weatherStr: string, isActiveTab: boolean) => {
     const w = weatherStr?.toLowerCase() || '';
     const iconClass = `w-[18px] h-[18px] shrink-0 ${isActiveTab ? 'weather-bounce' : ''}`;
     if (w.includes('sun') || w.includes('clear') || w.includes('hot')) {
-      return <Sun className={`${iconClass} text-[var(--color-warning)]`} />;
+      return <Sun className={`${iconClass} text-amber-400`} />;
     }
     if (w.includes('rain') || w.includes('shower') || w.includes('storm') || w.includes('monsoon')) {
-      return <CloudRain className={`${iconClass} text-[var(--color-primary)]`} />;
+      return <CloudRain className={`${iconClass} text-blue-400`} />;
     }
-    return <CloudSun className={`${iconClass} text-[var(--color-text-secondary)]`} />;
+    return <CloudSun className={`${iconClass} text-stone-400`} />;
   };
 
+  // Organize items for the active day into Morning, Afternoon, Evening slots
+  const activities = currentDayData?.activities || [];
+  const restaurants = currentDayData?.restaurants || [];
+
+  const morningActivities = activities.filter(a => a.time?.toLowerCase().includes('morning'));
+  const morningRestaurants = restaurants.filter(r => r.recommendedMeal?.toLowerCase().includes('breakfast'));
+
+  const afternoonActivities = activities.filter(a => a.time?.toLowerCase().includes('afternoon') || a.time?.toLowerCase().includes('lunch'));
+  const afternoonRestaurants = restaurants.filter(r => r.recommendedMeal?.toLowerCase().includes('lunch') || r.recommendedMeal?.toLowerCase().includes('afternoon'));
+
+  const eveningActivities = activities.filter(a => a.time?.toLowerCase().includes('evening') || a.time?.toLowerCase().includes('dinner') || a.time?.toLowerCase().includes('night'));
+  const eveningRestaurants = restaurants.filter(r => r.recommendedMeal?.toLowerCase().includes('dinner') || r.recommendedMeal?.toLowerCase().includes('evening') || r.recommendedMeal?.toLowerCase().includes('night'));
+
+  // Fallback for items with missing or unmatched time slots
+  const unmatchedActivities = activities.filter(a => 
+    !a.time?.toLowerCase().includes('morning') && 
+    !a.time?.toLowerCase().includes('afternoon') && 
+    !a.time?.toLowerCase().includes('lunch') && 
+    !a.time?.toLowerCase().includes('evening') && 
+    !a.time?.toLowerCase().includes('dinner') && 
+    !a.time?.toLowerCase().includes('night')
+  );
+  
+  const unmatchedRestaurants = restaurants.filter(r => 
+    !r.recommendedMeal?.toLowerCase().includes('breakfast') && 
+    !r.recommendedMeal?.toLowerCase().includes('lunch') && 
+    !r.recommendedMeal?.toLowerCase().includes('afternoon') && 
+    !r.recommendedMeal?.toLowerCase().includes('dinner') && 
+    !r.recommendedMeal?.toLowerCase().includes('evening') && 
+    !r.recommendedMeal?.toLowerCase().includes('night')
+  );
+
+  // Put unmatched items in sensible default categories
+  const morningSection = {
+    activities: morningActivities,
+    restaurants: morningRestaurants
+  };
+
+  const afternoonSection = {
+    activities: [...afternoonActivities, ...unmatchedActivities],
+    restaurants: afternoonRestaurants
+  };
+
+  const eveningSection = {
+    activities: eveningActivities,
+    restaurants: [...eveningRestaurants, ...unmatchedRestaurants]
+  };
+
+  // Compile map coordinates sequentially
   const mapItems: MapMarkerItem[] = [
-    ...(currentDayData?.activities || []).map(act => ({
-      name: act.title,
-      category: 'Activity' as const,
-    })),
-    ...(currentDayData?.restaurants || []).map(rest => ({
-      name: rest.name,
-      category: 'Restaurant' as const,
-    }))
+    ...activities.map(act => ({ name: act.title, category: 'Activity' as const, price: '₹' + act.estimatedCost })),
+    ...restaurants.map(rest => ({ name: rest.name, category: 'Restaurant' as const, price: '₹' + rest.estimatedCost }))
   ];
 
   const handleCardFocus = (idx: number) => {
@@ -67,18 +131,28 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
   };
 
   return (
-    <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-xl)] p-6 sm:p-8 shadow-[var(--shadow-sm)] space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-6 border-b border-[var(--color-border)] pb-6">
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-left backdrop-blur-xl relative">
+      {regenerating && (
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center rounded-2xl z-50">
+          <div className="flex flex-col items-center space-y-3">
+            <div className="w-8 h-8 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" />
+            <span className="text-xs font-bold text-stone-300 uppercase tracking-widest animate-pulse">Regenerating Day {activeDay}...</span>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between flex-wrap gap-6 border-b border-white/10 pb-6">
         <div className="flex items-center space-x-4 text-left">
-          <div className="w-11 h-11 rounded-[var(--radius-md)] bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
+          <div className="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
             <Calendar className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-display font-semibold text-lg text-[var(--color-text-primary)] tracking-tight">Daily Itinerary</h3>
-            <p className="text-xs text-[var(--color-text-secondary)] font-medium mt-1">Your curated schedule</p>
+            <h3 className="font-display font-bold text-lg text-white tracking-tight">Daily Itinerary</h3>
+            <p className="text-xs text-stone-400 font-medium mt-1">Your curated schedule</p>
           </div>
         </div>
 
+        {/* Horizontal scroll Day tabs */}
         <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide max-w-full snap-x snap-mandatory scroll-smooth">
           {dailyPlan.map((day) => {
             const fetchedDay = fetchedWeather?.find(w => w.day === day.day);
@@ -91,19 +165,19 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
               <button
                 key={day.day}
                 onClick={() => handleTabChange(day.day)}
-                className={`day-tab px-4 py-2.5 rounded-[var(--radius-sm)] text-sm transition-all whitespace-nowrap border-b-2 flex items-center justify-center gap-2 snap-start min-w-[80px] flex-shrink-0 ${
+                className={`day-tab px-4 py-2.5 rounded-xl text-xs transition-all whitespace-nowrap border flex items-center justify-center gap-2 snap-start min-w-[80px] flex-shrink-0 ${
                   activeDay === day.day
-                    ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] border-[var(--color-primary)] font-medium'
-                    : 'bg-transparent border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                    ? 'bg-purple-600 border-purple-500 text-white font-bold shadow-md shadow-purple-500/20'
+                    : 'bg-white/5 border-white/5 text-stone-400 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <span className="flex items-center gap-1.5">
                   <span>Day {day.day}</span>
                   {getWeatherIcon(weatherString, activeDay === day.day)}
-                  <span className={`font-mono text-[13px] ${activeDay === day.day ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'}`}>
+                  <span className={`font-mono font-bold text-[11px] ${activeDay === day.day ? 'text-white' : 'text-stone-500'}`}>
                     {weatherTemp || weatherDesc}
                   </span>
-                  {isCompleted && <CheckCircle className="w-3.5 h-3.5 text-[var(--color-success)] ml-1" />}
+                  {isCompleted && <CheckCircle className="w-3.5 h-3.5 text-emerald-400 ml-1" />}
                 </span>
               </button>
             );
@@ -111,22 +185,31 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
         </div>
       </div>
 
-      <div 
-        className={fadeState === 'in' ? 'day-fade-in' : 'day-fade-out'}
-      >
+      <div className={fadeState === 'in' ? 'day-fade-in' : 'day-fade-out'}>
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h3 className="font-display text-[24px] font-bold text-[var(--color-text-primary)]">
+            <h3 className="font-display text-[22px] font-extrabold text-white">
               Day {activeDay} Schedule
             </h3>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+            <p className="text-xs text-stone-400 mt-1 font-semibold">
               Forecast: {currentDayData?.weather || 'Sunny, 28°C'}
             </p>
           </div>
+          
+          {onRegenerateDay && (
+            <button
+              onClick={handleRegenerate}
+              disabled={regenerating}
+              className="btn-secondary h-10 px-4 flex items-center justify-center gap-2 border border-white/10 hover:border-white/20 bg-white/5 text-xs text-stone-300 hover:text-white font-bold rounded-xl active:scale-95 transition-all"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${regenerating ? 'animate-spin' : ''}`} />
+              <span>Regenerate Day {activeDay}</span>
+            </button>
+          )}
         </div>
 
-        {/* Map Panel Improvement - Hidden on Mobile */}
-        <div className="hidden md:block w-full h-[240px] rounded-[var(--radius-lg)] overflow-hidden border border-[var(--color-border)] mb-10 shadow-[var(--shadow-sm)]">
+        {/* Map Panel - Hidden on Mobile */}
+        <div className="hidden md:block w-full h-[260px] rounded-2xl overflow-hidden border border-white/10 mb-8 shadow-lg">
           <MapWidget
             destination={destination}
             items={mapItems}
@@ -140,7 +223,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
         <div className="md:hidden mb-6">
           <button 
             onClick={() => setShowMobileMap(true)}
-            className="w-full btn-secondary h-11 flex items-center justify-center gap-2"
+            className="w-full h-11 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-stone-300 hover:text-white flex items-center justify-center gap-2 text-xs font-bold"
           >
             <span>View on Map</span>
           </button>
@@ -148,24 +231,24 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
 
         {/* Mobile Full Screen Map Modal */}
         {showMobileMap && (
-          <div className="fixed inset-0 z-[9999] bg-black flex flex-col font-sans">
-            <div className="h-14 bg-[var(--color-bg-card)] border-b border-[var(--color-border)] flex items-center justify-between px-4 shrink-0">
-              <span className="font-semibold text-sm text-[var(--color-text-primary)]">Day {activeDay} Map</span>
+          <div className="fixed inset-0 z-[9999] bg-[#07080f] flex flex-col font-sans">
+            <div className="h-14 bg-stone-900 border-b border-white/10 flex items-center justify-between px-4 shrink-0">
+              <span className="font-bold text-sm text-white">Day {activeDay} Map</span>
               <button 
                 onClick={() => setShowMobileMap(false)}
-                className="p-2 rounded-full hover:bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)]"
+                className="p-2 rounded-full hover:bg-white/5 text-stone-400"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex-grow w-full relative bg-[var(--color-bg-page)]">
+            <div className="flex-grow w-full relative">
               <MapWidget
                 destination={destination}
                 items={mapItems}
                 focusedIndex={focusedIndex}
                 onMarkerClick={(idx) => {
                   handleMarkerClick(idx);
-                  setShowMobileMap(false); // Close map and focus card
+                  setShowMobileMap(false);
                 }}
                 height="100%"
               />
@@ -173,81 +256,167 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
           </div>
         )}
 
-        <div className="itinerary-section">
-          <div className="itinerary-section__header">
-            <span className="itinerary-section__icon"><Calendar className="w-5 h-5" /></span>
-            <h3 className="itinerary-section__title">Daily Activities</h3>
-            <span className="itinerary-section__count">{currentDayData?.activities.length || 0} activities</span>
-          </div>
-
-          <div className="space-y-4">
-            {currentDayData?.activities.map((activity, idx) => {
-              const isFocused = focusedIndex === idx;
-
-              return (
-                <div 
-                  key={idx}
-                  id={`timeline-card-${idx}`}
-                  onClick={() => handleCardFocus(idx)}
-                  className={`transition-all duration-200 rounded-[var(--radius-lg)] cursor-pointer ${
-                    isFocused 
-                      ? 'ring-2 ring-[var(--color-primary)] ring-offset-2 scale-[1.01] shadow-[var(--shadow-md)]' 
-                      : ''
-                  }`}
-                >
-                  <ActivityCard
-                    name={activity.title}
-                    description={activity.description}
-                    time={activity.time}
-                    duration={activity.duration}
-                    location={activity.location}
-                    cost={activity.estimatedCost}
-                    rating={idx === 0 ? '4.8' : idx === 1 ? '4.5' : undefined}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {currentDayData?.restaurants && currentDayData.restaurants.length > 0 && (
-          <div className="itinerary-section">
-            <div className="itinerary-section__header">
-              <span className="itinerary-section__icon"><Utensils className="w-5 h-5" /></span>
-              <h3 className="itinerary-section__title">Culinary Spots & Dining</h3>
-              <span className="itinerary-section__count">{currentDayData.restaurants.length} spots</span>
-            </div>
-            
+        {/* Organized Time slots checklist */}
+        <div className="space-y-8 mt-4">
+          {/* Morning Section */}
+          {(morningSection.activities.length > 0 || morningSection.restaurants.length > 0) && (
             <div className="space-y-4">
-              {currentDayData.restaurants.map((restaurant, rIdx) => {
-                const unifiedIdx = (currentDayData?.activities || []).length + rIdx;
-                const isFocused = focusedIndex === unifiedIdx;
-                
-                return (
-                  <div 
-                    key={rIdx}
-                    id={`timeline-card-${unifiedIdx}`}
-                    onClick={() => handleCardFocus(unifiedIdx)}
-                    className={`transition-all duration-200 rounded-[var(--radius-lg)] cursor-pointer ${
-                      isFocused 
-                        ? 'ring-2 ring-[var(--color-primary)] ring-offset-2 scale-[1.01] shadow-[var(--shadow-md)]' 
-                        : ''
-                    }`}
-                  >
-                    <RestaurantCard
-                      name={restaurant.name}
-                      description={`${restaurant.description} Try their signature recommendation.`}
-                      meal={restaurant.recommendedMeal || 'Dinner'}
-                      cuisine={restaurant.cuisine}
-                      cost={restaurant.estimatedCost}
-                      rating={(4.3 + (rIdx * 0.2)).toFixed(1)}
-                    />
-                  </div>
-                );
-              })}
+              <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                <Coffee className="w-4 h-4 text-amber-400" />
+                <h4 className="text-xs uppercase font-extrabold tracking-wider text-amber-400">Morning</h4>
+              </div>
+              <div className="space-y-4 pl-6 border-l border-white/5">
+                {morningSection.activities.map((activity, idx) => {
+                  const actualIndex = activities.indexOf(activity);
+                  const isFocused = focusedIndex === actualIndex;
+                  return (
+                    <div 
+                      key={`act-${idx}`}
+                      id={`timeline-card-${actualIndex}`}
+                      onClick={() => handleCardFocus(actualIndex)}
+                      className={`transition-all duration-200 rounded-xl ${isFocused ? 'ring-2 ring-purple-500 scale-[1.01] shadow-lg' : ''}`}
+                    >
+                      <ActivityCard
+                        name={activity.title}
+                        description={activity.description}
+                        time={activity.time}
+                        duration={activity.duration}
+                        location={activity.location}
+                        cost={activity.estimatedCost}
+                      />
+                    </div>
+                  );
+                })}
+                {morningSection.restaurants.map((rest, idx) => {
+                  const actualIndex = activities.length + restaurants.indexOf(rest);
+                  const isFocused = focusedIndex === actualIndex;
+                  return (
+                    <div 
+                      key={`rest-${idx}`}
+                      id={`timeline-card-${actualIndex}`}
+                      onClick={() => handleCardFocus(actualIndex)}
+                      className={`transition-all duration-200 rounded-xl ${isFocused ? 'ring-2 ring-purple-500 scale-[1.01] shadow-lg' : ''}`}
+                    >
+                      <RestaurantCard
+                        name={rest.name}
+                        description={rest.description}
+                        meal={rest.recommendedMeal || 'Breakfast'}
+                        cuisine={rest.cuisine}
+                        cost={rest.estimatedCost}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Afternoon Section */}
+          {(afternoonSection.activities.length > 0 || afternoonSection.restaurants.length > 0) && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                <Clock className="w-4 h-4 text-blue-400" />
+                <h4 className="text-xs uppercase font-extrabold tracking-wider text-blue-400">Afternoon</h4>
+              </div>
+              <div className="space-y-4 pl-6 border-l border-white/5">
+                {afternoonSection.activities.map((activity, idx) => {
+                  const actualIndex = activities.indexOf(activity);
+                  const isFocused = focusedIndex === actualIndex;
+                  return (
+                    <div 
+                      key={`act-${idx}`}
+                      id={`timeline-card-${actualIndex}`}
+                      onClick={() => handleCardFocus(actualIndex)}
+                      className={`transition-all duration-200 rounded-xl ${isFocused ? 'ring-2 ring-purple-500 scale-[1.01] shadow-lg' : ''}`}
+                    >
+                      <ActivityCard
+                        name={activity.title}
+                        description={activity.description}
+                        time={activity.time}
+                        duration={activity.duration}
+                        location={activity.location}
+                        cost={activity.estimatedCost}
+                      />
+                    </div>
+                  );
+                })}
+                {afternoonSection.restaurants.map((rest, idx) => {
+                  const actualIndex = activities.length + restaurants.indexOf(rest);
+                  const isFocused = focusedIndex === actualIndex;
+                  return (
+                    <div 
+                      key={`rest-${idx}`}
+                      id={`timeline-card-${actualIndex}`}
+                      onClick={() => handleCardFocus(actualIndex)}
+                      className={`transition-all duration-200 rounded-xl ${isFocused ? 'ring-2 ring-purple-500 scale-[1.01] shadow-lg' : ''}`}
+                    >
+                      <RestaurantCard
+                        name={rest.name}
+                        description={rest.description}
+                        meal={rest.recommendedMeal || 'Lunch'}
+                        cuisine={rest.cuisine}
+                        cost={rest.estimatedCost}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Evening Section */}
+          {(eveningSection.activities.length > 0 || eveningSection.restaurants.length > 0) && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                <Sunset className="w-4 h-4 text-purple-400" />
+                <h4 className="text-xs uppercase font-extrabold tracking-wider text-purple-400">Evening</h4>
+              </div>
+              <div className="space-y-4 pl-6 border-l border-white/5">
+                {eveningSection.activities.map((activity, idx) => {
+                  const actualIndex = activities.indexOf(activity);
+                  const isFocused = focusedIndex === actualIndex;
+                  return (
+                    <div 
+                      key={`act-${idx}`}
+                      id={`timeline-card-${actualIndex}`}
+                      onClick={() => handleCardFocus(actualIndex)}
+                      className={`transition-all duration-200 rounded-xl ${isFocused ? 'ring-2 ring-purple-500 scale-[1.01] shadow-lg' : ''}`}
+                    >
+                      <ActivityCard
+                        name={activity.title}
+                        description={activity.description}
+                        time={activity.time}
+                        duration={activity.duration}
+                        location={activity.location}
+                        cost={activity.estimatedCost}
+                      />
+                    </div>
+                  );
+                })}
+                {eveningSection.restaurants.map((rest, idx) => {
+                  const actualIndex = activities.length + restaurants.indexOf(rest);
+                  const isFocused = focusedIndex === actualIndex;
+                  return (
+                    <div 
+                      key={`rest-${idx}`}
+                      id={`timeline-card-${actualIndex}`}
+                      onClick={() => handleCardFocus(actualIndex)}
+                      className={`transition-all duration-200 rounded-xl ${isFocused ? 'ring-2 ring-purple-500 scale-[1.01] shadow-lg' : ''}`}
+                    >
+                      <RestaurantCard
+                        name={rest.name}
+                        description={rest.description}
+                        meal={rest.recommendedMeal || 'Dinner'}
+                        cuisine={rest.cuisine}
+                        cost={rest.estimatedCost}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

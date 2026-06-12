@@ -1,134 +1,255 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Sparkles, MapPin, Search, Globe, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, Search, Globe, ChevronRight, MapPin } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTripStore } from '../store/useTripStore';
+import { parseNaturalLanguage } from '../utils/parser';
+
+const PLACEHOLDERS = [
+  '✈ Plan a honeymoon in Bali',
+  '🏔 Create a budget trip to Manali',
+  '🏖 Goa under ₹20,000',
+  '🌍 Europe in 10 days'
+];
+
 export const HeroSection: React.FC = () => {
+  const navigate = useNavigate();
+  const setTripPrompt = useTripStore(state => state.setTripPrompt);
+  const setTripData = useTripStore(state => state.setTripData);
+
+  const [query, setQuery] = useState('');
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  // Rotating placeholder effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    // Parse Natural Language
+    const parsed = parseNaturalLanguage(query);
+
+    // Save globally in Zustand store
+    setTripPrompt(query);
+    setTripData({
+      destination: parsed.destination,
+      budget: parsed.budget,
+      duration: parsed.days,
+      travelers: parsed.travelers,
+      moods: parsed.interests,
+      dates: parsed.dates,
+      generatedItinerary: null // Reset itinerary for new generate run
+    });
+
+    // Navigate to planner page
+    navigate('/planner');
+  };
 
   return (
-    <div className="relative overflow-hidden py-20 lg:py-20 bg-grid-pattern">
+    <div className="relative overflow-hidden py-24 bg-gradient-mesh border-b border-white/5">
       {/* Mesh gradients absolute backgrounds */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 dark:bg-primary/15 rounded-lg blur-[100px] -z-10 animate-pulse-subtle"></div>
-      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-coral/5 dark:bg-coral/8 rounded-lg blur-[90px] -z-10" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[rgba(124,58,237,0.12)] rounded-full blur-[120px] -z-10 animate-pulse-subtle" />
+      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-[rgba(37,99,235,0.08)] rounded-full blur-[100px] -z-10" style={{ animationDelay: '2s' }} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           {/* Left Text Content */}
-          <div className="lg:col-span-7 space-y-12 text-center lg:text-left">
-            <div className="inline-flex items-center space-x-2 bg-[var(--color-primary-light)] text-[var(--color-primary)] px-4 py-2 rounded-lg text-xs font-semibold tracking-wide border border-[var(--color-primary)]/20 shadow-sm">
-              <Sparkles className="w-4 h-4 text-[var(--color-accent)] animate-pulse" />
-              <span>AI-POWERED TRAVEL PLANNING</span>
-            </div>
+          <div className="lg:col-span-7 space-y-10 text-center lg:text-left">
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center space-x-2 bg-purple-500/10 text-purple-300 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border border-purple-500/20 shadow-sm backdrop-blur-md"
+            >
+              <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+              <span>AUTONOMOUS AI TRAVEL AGENT</span>
+            </motion.div>
             
-            <h1 className="hero-headline">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="font-display font-bold text-5xl sm:text-6xl text-white tracking-tight leading-none"
+            >
               Travel planning, <br />
-              <span className="text-[var(--color-accent)]">
+              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent font-extrabold">
                 reimagined.
               </span>
-            </h1>
+            </motion.h1>
             
-            <p className="hero-subheadline text-base sm:text-lg text-[var(--color-text-secondary)] dark:text-[var(--color-text-muted)] max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              voira is your autonomous travel concierge. Instantly generate optimized daily schedules, real-time flight searches, budget allocations, and weather-adaptive revisions in one workspace.
-            </p>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="hero-subheadline text-base sm:text-lg text-stone-300 dark:text-stone-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-sans"
+            >
+              Voyara is your autonomous travel concierge. Describe your dream vacation in plain English, and our subagents will instantly build, optimize, and continuously monitor your itinerary, hotels, flights, and weather changes.
+            </motion.p>
 
-            {/* Simulated Search bar inside Hero (Compelling CTA) */}
-            <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-2 rounded-md shadow-xl flex flex-col md:flex-row gap-2 max-w-xl mx-auto lg:mx-0 backdrop-blur-md">
-              <div className="flex items-center gap-2 px-4 flex-1 py-2 md:py-0">
-                <Search className="w-4.5 h-4.5 text-[var(--color-text-muted)]" />
-                <input 
-                  type="text" 
-                  disabled 
-                  placeholder="Where is your dream destination?" 
-                  className="bg-transparent text-xs text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none w-full cursor-not-allowed"
-                />
+            {/* Active AI Search Bar */}
+            <motion.form 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, type: 'spring', delay: 0.3 }}
+              onSubmit={handleSearchSubmit}
+              className="bg-white/5 border border-white/10 p-2.5 rounded-2xl shadow-2xl flex flex-col md:flex-row gap-3 max-w-xl mx-auto lg:mx-0 backdrop-blur-xl hover:border-purple-500/30 transition-all group"
+            >
+              <div className="flex items-center gap-3 px-4 flex-1 py-2 md:py-0">
+                <Search className="w-5 h-5 text-stone-400 group-hover:text-purple-400 transition-colors" />
+                <div className="relative flex-grow h-8 flex items-center">
+                  <input 
+                    type="text" 
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    required
+                    className="bg-transparent text-sm text-white placeholder-stone-500 focus:outline-none w-full font-semibold relative z-10"
+                  />
+                  <AnimatePresence mode="wait">
+                    {!query && (
+                      <motion.span 
+                        key={placeholderIndex}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 0.5, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute left-0 text-sm text-stone-400 font-normal select-none pointer-events-none"
+                      >
+                        {PLACEHOLDERS[placeholderIndex]}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
-              <Link
-                to="/planner"
-                className="btn-cta w-full md:w-auto justify-center"
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow-md shadow-purple-500/20 active:scale-95 flex items-center justify-center gap-2"
               >
                 <span>Plan Instantly</span>
                 <ChevronRight className="w-4 h-4" />
-              </Link>
+              </button>
+            </motion.form>
+
+            {/* Suggested Prompts helper chips */}
+            <div className="flex flex-wrap gap-2 justify-center lg:justify-start pt-2 max-w-xl mx-auto lg:mx-0">
+              <span className="text-xs text-stone-400 font-semibold py-1">Try:</span>
+              {[
+                '5 days in Goa under 20k',
+                'Honeymoon in Bali',
+                'Tokyo solo 10 days'
+              ].map((p, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setQuery(p)}
+                  className="text-xs bg-white/5 border border-white/10 text-stone-300 hover:text-white hover:bg-white/10 px-3 py-1 rounded-full transition-colors font-medium"
+                >
+                  {p}
+                </button>
+              ))}
             </div>
 
             {/* Credibility metrics block */}
-            <div className="grid grid-cols-3 gap-12 pt-12 max-w-md mx-auto lg:mx-0 border-t border-[var(--color-border)]">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="grid grid-cols-3 gap-12 pt-10 max-w-md mx-auto lg:mx-0 border-t border-white/10"
+            >
               <div>
-                <p className="stat-number text-[var(--color-text-primary)]">125k+</p>
-                <p className="text-xs text-[var(--color-text-secondary)] font-semibold mt-1">Trips Synced</p>
+                <p className="text-3xl font-extrabold text-white tracking-tight">125k+</p>
+                <p className="text-xs text-stone-400 font-semibold mt-1">Trips Optimized</p>
               </div>
               <div>
-                <p className="stat-number text-[var(--color-text-primary)]">180+</p>
-                <p className="text-xs text-[var(--color-text-secondary)] font-semibold mt-1">Cities Covered</p>
+                <p className="text-3xl font-extrabold text-white tracking-tight">180+</p>
+                <p className="text-xs text-stone-400 font-semibold mt-1">Cities Mapped</p>
               </div>
               <div>
-                <p className="stat-number text-[var(--color-text-primary)]">4.92★</p>
-                <p className="text-xs text-[var(--color-text-secondary)] font-semibold mt-1">User Score</p>
+                <p className="text-3xl font-extrabold text-white tracking-tight">4.96★</p>
+                <p className="text-xs text-stone-400 font-semibold mt-1">Investor Rating</p>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          {/* Right Floating Previews Mockup (Skyscanner / Airbnb feel) */}
+          {/* Right Floating Previews Mockup (Airbnb / Skyscanner style) */}
           <div className="lg:col-span-5 relative hidden lg:block">
-            <div className="relative mx-auto w-full max-w-[400px] aspect-[4/5] bg-gradient-to-tr from-primary/15 via-coral/10 to-coral/15 rounded-lg p-6 border border-warmWhite/10 dark:border-warmWhite/5 shadow-2xl flex flex-col justify-between overflow-hidden backdrop-blur-3xl">
+            <motion.div 
+              initial={{ opacity: 0, x: 40, rotate: 1 }}
+              animate={{ opacity: 1, x: 0, rotate: 0 }}
+              transition={{ duration: 0.8, type: 'spring' }}
+              className="relative mx-auto w-full max-w-[400px] aspect-[4/5] bg-gradient-to-tr from-blue-500/10 via-purple-500/5 to-pink-500/10 rounded-3xl p-6 border border-white/10 shadow-2xl flex flex-col justify-between overflow-hidden backdrop-blur-3xl"
+            >
               {/* Graphic background shapes */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-warmWhite/5 rounded-lg blur-2xl -mr-20 -mt-20"></div>
-              <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-primary/5 rounded-lg blur-2xl"></div>
+              <div className="absolute top-0 right-0 w-44 h-44 bg-purple-500/10 rounded-full blur-3xl -mr-20 -mt-20" />
+              <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-blue-500/10 rounded-full blur-3xl" />
 
               {/* Destination Tag */}
               <div className="flex justify-between items-start z-10">
-                <div className="bg-warmWhite/90 dark:bg-dark-card/90 backdrop-blur-md p-4 rounded-md border border-stoneMuted/50 dark:border-dark-border shadow-sm flex items-center gap-2">
-                  <div className="p-2 bg-primary/10 text-primary rounded-lg">
+                <div className="bg-black/40 backdrop-blur-xl p-3 px-4 rounded-2xl border border-white/10 shadow-lg flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/20 text-blue-300 rounded-xl">
                     <Globe className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-xs text-textSecondary block font-semibold">Recommended</span>
-                    <span className="text-xs font-semibold text-textPrimary dark:text-dark-text">Bali, Indonesia</span>
+                    <span className="text-[10px] text-stone-400 block font-semibold tracking-wider uppercase">Active Agent</span>
+                    <span className="text-xs font-bold text-white">Bali, Indonesia</span>
                   </div>
                 </div>
                 
-                <span className="bg-successSage/15 text-successSage dark:text-successSage font-semibold text-xs px-4 py-2 rounded-lg border border-successSage/10">
-                  Verified Package
+                <span className="bg-emerald-500/15 text-emerald-300 font-bold text-[10px] tracking-wider uppercase px-3.5 py-1.5 rounded-full border border-emerald-500/20 shadow-md">
+                  Verified Route
                 </span>
               </div>
 
               {/* Daily segment preview card */}
-              <div className="bg-warmWhite/95 dark:bg-dark-card/95 backdrop-blur-md p-4 rounded-md shadow-xl border border-stoneMuted/50 dark:border-dark-border/80 transform rotate-1 translate-x-3 z-10 space-y-2">
+              <motion.div 
+                whileHover={{ scale: 1.03, y: -2 }}
+                className="bg-black/50 backdrop-blur-2xl p-5 rounded-2xl shadow-2xl border border-white/10 transform rotate-1 translate-x-3 z-10 space-y-3"
+              >
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-primary">Day 2 • 09:30 AM</span>
-                  <span className="text-xs bg-stoneMuted/30 dark:bg-dark-muted text-textSecondary px-2 py-1 rounded-sm font-semibold">28°C Sunny</span>
+                  <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Day 2 • 09:30 AM</span>
+                  <span className="text-[10px] bg-white/5 text-stone-300 px-2.5 py-1 rounded-full font-semibold">28°C Sunny</span>
                 </div>
-                <h4 className="text-xs font-semibold text-textPrimary dark:text-dark-text">Tegalalang Rice Terraces Excursion</h4>
-                <p className="text-xs text-textSecondary leading-relaxed line-clamp-2">
-                  Explore scenic cascading green hillsides, enjoy the iconic jungle swing, and enjoy coconut juice.
+                <h4 className="text-xs font-bold text-white leading-snug">Tegalalang Rice Terraces Excursion</h4>
+                <p className="text-[11px] text-stone-400 leading-relaxed line-clamp-2">
+                  Explore cascading green hillsides, enjoy the iconic jungle swing, and enjoy coconut juice.
                 </p>
-                <div className="mt-4 pt-2 border-t border-stoneMuted/50 dark:border-dark-border flex items-center justify-between text-xs text-textSecondary">
-                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-textSecondary" /> Tegalalang</span>
-                  <span className="font-semibold text-coral font-mono">Est: ₹800</span>
+                <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-stone-400">
+                  <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-stone-400" /> Ubud</span>
+                  <span className="font-bold text-pink-400 font-mono">Est: ₹800</span>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Mini Budget breakdown card */}
-              <div className="bg-warmWhite/95 dark:bg-dark-card/95 backdrop-blur-md p-4 rounded-md shadow-xl border border-stoneMuted/50 dark:border-dark-border/80 transform -rotate-2 -translate-x-3 z-10 self-start w-5/6 space-y-2">
-                <span className="text-xs font-semibold text-successSage dark:text-successSage block">Cost Matrix Summary</span>
+              <motion.div 
+                whileHover={{ scale: 1.03, y: -2 }}
+                className="bg-black/50 backdrop-blur-2xl p-5 rounded-2xl shadow-2xl border border-white/10 transform -rotate-2 -translate-x-3 z-10 self-start w-5/6 space-y-3"
+              >
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block">Cost Matrix Summary</span>
                 <div className="flex justify-between items-end">
-                  <span className="text-xl font-semibold text-coral font-mono">₹59,000</span>
-                  <span className="text-xs text-textSecondary">7 Days • 2 Guests</span>
+                  <span className="text-xl font-bold text-pink-400 font-mono">₹59,000</span>
+                  <span className="text-[10px] text-stone-400 font-semibold">7 Days • 2 Guests</span>
                 </div>
                 <div className="space-y-2 pt-1">
-                  <div className="w-full bg-stoneMuted/30 dark:bg-dark-muted h-1.5 rounded-lg overflow-hidden">
-                    <div className="bg-gradient-to-r from-primary to-coral h-full rounded-lg" style={{ width: '68%' }} />
+                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full" style={{ width: '68%' }} />
                   </div>
-                  <div className="flex justify-between text-xs text-textSecondary">
-                    <span>Flights &amp; Hotel</span>
-                    <span>Activities &amp; Meals</span>
+                  <div className="flex justify-between text-[10px] text-stone-400 font-medium">
+                    <span>Flights &amp; Hotel (68%)</span>
+                    <span>Activities (32%)</span>
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </div>
 
-      <div id="features"></div>
+      <div id="features" />
     </div>
   );
 };

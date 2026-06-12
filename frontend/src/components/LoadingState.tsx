@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plane, Circle } from 'lucide-react';
+import { Plane, Circle, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface LoadingStateProps {
   source?: string;
@@ -14,9 +15,8 @@ const FlightPathAnimation: React.FC = () => {
   return (
     <div className="flight-path-overlay">
       <div className="relative w-full max-w-2xl px-8 flex items-center justify-center">
-        {/* SVG Viewport: 650 80 150 250 (Scaled crop of India region) */}
+        {/* SVG India crop */}
         <svg viewBox="650 80 150 250" className="w-full h-auto stroke-white fill-none overflow-visible">
-          {/* India Outline: Subtle gray path */}
           <path 
             d="M 720 100 L 780 120 L 770 200 L 730 240 L 680 180 L 700 120 Z" 
             stroke="#E8E6E1" 
@@ -25,7 +25,6 @@ const FlightPathAnimation: React.FC = () => {
             className="opacity-25" 
           />
 
-          {/* Dotted path animation mask */}
           <defs>
             <mask id="flight-path-mask">
               <path 
@@ -42,7 +41,6 @@ const FlightPathAnimation: React.FC = () => {
             </mask>
           </defs>
 
-          {/* Dotted path (Delhi to Goa) revealed by mask */}
           <path 
             d="M 772 100 Q 640 150 738 220" 
             fill="none" 
@@ -52,26 +50,22 @@ const FlightPathAnimation: React.FC = () => {
             mask="url(#flight-path-mask)"
           />
 
-          {/* Delhi Pin: 8px radius navy fill */}
           <g transform="translate(772, 100)">
             <circle r="8" fill="#0A1628" stroke="white" strokeWidth="1" />
-            <text x="12" y="4" fill="white" fontSize="12" fontFamily="DM Sans" fontWeight="bold" stroke="none" className="select-none">Delhi</text>
+            <text x="12" y="4" fill="white" fontSize="12" fontFamily="Inter" fontWeight="bold" stroke="none" className="select-none">Delhi</text>
           </g>
 
-          {/* Goa Pin: 8px radius navy fill + Ripple Ping on arrival (at 1.4s) */}
           <g transform="translate(738, 220)">
-            {/* Ripple rings: scale 1 to 2.5, opacity 0.6 to 0, staggered 400ms */}
-            <circle r="8" fill="none" stroke="#FF5733" strokeWidth="1" className="animate-ripple-1" style={{ transformOrigin: 'center' }} />
-            <circle r="8" fill="none" stroke="#FF5733" strokeWidth="1" className="animate-ripple-2" style={{ transformOrigin: 'center' }} />
+            <circle r="8" fill="none" stroke="#7C3AED" strokeWidth="1" className="animate-ripple-1" style={{ transformOrigin: 'center' }} />
+            <circle r="8" fill="none" stroke="#7C3AED" strokeWidth="1" className="animate-ripple-2" style={{ transformOrigin: 'center' }} />
             
             <circle r="8" fill="#0A1628" stroke="white" strokeWidth="1" />
-            <text x="12" y="4" fill="white" fontSize="12" fontFamily="DM Sans" fontWeight="bold" stroke="none" className="select-none">Goa</text>
+            <text x="12" y="4" fill="white" fontSize="12" fontFamily="Inter" fontWeight="bold" stroke="none" className="select-none">Goa</text>
           </g>
 
-          {/* Plane Icon: coral plane sliding along path */}
           <g>
             <foreignObject width="16" height="16" x="-8" y="-8" className="overflow-visible">
-              <Plane className="w-4 h-4 text-[#FF5733] fill-[#FF5733] -rotate-45" />
+              <Plane className="w-4 h-4 text-[#7C3AED] fill-[#7C3AED] -rotate-45 animate-pulse" />
             </foreignObject>
             <animateMotion 
               dur="1.2s" 
@@ -105,13 +99,6 @@ const FlightPathAnimation: React.FC = () => {
   );
 };
 
-const DrawnCheckmark: React.FC = () => (
-  <svg className="checkmark-draw w-5 h-5 text-[var(--color-success)]" viewBox="0 0 52 52">
-    <circle cx="26" cy="26" r="25" fill="none" stroke="currentColor" strokeWidth="2" />
-    <path fill="none" stroke="currentColor" strokeWidth="3" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
-  </svg>
-);
-
 export const LoadingState: React.FC<LoadingStateProps> = ({
   source = 'Delhi',
   destination = 'Goa',
@@ -124,221 +111,193 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showMap, setShowMap] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
-
-  const formattedBudget = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0
-  }).format(budget);
+  const [thinkingLogs, setThinkingLogs] = useState<string[]>([]);
 
   const steps = [
-    `Searching flights from ${source} to ${destination}...`,
-    `Finding premium hotels within ${formattedBudget}...`,
-    `Building your ${days}-day custom itinerary...`,
-    `Checking local weather alerts for ${destination}: monsoon adjustment checked...`,
+    'Analyzing Travel Request',
+    'Finding Attractions',
+    'Comparing Hotels',
+    'Optimizing Budget',
+    'Building Final Itinerary'
   ];
 
+  // Map steps to specific logs
+  const logFeed: Record<number, string[]> = {
+    0: [
+      'Parsing natural language prompt parameters...',
+      'Extracting destination constraints and travel moods...'
+    ],
+    1: [
+      'Querying attractions index database for ' + destination + '...',
+      'Found 42 recommended places matching your interests...'
+    ],
+    2: [
+      'Searching stays matching maximum ₹' + Math.round(budget * 0.4).toLocaleString() + ' cost criteria...',
+      'Retrieved 18 luxury and premium lodging matches...'
+    ],
+    3: [
+      'Running budget cost optimization allocations...',
+      'Safety emergency buffer allocated successfully (10% limit)...'
+    ],
+    4: [
+      'Integrating day-by-day travel timeline nodes...',
+      'Orchestrator package built successfully.'
+    ]
+  };
+
   useEffect(() => {
-    const mapTimer = setTimeout(() => setShowMap(false), 1800);
+    const mapTimer = setTimeout(() => setShowMap(false), 2000);
     return () => clearTimeout(mapTimer);
   }, []);
 
+  // Animate steps and logs sequentially
   useEffect(() => {
-    // Run each step for 3.5 seconds
-    const stepInterval = 3500;
+    // Total duration ~9 seconds (1.8s per step)
+    const stepInterval = 1800;
+    
+    // Initial logs for step 0
+    setThinkingLogs(logFeed[0]);
 
     const timer = setInterval(() => {
       setActiveStep((prev) => {
         const next = prev + 1;
-        
-        // Mark previous step as completed
         setCompletedSteps(comp => [...comp, prev]);
 
         if (next >= steps.length) {
           clearInterval(timer);
           return steps.length - 1;
         }
+
+        // Add corresponding logs
+        if (logFeed[next]) {
+          setThinkingLogs(prevLogs => [...prevLogs, ...logFeed[next]]);
+        }
         return next;
       });
     }, stepInterval);
 
     return () => clearInterval(timer);
-  }, [steps.length]);
+  }, []);
 
   useEffect(() => {
     const allStepsAnimated = completedSteps.length >= steps.length - 1;
     if (allStepsAnimated && isApiReady && onFinished) {
       const timeout = setTimeout(() => {
         setFadeOut(true);
-        setTimeout(onFinished, 300); // Wait for exit card transition
-      }, 1200);
+        setTimeout(onFinished, 400); // Wait for exit card transition
+      }, 1000);
       return () => clearTimeout(timeout);
     }
   }, [completedSteps, isApiReady, onFinished, steps.length]);
 
   const isFinalWaiting = completedSteps.length >= steps.length - 1 && !isApiReady;
-  const progress = (completedSteps.length / steps.length) * 100;
-  const isComplete = completedSteps.length >= steps.length - 1 && isApiReady;
+  const progress = ((completedSteps.length + 1) / steps.length) * 100;
 
   return (
     <>
       {showMap && <FlightPathAnimation />}
       
-      <div className={`fixed inset-0 z-50 bg-[var(--color-bg-page)] overflow-hidden flex flex-col transition-opacity duration-300 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
-        <style>{`
-          @keyframes stepIn {
-            from { opacity: 0; transform: translateX(-12px); }
-            to { opacity: 1; transform: translateX(0); }
-          }
-          @keyframes fillDown {
-            to { height: 100%; }
-          }
-          @keyframes progressPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-          }
-          .progress-pulse {
-            animation: progressPulse 400ms ease-out forwards;
-          }
-          .step-active {
-            background-color: rgba(234, 83, 32, 0.05); /* subtle coral fill */
-            position: relative;
-          }
-          .step-active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 3px;
-            height: 0;
-            background-color: #EA5320; /* 3px coral left border */
-            animation: fillDown 0.8s ease-out forwards;
-          }
-        `}</style>
+      <div className={`fixed inset-0 z-50 bg-[#07080f] overflow-hidden flex flex-col items-center justify-center p-4 transition-all duration-500 ${fadeOut ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+        
+        {/* Animated Background Mesh */}
+        <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] -z-10 animate-pulse-subtle" />
+        <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-blue-600/10 rounded-full blur-[90px] -z-10" />
 
-        {/* Background Skeleton representing Itinerary Page */}
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-12 py-12 space-y-12 opacity-40 blur-sm pointer-events-none">
-          <div className="flex justify-between items-center bg-[var(--color-bg-card)] p-6 rounded-[var(--radius-lg)] border border-[var(--color-border)]">
-            <div className="space-y-2 w-1/3">
-              <div className="skeleton skeleton-text-lg" />
-              <div className="skeleton skeleton-text-sm w-3/4" />
-            </div>
-            <div className="flex gap-4">
-              <div className="skeleton skeleton-button" />
-              <div className="skeleton skeleton-button" />
+        {/* Center Loading Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, type: 'spring' }}
+          className="max-w-md w-full bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-xl flex flex-col"
+        >
+          {/* Animated Core Icon */}
+          <div className="relative mb-6 mx-auto w-16 h-16 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-2xl bg-purple-500/10 animate-ping" />
+            <div className="absolute inset-1 rounded-2xl border-2 border-dashed border-purple-500/20 animate-spin-slow" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white shadow-lg">
+              <Plane className="-rotate-45 w-5 h-5 animate-pulse" />
             </div>
           </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            <div className="lg:col-span-8 space-y-6">
-              <div className="skeleton skeleton-text-lg w-48" />
-              <div className="space-y-4">
-                <div className="h-32 skeleton rounded-[var(--radius-lg)]" />
-                <div className="h-32 skeleton rounded-[var(--radius-lg)]" />
-                <div className="h-32 skeleton rounded-[var(--radius-lg)]" />
-              </div>
-            </div>
-            <div className="lg:col-span-4 space-y-6">
-              <div className="h-[400px] skeleton rounded-[var(--radius-lg)]" />
-            </div>
-          </div>
-        </div>
 
-        {/* Floating Center Card */}
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
-          <div 
-            className={`flex flex-col items-center justify-center py-12 px-8 text-center max-w-md w-full bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-xl)] shadow-[var(--shadow-lg)] ${
-              fadeOut ? 'generating-card-exit' : 'animate-fade-in'
-            }`}
-            style={!fadeOut ? { animationDelay: '0.3s' } : {}}
-          >
-            {/* Animated Core Icon Container */}
-            <div className="relative mb-8 w-20 h-20 flex items-center justify-center">
-              <div className="absolute inset-0 rounded-[var(--radius-xl)] bg-[var(--color-primary-light)] animate-ping" />
-              <div className="absolute inset-1.5 rounded-[var(--radius-xl)] border-2 border-dashed border-[var(--color-primary)]/30 animate-spin-slow" />
-              
-              <div className="w-12 h-12 rounded-[var(--radius-xl)] bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-accent)] flex items-center justify-center text-white shadow-md">
-                <Plane className="-rotate-45 w-6 h-6 animate-bounce" />
-              </div>
-            </div>
+          <h3 className="text-xl font-bold text-white tracking-tight text-center mb-1 font-display">
+            Autonomous Agent Orchestration
+          </h3>
+          <p className="text-xs text-stone-400 text-center mb-8 font-medium">
+            Deploying search subagents to structure your trip package.
+          </p>
 
-            <h3 className="text-xl font-bold text-[var(--color-text-primary)] tracking-tight mb-2">
-              Designing Your Custom Trip
-            </h3>
-            <p className="text-sm text-[var(--color-text-secondary)] mb-8 leading-relaxed max-w-[280px]">
-              Our autonomous travel subagents are compiling flights, lodging matching, and schedules.
-            </p>
+          {/* Stepper Timeline */}
+          <div className="space-y-4 text-left mb-8">
+            {steps.map((stepText, idx) => {
+              const isCompleted = completedSteps.includes(idx);
+              const isActive = activeStep === idx;
+              const isPending = idx > activeStep;
 
-            {/* Progress Steps List */}
-            <div className="w-full space-y-4 text-left px-2 mb-8">
-              {steps.map((stepText, idx) => {
-                const isCompleted = completedSteps.includes(idx);
-                const isActive = activeStep === idx;
-                const isPending = idx > activeStep;
-
-                return (
-                  <div 
-                    key={idx} 
-                    className={`flex items-start gap-4 p-2.5 rounded-lg relative ${
-                      isActive ? 'step-active' : ''
-                    }`}
-                    style={{ 
-                      opacity: isPending ? 0.4 : 1,
-                      animation: !isPending ? 'stepIn 200ms ease-out forwards' : 'none',
-                      animationDelay: !isPending ? `${idx * 300}ms` : '0ms'
-                    }}
-                  >
-                    <div className="shrink-0 mt-0.5 relative z-10">
-                      {isCompleted ? (
-                        <DrawnCheckmark />
-                      ) : isActive ? (
-                        <div className="w-5 h-5 rounded-full border-2 border-[var(--color-primary)] border-t-transparent animate-spin shrink-0" />
-                      ) : (
-                        <Circle className="w-5 h-5 text-[var(--color-border-strong)] shrink-0" />
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 relative z-10">
-                      <span className={`text-xs font-semibold leading-normal transition-colors ${
-                        isActive 
-                          ? 'text-[var(--color-primary)]' 
-                          : isCompleted 
-                          ? 'text-[var(--color-text-primary)] font-normal' 
-                          : 'text-[var(--color-text-secondary)]'
-                      }`}>
-                        {stepText}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Final Waiting Status / Progress Bar */}
-            {isFinalWaiting ? (
-              <div className="text-[11px] text-[var(--color-text-secondary)] animate-pulse flex items-center gap-2 justify-center font-bold">
-                <span>AI is polishing itinerary details...</span>
-              </div>
-            ) : (
-              <div 
-                className={`w-full bg-[var(--color-bg-hover)] h-2 rounded-full overflow-hidden transition-all duration-500 ${
-                  isComplete ? 'progress-pulse shadow-sm' : ''
-                }`}
-              >
+              return (
                 <div 
-                  className="h-full transition-all ease-out"
-                  style={{ 
-                    width: `${Math.max(progress, 5)}%`,
-                    backgroundColor: isComplete ? '#059669' : '#1A56DB',
-                    transitionDuration: '400ms',
-                    transitionProperty: 'width, background-color'
-                  }}
-                />
+                  key={idx} 
+                  className={`flex items-center gap-4 transition-all duration-300 ${
+                    isPending ? 'opacity-25' : 'opacity-100'
+                  }`}
+                >
+                  <div className="shrink-0 relative">
+                    {isCompleted ? (
+                      <div className="w-5 h-5 rounded-full bg-purple-600 flex items-center justify-center text-white text-[10px] font-bold">
+                        ✓
+                      </div>
+                    ) : isActive ? (
+                      <div className="w-5 h-5 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-stone-600" />
+                    )}
+                  </div>
+                  
+                  <span className={`text-xs font-bold tracking-wide transition-colors ${
+                    isActive ? 'text-purple-400' : 'text-stone-300'
+                  }`}>
+                    {stepText}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Horizontal Progress Bar */}
+          <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden mb-6 relative">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-blue-500 to-purple-600"
+              initial={{ width: '0%' }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            />
+          </div>
+
+          {/* AI Thinking Feed Log */}
+          <div className="bg-black/40 border border-white/5 p-4 rounded-2xl h-36 overflow-y-auto font-mono text-[10px] text-stone-400 space-y-2 text-left scrollbar-hide">
+            <div className="text-[9px] uppercase font-bold text-purple-400 tracking-wider mb-2 font-sans">
+              Live Thinking Feed:
+            </div>
+            <AnimatePresence>
+              {thinkingLogs.map((log, index) => (
+                <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-start gap-1.5 leading-relaxed"
+                >
+                  <span className="text-purple-500">✓</span>
+                  <span>{log}</span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            {isFinalWaiting && (
+              <div className="text-blue-400 animate-pulse text-[9px] font-bold mt-2">
+                Orchestrating response... Polishing itinerary costs...
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </>
   );

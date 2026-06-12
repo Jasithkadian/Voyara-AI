@@ -1,18 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { TripForm } from '../components/TripForm';
 import { LoadingState } from '../components/LoadingState';
 import { tripsApi, TripGenerateInput, TripPlan } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { useTripStore } from '../store/useTripStore';
+import { parseNaturalLanguage, ParsedTripParams } from '../utils/parser';
 import { Compass, AlertCircle, MessageSquare, CheckCircle, Sparkles, MapPin, Calendar, Wallet, Users, RefreshCw, ChevronRight } from 'lucide-react';
-
-interface ParsedTripParams {
-  destination: string;
-  days: number;
-  budget: number;
-  travelers: number;
-  interests: string[];
-  dates: string;
-}
 
 const INTEREST_LABELS: Record<string, string> = {
   beaches: '🏖️ Beaches',
@@ -27,125 +22,20 @@ const INTEREST_LABELS: Record<string, string> = {
   history: '🏰 History & Castles',
 };
 
-// Conversational parser function
-function parseNaturalLanguage(text: string): ParsedTripParams {
-  const t = text.toLowerCase();
-  
-  // 1. Extract Destination
-  let destination = 'Goa';
-  const destMatch = text.match(/(?:in|to|visit|go)\s+([A-Z][a-zA-Z\s]{1,15})(?:\s+for|\s+with|\s+under|,|\.|$)/i);
-  if (destMatch && destMatch[1]) {
-    destination = destMatch[1].trim();
-  } else {
-    const commonCities = ['goa', 'bali', 'dubai', 'switzerland', 'japan', 'tokyo', 'delhi', 'mumbai', 'paris', 'london', 'new york'];
-    for (const city of commonCities) {
-      if (t.includes(city)) {
-        destination = city.charAt(0).toUpperCase() + city.slice(1);
-        break;
-      }
-    }
-  }
-
-  // 2. Extract Duration (Days)
-  let days = 5;
-  const daysMatch = t.match(/(\d+)\s*(?:day|night)/);
-  if (daysMatch && daysMatch[1]) {
-    days = parseInt(daysMatch[1], 10);
-  } else if (t.includes('week')) {
-    days = 7;
-  }
-
-  // 3. Extract Budget
-  let budget = 30000;
-  const budgetMatch = t.match(/(?:₹|rs\.?|inr|)\s*(\d{1,3}(?:,\d{3})*|\d+)\s*(k|thousand|)/i);
-  if (budgetMatch && budgetMatch[1]) {
-    const rawVal = budgetMatch[1].replace(/,/g, '');
-    let val = parseInt(rawVal, 10);
-    const suffix = (budgetMatch[2] || '').toLowerCase();
-    if (suffix === 'k') {
-      val *= 1000;
-    }
-    if (val >= 2000) {
-      budget = val;
-    }
-  }
-
-  // 4. Extract Travelers
-  let travelers = 1;
-  if (t.includes('couple') || t.includes('honeymoon')) {
-    travelers = 2;
-  } else if (t.includes('family') || t.includes('group')) {
-    travelers = 4;
-  } else {
-    const travelersMatch = t.match(/(\d+)\s*(?:traveler|guest|people|person|friend)/);
-    if (travelersMatch && travelersMatch[1]) {
-      travelers = parseInt(travelersMatch[1], 10);
-    }
-  }
-
-  // 5. Extract Interests
-  const interests: string[] = [];
-  const interestMapping: Record<string, string> = {
-    beach: 'beaches',
-    sea: 'beaches',
-    coast: 'beaches',
-    nightlife: 'nightlife',
-    party: 'nightlife',
-    club: 'nightlife',
-    bar: 'nightlife',
-    water: 'water_sports',
-    surf: 'water_sports',
-    dive: 'water_sports',
-    food: 'food',
-    dining: 'food',
-    eat: 'food',
-    culture: 'culture',
-    museum: 'culture',
-    nature: 'nature',
-    wildlife: 'nature',
-    jungle: 'nature',
-    adventure: 'adventure',
-    trek: 'adventure',
-    hike: 'adventure',
-    climb: 'adventure',
-    shop: 'shopping',
-    relax: 'relaxation',
-    spa: 'relaxation',
-    wellness: 'relaxation',
-    history: 'history',
-    castle: 'history'
-  };
-
-  Object.keys(interestMapping).forEach((keyword) => {
-    if (t.includes(keyword)) {
-      const id = interestMapping[keyword];
-      if (!interests.includes(id)) {
-        interests.push(id);
-      }
-    }
-  });
-
-  if (interests.length === 0) {
-    interests.push('beaches');
-  }
-
-  // 6. Extract Dates info
-  let dates = 'end of July';
-  const dateMatch = text.match(/(?:in|for|at|end of)\s+([A-Za-z]+\s*\d*)/i);
-  if (dateMatch && dateMatch[1]) {
-    dates = dateMatch[1].trim();
-  }
-
-  return { destination, days, budget, travelers, interests, dates };
-}
-
 export const TripPlanner: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, loginGuest } = useAuth();
+  
+  // Zustand Store hooks
+  const { 
+    tripPrompt, destination, budget, duration, travelers, moods, dates,
+    setTripPrompt, setTripData, setGeneratedItinerary
+  } = useTripStore();
+
   const [loading, setLoading] = useState(false);
   const [isApiReady, setIsApiReady] = useState(false);
   const [error, setError] = useState('');
   
-  // Navigation / input mode toggle
   const [plannerMode, setPlannerMode] = useState<'conversational' | 'wizard'>('conversational');
   const [nlQuery, setNlQuery] = useState('');
   const [parsedParams, setParsedParams] = useState<ParsedTripParams | null>(null);
@@ -153,16 +43,54 @@ export const TripPlanner: React.FC = () => {
   const apiResultRef = useRef<TripPlan | null>(null);
   const [activeInput, setActiveInput] = useState<TripGenerateInput | null>(null);
 
+  // Sync state if coming from Homepage
+  useEffect(() => {
+    if (destination && !parsedParams && plannerMode === 'conversational') {
+      setParsedParams({
+        destination,
+        days: duration,
+        budget,
+        travelers,
+        interests: moods,
+        dates: dates || 'Upcoming dates'
+      });
+      setNlQuery(tripPrompt);
+    }
+  }, [destination, duration, budget, travelers, moods, dates, tripPrompt, parsedParams, plannerMode]);
+
   const handleNlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nlQuery.trim()) return;
     const parsed = parseNaturalLanguage(nlQuery);
+    
+    // Sync to store
+    setTripPrompt(nlQuery);
+    setTripData({
+      destination: parsed.destination,
+      budget: parsed.budget,
+      duration: parsed.days,
+      travelers: parsed.travelers,
+      moods: parsed.interests,
+      dates: parsed.dates
+    });
+
     setParsedParams(parsed);
   };
 
   const handleConfirmedGenerate = async () => {
     if (!parsedParams) return;
     
+    // Auto-login as Guest if not authenticated to prevent redirect loop
+    let loggedIn = isAuthenticated;
+    if (!loggedIn) {
+      try {
+        await loginGuest();
+        loggedIn = true;
+      } catch (err) {
+        console.error("Guest login failed:", err);
+      }
+    }
+
     const input: TripGenerateInput = {
       source: 'Delhi', // Default source city
       destination: parsedParams.destination,
@@ -189,6 +117,17 @@ export const TripPlanner: React.FC = () => {
   };
 
   const handleWizardSubmit = async (data: TripGenerateInput) => {
+    // Auto-login as Guest if not authenticated
+    let loggedIn = isAuthenticated;
+    if (!loggedIn) {
+      try {
+        await loginGuest();
+        loggedIn = true;
+      } catch (err) {
+        console.error("Guest login failed:", err);
+      }
+    }
+
     setActiveInput(data);
     setLoading(true);
     setIsApiReady(false);
@@ -207,6 +146,18 @@ export const TripPlanner: React.FC = () => {
 
   const handleLoadingComplete = () => {
     if (apiResultRef.current && activeInput) {
+      // Save details to the global Zustand store for persistence on refresh
+      setGeneratedItinerary(apiResultRef.current);
+      setTripPrompt(nlQuery || activeInput.destination + ' trip');
+      setTripData({
+        destination: activeInput.destination,
+        budget: activeInput.budget,
+        duration: activeInput.days,
+        travelers: activeInput.travelers,
+        moods: activeInput.interests,
+        activeTripId: 0 // Unsaved initially
+      });
+
       navigate('/dashboard/trip', { 
         state: { 
           generatedPlan: apiResultRef.current, 
@@ -216,13 +167,39 @@ export const TripPlanner: React.FC = () => {
     }
   };
 
+  const handleReset = () => {
+    setParsedParams(null);
+    setNlQuery('');
+    useTripStore.getState().resetStore();
+  };
+
   const toggleInterest = (id: string) => {
     if (!parsedParams) return;
+    const updatedInterests = parsedParams.interests.includes(id)
+      ? parsedParams.interests.filter(item => item !== id)
+      : [...parsedParams.interests, id];
+
     setParsedParams({
       ...parsedParams,
-      interests: parsedParams.interests.includes(id)
-        ? parsedParams.interests.filter(item => item !== id)
-        : [...parsedParams.interests, id]
+      interests: updatedInterests
+    });
+
+    setTripData({ moods: updatedInterests });
+  };
+
+  const updateField = (field: keyof ParsedTripParams, value: any) => {
+    if (!parsedParams) return;
+    const updated = { ...parsedParams, [field]: value };
+    setParsedParams(updated);
+    
+    // Sync to store
+    setTripData({
+      destination: updated.destination,
+      budget: updated.budget,
+      duration: updated.days,
+      travelers: updated.travelers,
+      moods: updated.interests,
+      dates: updated.dates
     });
   };
 
@@ -239,154 +216,214 @@ export const TripPlanner: React.FC = () => {
     );
   }
 
+  // Determine current active stepper step
+  const currentStep = loading ? 3 : parsedParams ? 2 : 1;
+
   return (
-    <div className="min-h-[85vh] py-16 px-4 bg-gradient-mesh flex items-center justify-center">
-      <div className="w-full max-w-xl">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-textPrimary dark:text-warmWhite flex items-center justify-center gap-2 tracking-tight">
-            <Compass className="w-8 h-8 text-primary animate-spin-slow" /> voira AI Trip Planner
+    <div className="min-h-screen py-16 px-4 bg-[#0b0c16] text-white flex items-center justify-center relative overflow-hidden">
+      {/* Background gradients */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] -z-10" />
+      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] -z-10" />
+
+      <div className="w-full max-w-2xl relative z-10 space-y-8">
+        
+        {/* Stepper Header */}
+        <div className="max-w-md mx-auto">
+          <div className="flex items-center justify-between relative">
+            {/* Horizontal Line behind steps */}
+            <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-white/10 -z-10" />
+            <div 
+              className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-blue-500 to-purple-600 -z-10 transition-all duration-500" 
+              style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}
+            />
+
+            {[
+              { step: 1, label: 'Prompt' },
+              { step: 2, label: 'Customize' },
+              { step: 3, label: 'Generate' }
+            ].map((s) => {
+              const isActive = currentStep === s.step;
+              const isCompleted = currentStep > s.step;
+
+              return (
+                <div key={s.step} className="flex flex-col items-center space-y-2">
+                  <div 
+                    className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white scale-110 shadow-lg shadow-purple-500/35 ring-4 ring-purple-500/20' 
+                        : isCompleted
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-stone-900 border border-white/10 text-stone-500'
+                    }`}
+                  >
+                    {isCompleted ? '✓' : s.step}
+                  </div>
+                  <span className={`text-[10px] uppercase font-bold tracking-wider ${
+                    isActive ? 'text-purple-400 font-extrabold' : isCompleted ? 'text-purple-300' : 'text-stone-500'
+                  }`}>
+                    {s.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold text-white flex items-center justify-center gap-2.5 tracking-tight font-display">
+            <Compass className="w-8 h-8 text-purple-500 animate-spin-slow" /> Voyara AI Travel Agent
           </h2>
-          <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-2">
-            Let artificial intelligence design your custom holiday itinerary and budget.
+          <p className="text-xs text-stone-400 mt-2 font-medium">
+            Let artificial intelligence orchestrate your personal holiday package and budget.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 flex items-center gap-4 p-4 bg-coral dark:bg-coral/25 text-coral dark:text-coral border border-coral dark:border-coral/45 rounded-lg text-left">
-            <AlertCircle className="w-5 h-5 shrink-0" />
+          <div className="flex items-center gap-4 p-4 bg-rose-500/10 text-rose-300 border border-rose-500/20 rounded-xl text-left animate-fade-in">
+            <AlertCircle className="w-5 h-5 shrink-0 text-rose-400" />
             <p className="text-xs sm:text-sm font-semibold">{error}</p>
           </div>
         )}
 
         {/* Toggle Mode Tab Bar */}
-        <div className="flex w-full md:max-w-md mx-auto mb-8 bg-stoneMuted/30 dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 p-1.5 rounded-lg">
-          <button
-            onClick={() => { setPlannerMode('conversational'); setParsedParams(null); }}
-            className={`flex-1 py-2 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-2 ${
-              plannerMode === 'conversational'
-                ? 'bg-primary text-warmWhite shadow-xs'
-                : 'text-textSecondary hover:text-textPrimary dark:text-dark-text-muted'
-            }`}
-          >
-            <MessageSquare className="w-3.5 h-3.5" /> Conversational AI
-          </button>
-          
-          <button
-            onClick={() => setPlannerMode('wizard')}
-            className={`flex-1 py-2 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-2 ${
-              plannerMode === 'wizard'
-                ? 'bg-primary text-warmWhite shadow-xs'
-                : 'text-textSecondary hover:text-textPrimary dark:text-dark-text-muted'
-            }`}
-          >
-            <Compass className="w-3.5 h-3.5" /> Structured Wizard
-          </button>
-        </div>
+        {!parsedParams && (
+          <div className="flex w-full md:max-w-md mx-auto bg-white/5 border border-white/10 p-1.5 rounded-xl shadow-lg">
+            <button
+              onClick={() => { setPlannerMode('conversational'); handleReset(); }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                plannerMode === 'conversational'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white'
+              }`}
+            >
+              <MessageSquare className="w-3.5 h-3.5" /> Conversational AI
+            </button>
+            
+            <button
+              onClick={() => setPlannerMode('wizard')}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                plannerMode === 'wizard'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" /> Structured Wizard
+            </button>
+          </div>
+        )}
 
         {/* CONVERSATIONAL MODE */}
         {plannerMode === 'conversational' && (
           <div className="w-full">
             {!parsedParams ? (
-              <form onSubmit={handleNlSubmit} className="mobile-focus-container bg-warmWhite dark:bg-dark-card border border-stoneMuted/50 dark:border-dark-border/40 rounded-xl p-comfortable shadow-sm space-y-6 text-left">
+              <form onSubmit={handleNlSubmit} className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-left backdrop-blur-xl">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" /> Describe Your Travel Plan
+                  <label className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-400" /> Describe Your Travel Plan
                   </label>
                   <textarea
                     rows={4}
                     required
                     value={nlQuery}
                     onChange={(e) => setNlQuery(e.target.value)}
-                    placeholder="Try: 5 days in Goa for beaches and parties, ₹30,000, end of July"
-                    className="w-full h-[120px] md:h-auto px-4 py-4 rounded-lg bg-warmWhite dark:bg-dark-elevated border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-dark-text text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary placeholder:font-normal transition-all resize-none leading-relaxed shadow-inner"
+                    placeholder="Try: 5 days in Goa for beaches and parties, ₹20,000, end of July"
+                    className="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-purple-500 placeholder:text-stone-500 placeholder:font-normal transition-all resize-none leading-relaxed shadow-inner"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={!nlQuery.trim()}
-                  className="w-full h-[52px] md:h-11 bg-primary text-warmWhite font-semibold rounded-md hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs shadow-sm shadow-primary/25 disabled:opacity-50"
+                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-xs shadow-md shadow-purple-500/20 disabled:opacity-40"
                 >
-                  <span>Parse My Itinerary Idea</span>
+                  <span>Extract Itinerary Details</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </form>
             ) : (
-              // CONFIRMATION CARD (Editable parameters)
-              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] space-y-6 text-left animate-fade-in">
-                <div className="flex justify-between items-center pb-4 border-b border-[var(--color-border-subtle)]">
-                  <h3 className="font-bold text-[var(--text-sm)] text-[var(--color-text-primary)] uppercase tracking-wide flex items-center gap-2">
-                    <CheckCircle className="w-4.5 h-4.5 text-[var(--color-success)]" /> Confirm Extracted Details
-                  </h3>
+              // GLASSMORPHISM CONFIRMATION CARD (Editable parameters)
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-8 text-left backdrop-blur-xl animate-fade-in relative">
+                
+                {/* Dynamic Summary Card Overlay */}
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl flex flex-wrap gap-4 items-center justify-between text-xs font-semibold text-stone-300">
+                  <div className="flex flex-wrap gap-3">
+                    <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-blue-400" /> {parsedParams.destination}</span>
+                    <span className="text-stone-600">•</span>
+                    <span className="flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5 text-emerald-400" /> ₹{parsedParams.budget.toLocaleString('en-IN')}</span>
+                    <span className="text-stone-600">•</span>
+                    <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-purple-400" /> {parsedParams.days} Days</span>
+                    <span className="text-stone-600">•</span>
+                    <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-stone-400" /> {parsedParams.travelers} Traveler{parsedParams.travelers > 1 ? 's' : ''}</span>
+                  </div>
                   <button 
-                    onClick={() => setParsedParams(null)}
-                    className="text-[10px] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:underline font-bold flex items-center gap-1 transition-colors"
+                    onClick={handleReset}
+                    className="text-[10px] text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1 transition-colors uppercase tracking-wider"
                   >
                     <RefreshCw className="w-3 h-3" /> Edit Prompt
                   </button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {/* Destination */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[var(--color-primary)]" /> Destination
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-blue-400" /> Destination
                     </label>
                     <input
                       type="text"
                       required
                       value={parsedParams.destination}
-                      onChange={(e) => setParsedParams({ ...parsedParams, destination: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg-hover)] text-[var(--text-sm)] font-semibold text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
+                      onChange={(e) => updateField('destination', e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                     />
                   </div>
 
                   {/* Dates / Months */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[var(--color-text-muted)]" /> Target Dates Range
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-purple-400" /> Target Dates Range
                     </label>
                     <input
                       type="text"
                       required
                       value={parsedParams.dates}
-                      onChange={(e) => setParsedParams({ ...parsedParams, dates: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg-hover)] text-[var(--text-sm)] font-semibold text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
+                      onChange={(e) => updateField('dates', e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                     />
                   </div>
 
                   {/* Budget & Days Row */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
-                        <Wallet className="w-3.5 h-3.5 text-[var(--color-success)]" /> Budget (INR)
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
+                        <Wallet className="w-3.5 h-3.5 text-emerald-400" /> Budget (INR)
                       </label>
                       <input
                         type="number"
                         required
                         value={parsedParams.budget}
-                        onChange={(e) => setParsedParams({ ...parsedParams, budget: Number(e.target.value) })}
-                        className="w-full px-3 py-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg-hover)] text-[var(--text-sm)] font-mono font-semibold text-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-primary)]"
+                        onChange={(e) => updateField('budget', Number(e.target.value))}
+                        className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm font-mono font-bold text-pink-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-[var(--color-primary)]" /> Duration (Days)
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-blue-400" /> Duration (Days)
                       </label>
-                      <div className="flex items-center space-x-2 border border-[var(--color-border)] rounded-[var(--radius-sm)] px-2 bg-[var(--color-bg-hover)] h-[38px] justify-between">
+                      <div className="flex items-center space-x-2 border border-white/10 rounded-xl px-3 bg-white/5 h-[46px] justify-between">
                         <button 
                           type="button" 
-                          onClick={() => setParsedParams({ ...parsedParams, days: Math.max(1, parsedParams.days - 1) })}
-                          className="font-bold text-[var(--text-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] px-2"
+                          onClick={() => updateField('days', Math.max(1, parsedParams.days - 1))}
+                          className="font-bold text-sm text-stone-400 hover:text-white px-2"
                         >
                           -
                         </button>
-                        <span className="text-[var(--text-sm)] font-semibold text-[var(--color-text-primary)]">{parsedParams.days} Days</span>
+                        <span className="text-sm font-semibold text-white">{parsedParams.days} Days</span>
                         <button 
                           type="button" 
-                          onClick={() => setParsedParams({ ...parsedParams, days: parsedParams.days + 1 })}
-                          className="font-bold text-[var(--text-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] px-2"
+                          onClick={() => updateField('days', parsedParams.days + 1)}
+                          className="font-bold text-sm text-stone-400 hover:text-white px-2"
                         >
                           +
                         </button>
@@ -395,29 +432,29 @@ export const TripPlanner: React.FC = () => {
                   </div>
 
                   {/* Travelers select */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-[var(--color-text-muted)]" /> Travelers count
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-stone-400" /> Travelers Count
                     </label>
                     <select
                       value={parsedParams.travelers}
-                      onChange={(e) => setParsedParams({ ...parsedParams, travelers: Number(e.target.value) })}
-                      className="w-full px-3 py-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg-hover)] text-[var(--text-sm)] font-semibold text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
+                      onChange={(e) => updateField('travelers', Number(e.target.value))}
+                      className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                     >
-                      <option value={1}>1 Traveler (Solo)</option>
-                      <option value={2}>2 Travelers (Couple)</option>
-                      <option value={3}>3 Travelers</option>
-                      <option value={4}>4 Travelers (Family)</option>
-                      <option value={5}>5+ Group Travelers</option>
+                      <option value={1} className="bg-stone-900">1 Traveler (Solo)</option>
+                      <option value={2} className="bg-stone-900">2 Travelers (Couple)</option>
+                      <option value={3} className="bg-stone-900">3 Travelers</option>
+                      <option value={4} className="bg-stone-900">4 Travelers (Family)</option>
+                      <option value={5} className="bg-stone-900">5+ Group Travelers</option>
                     </select>
                   </div>
 
                   {/* Moods/Interests selections */}
-                  <div className="space-y-2 relative z-10">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                  <div className="space-y-3 relative z-10">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
                       Travel Moods (Select Multiple)
                     </label>
-                    <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+                    <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto pr-1">
                       {Object.keys(INTEREST_LABELS).map((key) => {
                         const isSelected = parsedParams.interests.includes(key);
                         const label = INTEREST_LABELS[key];
@@ -426,44 +463,44 @@ export const TripPlanner: React.FC = () => {
                         const text = spaceIdx !== -1 ? label.substring(spaceIdx + 1) : label;
 
                         return (
-                          <button
+                          <motion.button
                             key={key}
                             type="button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => toggleInterest(key)}
-                            className={`interest-chip px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
+                            className={`interest-chip px-4 py-2 rounded-full text-xs font-bold border transition-all flex items-center gap-1.5 ${
                               isSelected
-                                ? 'selected border-[var(--color-primary)] text-white'
-                                : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
+                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 border-purple-500 text-white shadow-md shadow-purple-500/20'
+                                : 'border-white/10 text-stone-400 bg-white/5 hover:bg-white/10 hover:text-white'
                             }`}
                           >
-                            <span className="relative z-10 flex items-center gap-1">
-                              <span className={isSelected ? 'emoji-bounce' : ''}>
-                                {emoji}
-                              </span>
-                              <span> {text}</span>
+                            <span className={isSelected ? 'animate-bounce' : ''}>
+                              {emoji}
                             </span>
-                          </button>
+                            <span>{text}</span>
+                          </motion.button>
                         );
                       })}
                     </div>
                   </div>
                 </div>
 
-                 <div className="flex flex-col md:flex-row gap-4 pt-4 border-t border-[var(--color-border-subtle)] mt-6">
-                   <button
-                     onClick={() => setParsedParams(null)}
-                     className="btn-secondary w-full md:w-1/3 h-[52px] md:h-11 justify-center flex items-center gap-2"
-                   >
-                     Reset
-                   </button>
-                   <button
-                     onClick={handleConfirmedGenerate}
-                     className="btn-cta w-full md:flex-1 h-[52px] md:h-11 justify-center"
-                   >
-                     <Sparkles className="w-4 h-4 text-white" />
-                     <span>Generate My Itinerary</span>
-                   </button>
-                 </div>
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-white/5">
+                  <button
+                    onClick={handleReset}
+                    className="w-full sm:w-1/3 h-12 bg-white/5 border border-white/10 hover:bg-white/10 text-stone-300 font-bold rounded-xl flex items-center justify-center gap-2 text-xs transition-colors"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={handleConfirmedGenerate}
+                    className="w-full sm:flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-xs shadow-lg shadow-purple-500/25 transition-transform active:scale-[0.98]"
+                  >
+                    <Sparkles className="w-4 h-4 text-white" />
+                    <span>Generate My Itinerary</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

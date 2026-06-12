@@ -2,6 +2,7 @@ import React from 'react';
 import { BudgetBreakdown } from '../services/api';
 import { Wallet, Hotel, Utensils, Car, Compass, HelpCircle } from 'lucide-react';
 import { DonutChart } from './DonutChart';
+import { motion } from 'framer-motion';
 
 interface BudgetChartProps {
   breakdown: BudgetBreakdown;
@@ -10,11 +11,11 @@ interface BudgetChartProps {
 
 export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudget }) => {
   const data = [
-    { name: 'Hotels', value: breakdown.hotel_cost, color: '#0A1628', icon: Hotel },
-    { name: 'Food', value: breakdown.food_cost, color: '#FF5733', icon: Utensils },
+    { name: 'Hotels', value: breakdown.hotel_cost, color: '#2563EB', icon: Hotel },
+    { name: 'Food', value: breakdown.food_cost, color: '#7C3AED', icon: Utensils },
     { name: 'Transport', value: breakdown.transportation_cost, color: '#0D9488', icon: Car },
     { name: 'Activities', value: breakdown.activity_cost, color: '#D97706', icon: Compass },
-    { name: 'Misc', value: breakdown.miscellaneous_cost, color: '#94A3B8', icon: HelpCircle },
+    { name: 'Emergency Buffer', value: breakdown.miscellaneous_cost, color: '#94A3B8', icon: HelpCircle },
   ];
 
   const formatCurrency = (val: number) => {
@@ -34,18 +35,18 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
   }));
 
   return (
-    <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] relative overflow-hidden">
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl text-left">
       <div className="flex items-center space-x-4 mb-6">
-        <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-success-bg)] text-[var(--color-success)] flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center">
           <Wallet className="w-5 h-5" />
         </div>
         <div>
-          <h3 className="font-semibold text-lg text-[var(--color-text-primary)]">Budget Estimator</h3>
-          <p className="text-xs text-[var(--color-text-secondary)]">Analysis of predicted trip expenses</p>
+          <h3 className="font-semibold text-lg text-white font-display">Budget Estimator</h3>
+          <p className="text-xs text-stone-400">Analysis of predicted trip expenses</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         {/* Donut Chart */}
         <div className="h-60 w-full flex items-center justify-center relative">
           <DonutChart segments={segments} total={breakdown.total_cost} />
@@ -54,26 +55,26 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
         {/* Progress Bars & Info */}
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4 mb-2">
-            <div className="p-4 bg-[var(--color-bg-hover)] rounded-[var(--radius-md)] border border-[var(--color-border)]">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)] block">Target Budget</span>
-              <span className="price text-[var(--color-text-primary)]">{formatCurrency(targetBudget)}</span>
+            <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block">Target Budget</span>
+              <span className="text-base font-bold text-white font-mono">{formatCurrency(targetBudget)}</span>
             </div>
-            <div className={`p-4 rounded-[var(--radius-md)] border ${
+            <div className={`p-4 rounded-xl border ${
               remainingBudget === 0
-                ? 'bg-[var(--color-success-bg)] border-[var(--color-success-border)]'
+                ? 'bg-emerald-500/15 border-emerald-500/20'
                 : remainingBudget < 0
-                ? 'bg-[var(--color-error-bg)] border-[var(--color-error-border)]'
-                : 'bg-[var(--color-bg-hover)] border border-[var(--color-border)]'
+                ? 'bg-rose-500/15 border-rose-500/20'
+                : 'bg-white/5 border border-white/5'
             }`}>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)] block">Remaining</span>
-              <span className={`price ${
+              <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block">Remaining</span>
+              <span className={`text-base font-bold font-mono ${
                 remainingBudget === 0
-                  ? 'text-[var(--color-success)]'
+                  ? 'text-emerald-400'
                   : remainingBudget < 0 
-                  ? 'text-[var(--color-error)]' 
-                  : 'text-[var(--color-text-primary)]'
+                  ? 'text-rose-400' 
+                  : 'text-white'
               }`}>
-                {remainingBudget === 0 ? '₹0 Remaining' : formatCurrency(remainingBudget)}
+                {remainingBudget === 0 ? '₹0' : formatCurrency(remainingBudget)}
               </span>
             </div>
           </div>
@@ -86,18 +87,21 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
                 <div key={idx} className="space-y-1">
                   <div className="flex items-center justify-between text-xs font-semibold">
                     <div className="flex items-center space-x-2">
-                      <div className="w-5 h-5 rounded-[var(--radius-xs)] flex items-center justify-center text-white" style={{ backgroundColor: item.color }}>
+                      <div className="w-5 h-5 rounded-md flex items-center justify-center text-white" style={{ backgroundColor: item.color }}>
                         <Icon className="w-3 h-3" />
                       </div>
-                      <span className="text-[var(--color-text-secondary)]">{item.name}</span>
+                      <span className="text-stone-300 font-sans">{item.name}</span>
                     </div>
-                    <span className="price text-[var(--color-text-primary)]">{formatCurrency(item.value)}</span>
+                    <span className="text-white font-bold font-mono">{formatCurrency(item.value)}</span>
                   </div>
-                  <div className="w-full bg-[var(--color-bg-hover)] h-1.5 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full rounded-full transition-all duration-300" 
-                      style={{ backgroundColor: item.color, width: `${Math.min(pct, 100)}%` }}
-                    ></div>
+                  <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full rounded-full" 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(pct, 100)}%` }}
+                      transition={{ duration: 0.8, ease: 'easeOut', delay: idx * 0.08 }}
+                      style={{ backgroundColor: item.color }}
+                    />
                   </div>
                 </div>
               );

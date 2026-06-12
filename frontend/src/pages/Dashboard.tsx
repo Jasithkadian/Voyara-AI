@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
-import api, { tripsApi, SavedTrip, TripPlan } from '../services/api';
+import api, { tripsApi, aiApi, SavedTrip, TripPlan } from '../services/api';
 import { useCurrency } from '../context/CurrencyContext';
 import { BudgetChart } from '../components/BudgetChart';
 import { ItineraryCard } from '../components/ItineraryCard';
@@ -14,12 +14,14 @@ import { Badge } from '../components/Badge';
 import { TravelTips } from '../components/TravelTips';
 import { MapWidget } from '../components/MapWidget';
 import { PackingList } from '../components/PackingList';
+import { useTripStore } from '../store/useTripStore';
+import { simulateReplanLocal } from '../utils/replanner';
 import { 
   Compass, Calendar, Wallet, MapPin, ArrowRight, Plus, 
   Trash2, Sparkles, RefreshCw, Save, MessageSquare, 
   X, AlertCircle, Plane, CheckCircle,
   Clock, Share2, FileText, CalendarRange, Building2,
-  Bookmark
+  Bookmark, Send
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
@@ -190,7 +192,99 @@ export const Dashboard: React.FC = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [budgetCopilot, setBudgetCopilot] = useState<BudgetCopilotData | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'budget' | 'packing' | 'tips'>('budget');
+  const [activeTab, setActiveTab] = useState<'chat' | 'budget' | 'packing' | 'tips'>('chat');
+
+  // Chat Integration
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([
+    { role: 'assistant', text: 'Hi! I am your AI Travel Copilot. I can edit this itinerary live for you! For example, ask me to "Make Day 3 more adventurous" or "Reduce total cost".' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, chatLoading]);
+
+  // Handle send message
+  const handleSendChatMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || chatLoading || !activeTrip) return;
+
+    const userMessage = chatInput;
+    setChatInput('');
+    setChatMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    setChatLoading(true);
+
+    try {
+      const msg = userMessage.toLowerCase();
+      const isEditIntent = ['make', 'replan', 'change', 'reduce', 'cheaper', 'add', 'replace', 'more', 'day'].some(k => msg.includes(k));
+
+      if (isEditIntent) {
+        if (activeTrip.id !== 0) {
+          // Saved trip: call remote API
+          const response = await tripsApi.replan(activeTrip.id, userMessage);
+          setActiveTrip(response.trip);
+          useTripStore.getState().setGeneratedItinerary(response.trip.generated_plan);
+          setChatMessages(prev => [...prev, { 
+            role: 'assistant', 
+            text: `✓ I've updated the itinerary based on your request: "${userMessage}". The daily timeline and budget allocation charts have been recalculated.`
+          }]);
+        } else {
+          // Unsaved sandbox: run client-side simulation
+          const currentPlan = activeTrip.generated_plan;
+          const updatedPlan = simulateReplanLocal(currentPlan, userMessage);
+          
+          setActiveTrip(prev => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              generated_plan: updatedPlan,
+              budget: updatedPlan.budgetBreakdown?.total_cost || prev.budget,
+              days: updatedPlan.tripSummary?.days || prev.days
+            };
+          });
+          useTripStore.getState().setGeneratedItinerary(updatedPlan);
+          setChatMessages(prev => [...prev, { 
+            role: 'assistant', 
+            text: `✓ I've updated the itinerary locally based on: "${userMessage}". Save the trip to persist this update permanently!`
+          }]);
+        }
+      } else {
+        // Normal question: call chat API or fallback to mock
+        if (activeTrip.id !== 0) {
+          const result = await aiApi.chat(activeTrip.id, userMessage);
+          setChatMessages(prev => [...prev, { role: 'assistant', text: result.reply }]);
+        } else {
+          // Mock local response grounded in destination
+          const dest = activeTrip.destination;
+          const userMsg = userMessage.toLowerCase();
+          let reply = `To make your trip to ${dest} spectacular, I can help you with specific itineraries, flight bookings, local dining, custom packing lists, and real-time weather alerts. Please let me know what you would like to arrange first!`;
+          if (userMsg.includes('pack')) {
+            if (dest.toLowerCase().includes('goa')) {
+              reply = "For your Goa trip in July (monsoon season), you should pack: a rain jacket/poncho, waterproof sandals, breathable quick-dry clothing, insect/mosquito repellent, dry bags for electronics, and sunscreen. Avoid packed leather shoes.";
+            } else {
+              reply = `For your ${activeTrip.days}-day trip to ${dest}, make sure to pack comfortable walking shoes, appropriate layers, and adapters.`;
+            }
+          } else if (userMsg.includes('eat') || userMsg.includes('restaurant') || userMsg.includes('dining')) {
+            if (dest.toLowerCase().includes('goa')) {
+              reply = "Here are 3 exceptional Goa dining spots that fit your profile:\n\n1. **Mum's Kitchen (Panaji)** - Cuisine: Goan. Price: ₹800-₹1,500/person.\n2. **Fisherman's Wharf (Cavelossim)** - Cuisine: Seafood. Price: ₹1,000-₹2,000/person.\n3. **Gunpowder (Assagao)** - Cuisine: Fusion. Price: ₹750-₹1,200/person.";
+            } else {
+              reply = `Here are dining options for ${dest} that fit your budget:\n1. The Grand ${dest} Tavern - Local traditional (₹800-₹1,500/person)\n2. Central Cafe - Quick bites (₹300/person).`;
+            }
+          } else if (userMsg.includes('monsoon') || userMsg.includes('weather') || userMsg.includes('rain')) {
+            reply = `The weather forecast for ${dest} indicates warm conditions with possible light showers. Standard outdoor events are adapted for indoor structures where needed.`;
+          }
+          setChatMessages(prev => [...prev, { role: 'assistant', text: reply }]);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setChatMessages(prev => [...prev, { role: 'assistant', text: 'Sorry, I encountered an issue updating the itinerary. Please try again.' }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [checkoutItem, setCheckoutItem] = useState<{ type: string; provider: string; price: number; details: any } | null>(null);
@@ -251,30 +345,40 @@ export const Dashboard: React.FC = () => {
         const generatedPlan = location.state?.generatedPlan as TripPlan | null;
         const originalInput = location.state?.originalInput as Record<string, unknown> | null;
         
+        const store = useTripStore.getState();
+        const finalGeneratedPlan = generatedPlan || store.generatedItinerary;
+        const finalOriginalInput = originalInput || {
+          source: 'Delhi',
+          destination: store.destination,
+          budget: store.budget,
+          days: store.duration,
+          travelers: store.travelers,
+          interests: store.moods,
+        };
+
         if (stateTrip) {
           setActiveTrip(stateTrip);
           setReplanBudget(stateTrip.budget);
           setReplanDays(stateTrip.days);
           setReplanTravelers(stateTrip.travelers);
           setSaveSuccess(true);
-        } else if (generatedPlan && originalInput) {
-          // Unsaved generated trip context
+        } else if (finalGeneratedPlan && finalOriginalInput.destination) {
           const tempTrip: SavedTrip = {
-            id: 0, // Unsaved
-            source: (originalInput.source as string) || '',
-            destination: (originalInput.destination as string) || '',
-            budget: (originalInput.budget as number) || 0,
-            days: (originalInput.days as number) || 5,
-            travelers: (originalInput.travelers as number) || 1,
-            interests: (originalInput.interests as string[]) || [],
-            generated_plan: generatedPlan,
+            id: store.activeTripId || 0,
+            source: (finalOriginalInput.source as string) || 'Delhi',
+            destination: (finalOriginalInput.destination as string) || '',
+            budget: (finalOriginalInput.budget as number) || 30000,
+            days: (finalOriginalInput.days as number) || 5,
+            travelers: (finalOriginalInput.travelers as number) || 1,
+            interests: (finalOriginalInput.interests as string[]) || [],
+            generated_plan: finalGeneratedPlan,
             created_at: new Date().toISOString()
           };
           setActiveTrip(tempTrip);
           setReplanBudget(tempTrip.budget);
           setReplanDays(tempTrip.days);
           setReplanTravelers(tempTrip.travelers);
-          setSaveSuccess(false);
+          setSaveSuccess(tempTrip.id !== 0);
         } else {
           // If no active trip is passed, redirect to planner
           navigate('/planner');
@@ -669,7 +773,39 @@ export const Dashboard: React.FC = () => {
           
           {/* Left: Timeline & Bookings */}
           <div className="lg:col-span-8 space-y-12">
-            <ItineraryCard dailyPlan={plan.dailyItinerary} destination={activeTrip.destination} />
+            <ItineraryCard 
+              dailyPlan={plan.dailyItinerary} 
+              destination={activeTrip.destination} 
+              tripId={activeTrip.id}
+              onRegenerateDay={async (dayNumber) => {
+                try {
+                  const prompt = `Regenerate Day ${dayNumber}`;
+                  if (activeTrip.id !== 0) {
+                    const response = await tripsApi.replan(activeTrip.id, prompt);
+                    setActiveTrip(response.trip);
+                    useTripStore.getState().setGeneratedItinerary(response.trip.generated_plan);
+                    showToast(`Day ${dayNumber} regenerated successfully!`, 'success');
+                  } else {
+                    const currentPlan = activeTrip.generated_plan;
+                    const updatedPlan = simulateReplanLocal(currentPlan, prompt);
+                    
+                    setActiveTrip(prev => {
+                      if (!prev) return null;
+                      return {
+                        ...prev,
+                        generated_plan: updatedPlan,
+                        budget: updatedPlan.budgetBreakdown?.total_cost || prev.budget,
+                        days: updatedPlan.tripSummary?.days || prev.days
+                      };
+                    });
+                    useTripStore.getState().setGeneratedItinerary(updatedPlan);
+                    showToast(`Day ${dayNumber} updated locally!`, 'success');
+                  }
+                } catch {
+                  showToast('Failed to regenerate day.', 'error');
+                }
+              }}
+            />
 
             {/* Recommended Flights Section */}
             {flightsLoading ? (
@@ -834,25 +970,75 @@ export const Dashboard: React.FC = () => {
           {/* Right: Sidebar Panel with Tabs (desktop only) */}
           <div className="hidden lg:block lg:col-span-4 space-y-8">
             <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] overflow-hidden shadow-[var(--shadow-sm)] sticky top-24">
-              <div className="sidebar-tabs px-2 pt-2 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-hover)]">
+              <div className="sidebar-tabs px-2 pt-2 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-hover)] flex">
                 <button 
-                  className={`sidebar-tab ${activeTab === 'budget' ? 'active' : ''}`}
+                  className={`sidebar-tab flex-1 py-3 text-xs font-bold transition-all border-b-2 ${activeTab === 'chat' ? 'active border-purple-500 text-purple-400' : 'border-transparent text-stone-400 hover:text-white'}`}
+                  onClick={() => setActiveTab('chat')}
+                >
+                  AI Copilot
+                </button>
+                <button 
+                  className={`sidebar-tab flex-1 py-3 text-xs font-bold transition-all border-b-2 ${activeTab === 'budget' ? 'active border-purple-500 text-purple-400' : 'border-transparent text-stone-400 hover:text-white'}`}
                   onClick={() => setActiveTab('budget')}
                 >
                   Budget
                 </button>
                 <button 
-                  className={`sidebar-tab ${activeTab === 'packing' ? 'active' : ''}`}
+                  className={`sidebar-tab flex-1 py-3 text-xs font-bold transition-all border-b-2 ${activeTab === 'packing' ? 'active border-purple-500 text-purple-400' : 'border-transparent text-stone-400 hover:text-white'}`}
                   onClick={() => setActiveTab('packing')}
                 >
                   Packing
                 </button>
                 <button 
-                  className={`sidebar-tab ${activeTab === 'tips' ? 'active' : ''}`}
+                  className={`sidebar-tab flex-1 py-3 text-xs font-bold transition-all border-b-2 ${activeTab === 'tips' ? 'active border-purple-500 text-purple-400' : 'border-transparent text-stone-400 hover:text-white'}`}
                   onClick={() => setActiveTab('tips')}
                 >
                   Tips
                 </button>
+              </div>
+
+              {/* AI Copilot Panel */}
+              <div className={`sidebar-panel ${activeTab === 'chat' ? 'active' : ''} p-4 flex flex-col h-[480px] justify-between text-left`}>
+                <div className="flex-grow overflow-y-auto space-y-4 pr-1 scrollbar-hide pb-4">
+                  {chatMessages.map((msg, index) => (
+                    <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+                      <div className={`max-w-[85%] rounded-xl p-3 text-xs leading-relaxed shadow-md ${
+                        msg.role === 'user'
+                          ? 'bg-purple-600 text-white rounded-tr-none'
+                          : 'bg-white/5 border border-white/10 text-stone-200 rounded-tl-none'
+                      }`}>
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))}
+                  {chatLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-white/5 border border-white/10 text-stone-400 rounded-xl p-3 flex items-center gap-1.5 rounded-tl-none">
+                        <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce"></span>
+                        <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                        <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+                
+                <form onSubmit={handleSendChatMessage} className="pt-3 border-t border-white/5 flex gap-2">
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    placeholder="Ask packing, edit Day 3..."
+                    className="flex-1 px-4 py-2.5 text-xs bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder:text-stone-500"
+                  />
+                  <button
+                    type="submit"
+                    disabled={chatLoading || !chatInput.trim()}
+                    className="p-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl disabled:opacity-40 transition-colors shadow-lg shadow-purple-500/20 flex items-center justify-center animate-pulse-subtle"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </form>
               </div>
 
               <div className={`sidebar-panel ${activeTab === 'budget' ? 'active' : ''} p-6 space-y-8 max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin`}>
@@ -1012,8 +1198,18 @@ export const Dashboard: React.FC = () => {
                   <div className="flex space-x-2">
                     <button 
                       className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all ${
+                        activeTab === 'chat' 
+                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-bold' 
+                          : 'text-[var(--color-text-secondary)]'
+                      }`}
+                      onClick={() => setActiveTab('chat')}
+                    >
+                      Copilot
+                    </button>
+                    <button 
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all ${
                         activeTab === 'budget' 
-                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' 
+                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-bold' 
                           : 'text-[var(--color-text-secondary)]'
                       }`}
                       onClick={() => setActiveTab('budget')}
@@ -1023,7 +1219,7 @@ export const Dashboard: React.FC = () => {
                     <button 
                       className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all ${
                         activeTab === 'packing' 
-                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' 
+                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-bold' 
                           : 'text-[var(--color-text-secondary)]'
                       }`}
                       onClick={() => setActiveTab('packing')}
@@ -1033,7 +1229,7 @@ export const Dashboard: React.FC = () => {
                     <button 
                       className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all ${
                         activeTab === 'tips' 
-                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' 
+                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] font-bold' 
                           : 'text-[var(--color-text-secondary)]'
                       }`}
                       onClick={() => setActiveTab('tips')}
@@ -1051,7 +1247,51 @@ export const Dashboard: React.FC = () => {
               </div>
               
               {/* Bottom Sheet Scrollable Body */}
-              <div className="flex-1 overflow-y-auto p-4 pb-20">
+              <div className="flex-1 overflow-y-auto p-4 pb-20 flex flex-col justify-between min-h-[40vh]">
+                {activeTab === 'chat' && (
+                  <div className="flex-1 flex flex-col justify-between h-[45vh]">
+                    <div className="flex-grow overflow-y-auto space-y-4 pr-1 scrollbar-hide pb-4">
+                      {chatMessages.map((msg, index) => (
+                        <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+                          <div className={`max-w-[85%] rounded-xl p-3 text-xs leading-relaxed shadow-md ${
+                            msg.role === 'user'
+                              ? 'bg-purple-600 text-white rounded-tr-none'
+                              : 'bg-white/5 border border-white/10 text-stone-200 rounded-tl-none'
+                          }`}>
+                            {msg.text}
+                          </div>
+                        </div>
+                      ))}
+                      {chatLoading && (
+                        <div className="flex justify-start">
+                          <div className="bg-white/5 border border-white/10 text-stone-400 rounded-xl p-3 flex items-center gap-1.5 rounded-tl-none">
+                            <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce"></span>
+                            <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                            <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                          </div>
+                        </div>
+                      )}
+                      <div ref={chatEndRef} />
+                    </div>
+                    
+                    <form onSubmit={handleSendChatMessage} className="pt-3 border-t border-white/5 flex gap-2 shrink-0">
+                      <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Ask packing, edit Day 3..."
+                        className="flex-1 px-4 py-2 text-xs bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder:text-stone-500"
+                      />
+                      <button
+                        type="submit"
+                        disabled={chatLoading || !chatInput.trim()}
+                        className="p-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl disabled:opacity-40 transition-colors flex items-center justify-center shrink-0"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </form>
+                  </div>
+                )}
                 {activeTab === 'budget' && (
                   <div className="space-y-6">
                     <BudgetChart breakdown={plan.budgetBreakdown} targetBudget={activeTrip.budget} />

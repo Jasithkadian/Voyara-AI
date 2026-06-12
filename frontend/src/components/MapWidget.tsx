@@ -18,12 +18,13 @@ interface LeafletMarker {
   on: (event: string, callback: () => void) => LeafletMarker;
   remove: () => void;
   openPopup: () => void;
+  getLatLng: () => { lat: number; lng: number };
 }
 interface LeafletMap {
   setView: (center: [number, number], zoom: number, options?: Record<string, unknown>) => LeafletMap;
   remove: () => void;
   fitBounds: (bounds: LeafletLatLngBounds, options?: Record<string, unknown>) => LeafletMap;
-  plottedCoordinates?: Array<{ marker: LeafletMarker; lat: number; lng: number }>;
+  plottedCoordinates?: Array<{ lat: number; lng: number }>;
 }
 interface LeafletLatLngBounds {
   extend: (coords: [number, number]) => LeafletLatLngBounds;
@@ -47,27 +48,23 @@ interface MapWidgetProps {
   height?: string;
 }
 
-// Global script & CSS loader for Leaflet
 let leafletPromise: Promise<void> | null = null;
 
 function loadLeaflet(): Promise<void> {
   if (leafletPromise) return leafletPromise;
 
   leafletPromise = new Promise<void>((resolve, reject) => {
-    // Check if Leaflet is already loaded globally
     if ((window as unknown as { L?: LeafletGlobal }).L) {
       resolve();
       return;
     }
 
-    // 1. Inject Leaflet CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
     link.crossOrigin = '';
     document.head.appendChild(link);
 
-    // 2. Inject Leaflet JS
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
     script.crossOrigin = '';
@@ -83,7 +80,6 @@ function loadLeaflet(): Promise<void> {
   return leafletPromise;
 }
 
-// Deterministic center coordinates for popular cities
 function getCenterForDestination(dest: string): [number, number] {
   const d = dest.toLowerCase().trim();
   if (d.includes('goa')) return [15.2993, 74.1240];
@@ -97,12 +93,10 @@ function getCenterForDestination(dest: string): [number, number] {
   if (d.includes('london')) return [51.5074, -0.1278];
   if (d.includes('new york')) return [40.7128, -74.0060];
 
-  // Stable string hashing fallback
   let hash = 0;
   for (let i = 0; i < d.length; i++) {
     hash = d.charCodeAt(i) + ((hash << 5) - hash);
   }
-  // Generate lat: [10, 50], lng: [-40, 100]
   const lat = 10 + (Math.abs(hash) % 40) + 0.1234;
   const lng = -20 + (Math.abs(hash) % 110) + 0.5678;
   return [lat, lng];
@@ -120,32 +114,27 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
   const mapRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<LeafletMarker[]>([]);
 
-  // Load Leaflet JS & CSS
   useEffect(() => {
     loadLeaflet()
       .then(() => setLeafletReady(true))
       .catch(() => {});
   }, []);
 
-  // Initialize Map
   useEffect(() => {
     if (!leafletReady || !mapContainerRef.current) return;
 
     const L = (window as unknown as { L: LeafletGlobal }).L;
     const center = getCenterForDestination(destination);
 
-    // Create Map
     const map = L.map(mapContainerRef.current, {
       zoomControl: false,
     }).setView(center, 13);
 
-    // Add CartoDB voyager tiles (looks sleek, fitting brand modes)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; CartoDB',
       maxZoom: 19,
     }).addTo(map);
 
-    // Zoom control at bottom right
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     mapRef.current = map;
@@ -156,7 +145,7 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
     };
   }, [leafletReady, destination]);
 
-  // Plot and update Markers
+  // Stagger marker addition sequentially
   useEffect(() => {
     if (!leafletReady || !mapRef.current) return;
 
@@ -169,10 +158,9 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
     markersRef.current = [];
 
     const bounds = L.latLngBounds([]);
+    const timeouts: number[] = [];
 
-    // Map each item to a mock latitude/longitude offset deterministically
     const plottedItems = items.map((item, idx) => {
-      // Offset coords deterministically based on index so they fan out
       const offsetLat = (Math.sin(idx * 1.7) * 0.015) + (idx * 0.001);
       const offsetLng = (Math.cos(idx * 1.3) * 0.018) - (idx * 0.001);
       
@@ -181,51 +169,58 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
 
       const isFocused = focusedIndex === idx;
 
-      // Custom coral branding DIV icon with numbers
+      // Custom div icons using Tailwind brand styles
       const customIcon = L.divIcon({
         className: 'custom-div-icon',
-        html: `<div class="w-8 h-8 rounded-full border-2 border-warmWhite flex items-center justify-center font-sans font-bold text-xs shadow-md transition-all duration-300 ${
+        html: `<div class="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center font-sans font-bold text-xs shadow-md transition-all duration-300 ${
           isFocused 
-            ? 'bg-primary text-warmWhite scale-115 ring-4 ring-primary/25 z-[1000]' 
-            : 'bg-coral text-warmWhite hover:bg-coral/90 hover:scale-105'
+            ? 'bg-[#2563EB] text-white scale-110 ring-4 ring-blue-500/25 z-[1000]' 
+            : 'bg-[#7C3AED] text-white hover:bg-purple-600 hover:scale-105'
         }">${idx + 1}</div>`,
         iconSize: [32, 32],
         iconAnchor: [16, 16],
       });
 
-      const marker = L.marker([lat, lng], { icon: customIcon })
-        .addTo(map)
-        .bindPopup(`
-          <div class="font-sans p-1 text-[11px] text-left">
-            <strong class="text-[var(--color-text-primary)] font-bold text-xs">${idx + 1}. ${item.name}</strong>
-            <p class="text-[var(--color-text-secondary)] text-[10px] mt-0.5">${item.category}</p>
-            ${item.price || item.rating ? `
-              <div class="mt-1 pt-1 border-t border-[var(--color-border-subtle)] flex items-center justify-between text-[10px]">
-                ${item.rating ? `<span class="font-bold flex items-center text-[var(--color-warning)]">★ ${item.rating}</span>` : ''}
-                ${item.price ? `<span class="font-mono font-bold text-[var(--color-accent)]">${item.price}</span>` : ''}
-              </div>
-            ` : ''}
-          </div>
-        `, { closeButton: false });
+      // Staggered addition of markers
+      const t = window.setTimeout(() => {
+        if (!mapRef.current) return;
+        const marker = L.marker([lat, lng], { icon: customIcon })
+          .addTo(map)
+          .bindPopup(`
+            <div class="font-sans p-1 text-[11px] text-left">
+              <strong class="text-stone-900 font-bold text-xs">${idx + 1}. ${item.name}</strong>
+              <p class="text-stone-500 text-[10px] mt-0.5">${item.category}</p>
+              ${item.price || item.rating ? `
+                <div class="mt-1 pt-1 border-t border-stone-100 flex items-center justify-between text-[10px]">
+                  ${item.rating ? `<span class="font-bold flex items-center text-amber-500">★ ${item.rating}</span>` : ''}
+                  ${item.price ? `<span class="font-mono font-bold text-pink-500">${item.price}</span>` : ''}
+                </div>
+              ` : ''}
+            </div>
+          `, { closeButton: false });
 
-      marker.on('click', () => {
-        onMarkerClick(idx);
-      });
+        marker.on('click', () => {
+          onMarkerClick(idx);
+        });
 
-      markersRef.current.push(marker);
+        markersRef.current.push(marker);
+      }, idx * 150);
+
+      timeouts.push(t);
       bounds.extend([lat, lng]);
 
-      return { marker, lat, lng };
+      return { lat, lng };
     });
 
-    // Fit bounds automatically
     if (plottedItems.length > 0) {
       map.fitBounds(bounds, { padding: [50, 50] });
     }
 
-    // Keep coordinates cached inside map reference
     mapRef.current.plottedCoordinates = plottedItems;
 
+    return () => {
+      timeouts.forEach(clearTimeout);
+    };
   }, [leafletReady, items, destination, focusedIndex, onMarkerClick]);
 
   // Pan to focused index
@@ -235,18 +230,28 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
     const plotted = map.plottedCoordinates;
 
     if (plotted && plotted[focusedIndex]) {
-      const { lat, lng, marker } = plotted[focusedIndex];
+      const { lat, lng } = plotted[focusedIndex];
       map.setView([lat, lng], 14, { animate: true, duration: 0.8 });
-      marker.openPopup();
+      
+      // Stagger lookup to ensure marker exists before opening popup
+      setTimeout(() => {
+        const marker = markersRef.current.find(m => {
+          const latlng = m.getLatLng();
+          return Math.abs(latlng.lat - lat) < 0.0001 && Math.abs(latlng.lng - lng) < 0.0001;
+        });
+        if (marker) {
+          marker.openPopup();
+        }
+      }, focusedIndex * 150 + 50);
     }
   }, [leafletReady, focusedIndex]);
 
   return (
-    <div className="w-full relative rounded-lg border border-stoneMuted/60 dark:border-dark-border/60 overflow-hidden shadow-inner bg-stoneMuted/20" style={{ height }}>
+    <div className="w-full relative rounded-2xl border border-white/10 overflow-hidden shadow-inner bg-white/5" style={{ height }}>
       {!leafletReady && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-stoneMuted/15 backdrop-blur-xs">
-          <div className="w-8 h-8 rounded-full border-2 border-stoneMuted border-t-primary animate-spin" />
-          <span className="text-[10px] font-bold text-textSecondary uppercase tracking-widest mt-2 animate-pulse">Loading Map Widget...</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 backdrop-blur-xs">
+          <div className="w-8 h-8 rounded-full border-2 border-white/15 border-t-purple-500 animate-spin" />
+          <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mt-2 animate-pulse">Loading Map...</span>
         </div>
       )}
       <div ref={mapContainerRef} className="w-full h-full z-10" />
