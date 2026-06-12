@@ -313,14 +313,14 @@ export const TripPlanner: React.FC = () => {
               </form>
             ) : (
               // CONFIRMATION CARD (Editable parameters)
-              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-xl p-comfortable shadow-md space-y-6 text-left animate-fade-in">
-                <div className="flex justify-between items-center pb-4 border-b border-stoneMuted/45 dark:border-dark-border/45">
-                  <h3 className="font-bold text-sm text-textPrimary dark:text-warmWhite uppercase tracking-wide flex items-center gap-2">
-                    <CheckCircle className="w-4.5 h-4.5 text-successSage" /> Confirm Extracted Details
+              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] space-y-6 text-left animate-fade-in">
+                <div className="flex justify-between items-center pb-4 border-b border-[var(--color-border-subtle)]">
+                  <h3 className="font-bold text-[var(--text-sm)] text-[var(--color-text-primary)] uppercase tracking-wide flex items-center gap-2">
+                    <CheckCircle className="w-4.5 h-4.5 text-[var(--color-success)]" /> Confirm Extracted Details
                   </h3>
                   <button 
                     onClick={() => setParsedParams(null)}
-                    className="text-[10px] text-textSecondary hover:underline font-bold flex items-center gap-1"
+                    className="text-[10px] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:underline font-bold flex items-center gap-1 transition-colors"
                   >
                     <RefreshCw className="w-3 h-3" /> Edit Prompt
                   </button>
@@ -329,64 +329,64 @@ export const TripPlanner: React.FC = () => {
                 <div className="space-y-4">
                   {/* Destination */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-primary" /> Destination
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-[var(--color-primary)]" /> Destination
                     </label>
                     <input
                       type="text"
                       required
                       value={parsedParams.destination}
                       onChange={(e) => setParsedParams({ ...parsedParams, destination: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded border border-stoneMuted dark:border-dark-border bg-stoneMuted/10 dark:bg-dark-muted/40 text-xs font-semibold text-textPrimary dark:text-warmWhite focus:ring-1 focus:ring-primary"
+                      className="w-full px-3 py-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg-hover)] text-[var(--text-sm)] font-semibold text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
                     />
                   </div>
 
                   {/* Dates / Months */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-textSecondary" /> Target Dates Range
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-[var(--color-text-muted)]" /> Target Dates Range
                     </label>
                     <input
                       type="text"
                       required
                       value={parsedParams.dates}
                       onChange={(e) => setParsedParams({ ...parsedParams, dates: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded border border-stoneMuted dark:border-dark-border bg-stoneMuted/10 dark:bg-dark-muted/40 text-xs font-semibold text-textPrimary dark:text-warmWhite focus:ring-1 focus:ring-primary"
+                      className="w-full px-3 py-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg-hover)] text-[var(--text-sm)] font-semibold text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
                     />
                   </div>
 
                   {/* Budget & Days Row */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
-                        <Wallet className="w-3.5 h-3.5 text-successSage" /> Budget (INR)
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                        <Wallet className="w-3.5 h-3.5 text-[var(--color-success)]" /> Budget (INR)
                       </label>
                       <input
                         type="number"
                         required
                         value={parsedParams.budget}
                         onChange={(e) => setParsedParams({ ...parsedParams, budget: Number(e.target.value) })}
-                        className="w-full px-3 py-2.5 rounded border border-stoneMuted dark:border-dark-border bg-stoneMuted/10 dark:bg-dark-muted/40 text-xs font-mono font-semibold text-coral focus:ring-1 focus:ring-primary"
+                        className="w-full px-3 py-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg-hover)] text-[var(--text-sm)] font-mono font-semibold text-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-primary)]"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-primary" /> Duration (Days)
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-[var(--color-primary)]" /> Duration (Days)
                       </label>
-                      <div className="flex items-center space-x-2 border border-stoneMuted dark:border-dark-border rounded px-2 bg-stoneMuted/10 dark:bg-dark-muted/40 h-[38px] justify-between">
+                      <div className="flex items-center space-x-2 border border-[var(--color-border)] rounded-[var(--radius-sm)] px-2 bg-[var(--color-bg-hover)] h-[38px] justify-between">
                         <button 
                           type="button" 
                           onClick={() => setParsedParams({ ...parsedParams, days: Math.max(1, parsedParams.days - 1) })}
-                          className="font-bold text-xs text-textSecondary hover:text-primary px-2"
+                          className="font-bold text-[var(--text-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] px-2"
                         >
                           -
                         </button>
-                        <span className="text-xs font-semibold text-textPrimary dark:text-warmWhite">{parsedParams.days} Days</span>
+                        <span className="text-[var(--text-sm)] font-semibold text-[var(--color-text-primary)]">{parsedParams.days} Days</span>
                         <button 
                           type="button" 
                           onClick={() => setParsedParams({ ...parsedParams, days: parsedParams.days + 1 })}
-                          className="font-bold text-xs text-textSecondary hover:text-primary px-2"
+                          className="font-bold text-[var(--text-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] px-2"
                         >
                           +
                         </button>
@@ -396,13 +396,13 @@ export const TripPlanner: React.FC = () => {
 
                   {/* Travelers select */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-textSecondary" /> Travelers count
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-[var(--color-text-muted)]" /> Travelers count
                     </label>
                     <select
                       value={parsedParams.travelers}
                       onChange={(e) => setParsedParams({ ...parsedParams, travelers: Number(e.target.value) })}
-                      className="w-full px-3 py-2.5 rounded border border-stoneMuted dark:border-dark-border bg-stoneMuted/10 dark:bg-dark-muted/40 text-xs font-semibold text-textPrimary dark:text-warmWhite focus:ring-1 focus:ring-primary"
+                      className="w-full px-3 py-2.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-bg-hover)] text-[var(--text-sm)] font-semibold text-[var(--color-text-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
                     >
                       <option value={1}>1 Traveler (Solo)</option>
                       <option value={2}>2 Travelers (Couple)</option>
@@ -414,7 +414,7 @@ export const TripPlanner: React.FC = () => {
 
                   {/* Moods/Interests selections */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-textSecondary">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
                       Travel Moods (Select Multiple)
                     </label>
                     <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
@@ -427,8 +427,8 @@ export const TripPlanner: React.FC = () => {
                             onClick={() => toggleInterest(key)}
                             className={`px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
                               isSelected
-                                ? 'bg-primary border-primary text-warmWhite shadow-xs'
-                                : 'border-stoneMuted dark:border-dark-border text-textSecondary hover:bg-stoneMuted/20'
+                                ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-[var(--shadow-sm)]'
+                                : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
                             }`}
                           >
                             {INTEREST_LABELS[key]}
@@ -439,18 +439,18 @@ export const TripPlanner: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-4 pt-4 border-t border-stoneMuted/45 dark:border-dark-border/45 mt-6">
+                <div className="flex gap-4 pt-4 border-t border-[var(--color-border-subtle)] mt-6">
                   <button
                     onClick={() => setParsedParams(null)}
-                    className="w-1/3 py-3 border border-stoneMuted dark:border-dark-border rounded-md font-semibold text-xs text-textSecondary flex items-center justify-center gap-1.5"
+                    className="btn-secondary w-1/3"
                   >
                     Reset
                   </button>
                   <button
                     onClick={handleConfirmedGenerate}
-                    className="w-2/3 py-3 bg-primary text-warmWhite font-semibold rounded-md text-xs flex items-center justify-center gap-2 shadow-md shadow-primary/20 animate-shimmer"
+                    className="btn-cta flex-1"
                   >
-                    <Sparkles className="w-4 h-4 text-warningAmber" />
+                    <Sparkles className="w-4 h-4 text-white" />
                     <span>Generate My Itinerary</span>
                   </button>
                 </div>

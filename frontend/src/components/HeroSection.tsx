@@ -16,36 +16,36 @@ export const HeroSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Text Content */}
           <div className="lg:col-span-7 space-y-12 text-center lg:text-left">
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-primary/10 to-coral/10 dark:from-primary/20 dark:to-coral/20 text-primary px-4 py-2 rounded-lg text-xs font-semibold tracking-wide border border-primary/20 shadow-sm">
-              <Sparkles className="w-4 h-4 text-coral animate-pulse" />
+            <div className="inline-flex items-center space-x-2 bg-[var(--color-primary-light)] text-[var(--color-primary)] px-4 py-2 rounded-lg text-xs font-semibold tracking-wide border border-[var(--color-primary)]/20 shadow-sm">
+              <Sparkles className="w-4 h-4 text-[var(--color-accent)] animate-pulse" />
               <span>AI-POWERED TRAVEL PLANNING</span>
             </div>
             
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-textPrimary dark:text-dark-text leading-[1.08] font-sans">
+            <h1 className="hero-headline">
               Travel planning, <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-coral to-coral">
+              <span className="text-[var(--color-accent)]">
                 reimagined.
               </span>
             </h1>
             
-            <p className="text-base sm:text-lg text-textSecondary dark:text-dark-text-muted max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-base sm:text-lg text-[var(--color-text-secondary)] dark:text-[var(--color-text-muted)] max-w-2xl mx-auto lg:mx-0 leading-relaxed">
               voira is your autonomous travel concierge. Instantly generate optimized daily schedules, real-time flight searches, budget allocations, and weather-adaptive revisions in one workspace.
             </p>
 
             {/* Simulated Search bar inside Hero (Compelling CTA) */}
-            <div className="bg-warmWhite dark:bg-dark-card/90 border border-stoneMuted/80 dark:border-dark-border p-2 rounded-md shadow-xl flex flex-col md:flex-row gap-2 max-w-xl mx-auto lg:mx-0 backdrop-blur-md">
+            <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-2 rounded-md shadow-xl flex flex-col md:flex-row gap-2 max-w-xl mx-auto lg:mx-0 backdrop-blur-md">
               <div className="flex items-center gap-2 px-4 flex-1">
-                <Search className="w-4.5 h-4.5 text-textSecondary" />
+                <Search className="w-4.5 h-4.5 text-[var(--color-text-muted)]" />
                 <input 
                   type="text" 
                   disabled 
                   placeholder="Where is your dream destination?" 
-                  className="bg-transparent text-xs text-textPrimary dark:text-dark-text placeholder:text-textSecondary focus:outline-none w-full cursor-not-allowed"
+                  className="bg-transparent text-xs text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none w-full cursor-not-allowed"
                 />
               </div>
               <Link
                 to="/planner"
-                className="px-6 py-4 bg-primary hover:bg-primary text-warmWhite text-xs font-semibold rounded-sm transition-all shadow-md shadow-primary/15 hover:shadow-primary/25 flex items-center justify-center gap-2"
+                className="btn-cta"
               >
                 <span>Plan Instantly</span>
                 <ChevronRight className="w-4 h-4" />
@@ -53,18 +53,18 @@ export const HeroSection: React.FC = () => {
             </div>
 
             {/* Credibility metrics block */}
-            <div className="grid grid-cols-3 gap-12 pt-12 max-w-md mx-auto lg:mx-0 border-t border-stoneMuted/50 dark:border-dark-border">
+            <div className="grid grid-cols-3 gap-12 pt-12 max-w-md mx-auto lg:mx-0 border-t border-[var(--color-border)]">
               <div>
-                <p className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-dark-text">125k+</p>
-                <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold mt-1">Trips Synced</p>
+                <p className="stat-number text-[var(--color-text-primary)]">125k+</p>
+                <p className="text-xs text-[var(--color-text-secondary)] font-semibold mt-1">Trips Synced</p>
               </div>
               <div>
-                <p className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-dark-text">180+</p>
-                <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold mt-1">Cities Covered</p>
+                <p className="stat-number text-[var(--color-text-primary)]">180+</p>
+                <p className="text-xs text-[var(--color-text-secondary)] font-semibold mt-1">Cities Covered</p>
               </div>
               <div>
-                <p className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-dark-text">4.92★</p>
-                <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold mt-1">User Score</p>
+                <p className="stat-number text-[var(--color-text-primary)]">4.92★</p>
+                <p className="text-xs text-[var(--color-text-secondary)] font-semibold mt-1">User Score</p>
               </div>
             </div>
           </div>

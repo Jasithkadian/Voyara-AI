@@ -215,43 +215,43 @@ export const Profile: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-stoneMuted dark:border-dark-border">
-            <div className="bg-stoneMuted dark:bg-dark-card p-6 rounded-md border border-stoneMuted dark:border-dark-border">
-              <Compass className="w-5 h-5 text-primary mb-2" />
-              <span className="text-xs text-textSecondary dark:text-dark-text-muted block  font-semibold">Trips Saved</span>
-              <span className="text-xl font-semibold text-textSecondary dark:text-warmWhite">{tripCount}</span>
+          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-[var(--color-border-subtle)]">
+            <div className="bg-[var(--color-bg-hover)] p-6 rounded-[var(--radius-md)] border border-[var(--color-border)]">
+              <Compass className="w-5 h-5 text-[var(--color-primary)] mb-2" />
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)] block">Trips Saved</span>
+              <span className="stat-number text-[var(--color-text-primary)]">{tripCount}</span>
             </div>
 
-            <div className="bg-stoneMuted dark:bg-dark-card p-6 rounded-md border border-stoneMuted dark:border-dark-border">
-              <Wallet className="w-5 h-5 text-successSage mb-2" />
-              <span className="text-xs text-textSecondary dark:text-dark-text-muted block  font-semibold">Total Budget Plan</span>
-              <span className="text-xl font-semibold text-coral font-mono truncate block">{formatCurrency(totalSpent)}</span>
+            <div className="bg-[var(--color-bg-hover)] p-6 rounded-[var(--radius-md)] border border-[var(--color-border)]">
+              <Wallet className="w-5 h-5 text-[var(--color-success)] mb-2" />
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)] block">Total Budget Plan</span>
+              <span className="price text-[var(--color-text-primary)] block truncate">{formatCurrency(totalSpent)}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* TRAVEL PREFERENCES FORM */}
-      <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg p-12 shadow-sm space-y-6">
+      <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-12 shadow-[var(--shadow-sm)] space-y-8">
         <div>
-          <h3 className="text-xl font-semibold text-textSecondary dark:text-warmWhite flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" /> Personalize Travel Preferences
+          <h3 className="section-headline flex items-center gap-3">
+            <Sparkles className="w-6 h-6 text-[var(--color-primary)]" /> Personalize Travel Preferences
           </h3>
-          <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">
+          <p className="text-sm text-[var(--color-text-secondary)] mt-1">
             Setting preferences here optimizes all generated daily itineraries, dining recommendations, and budget options automatically.
           </p>
         </div>
 
-        <form onSubmit={handleSavePreferences} className="space-y-6">
+        <form onSubmit={handleSavePreferences} className="space-y-8 text-left">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Travel Style */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Travel Style</label>
+              <label className="text-[var(--text-xs)] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Travel Style</label>
               <select
                 value={travelStyle}
                 onChange={(e) => setTravelStyle(e.target.value)}
-                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full px-4 py-3 rounded-[var(--radius-sm)] bg-[var(--color-bg-hover)] border border-[var(--color-border)] text-[var(--color-text-primary)] text-[var(--text-sm)] font-semibold focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] cursor-pointer"
               >
                 <option value="Adventure">🧗 Adventure & Hikes</option>
                 <option value="Relaxation">🧘 Relaxation & Spa</option>
@@ -263,11 +263,11 @@ export const Profile: React.FC = () => {
 
             {/* Budget Range */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Budget Range</label>
+              <label className="text-[var(--text-xs)] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Budget Range</label>
               <select
                 value={budgetRange}
                 onChange={(e) => setBudgetRange(e.target.value)}
-                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full px-4 py-3 rounded-[var(--radius-sm)] bg-[var(--color-bg-hover)] border border-[var(--color-border)] text-[var(--color-text-primary)] text-[var(--text-sm)] font-semibold focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] cursor-pointer"
               >
                 <option value="Budget">Budget (Hostels / Street Food)</option>
                 <option value="Mid-Range">Mid-Range (Standard hotels / Bistro dining)</option>
@@ -277,25 +277,25 @@ export const Profile: React.FC = () => {
 
             {/* Food Preferences */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Dietary Preferences</label>
+              <label className="text-[var(--text-xs)] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Dietary Preferences</label>
               <input
                 type="text"
                 value={foodPreferences}
                 onChange={(e) => setFoodPreferences(e.target.value)}
                 placeholder="e.g. Vegetarian, Halal, Vegan, Gluten-Free"
-                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
+                className="w-full px-4 py-3 rounded-[var(--radius-sm)] bg-[var(--color-bg-hover)] border border-[var(--color-border)] text-[var(--color-text-primary)] text-[var(--text-sm)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] placeholder:text-[var(--color-text-muted)]"
               />
             </div>
 
             {/* Favorite Hotels */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Preferred Lodging Styles</label>
+              <label className="text-[var(--text-xs)] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Preferred Lodging Styles</label>
               <input
                 type="text"
                 value={preferredHotels}
                 onChange={(e) => setPreferredHotels(e.target.value)}
                 placeholder="e.g. Boutique Hotels, Beachfront, Hostels, Taj"
-                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
+                className="w-full px-4 py-3 rounded-[var(--radius-sm)] bg-[var(--color-bg-hover)] border border-[var(--color-border)] text-[var(--color-text-primary)] text-[var(--text-sm)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] placeholder:text-[var(--color-text-muted)]"
               />
             </div>
           </div>
@@ -303,39 +303,39 @@ export const Profile: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Preferred Activities */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Preferred Activities</label>
+              <label className="text-[var(--text-xs)] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Preferred Activities</label>
               <input
                 type="text"
                 value={preferredActivities}
                 onChange={(e) => setPreferredActivities(e.target.value)}
                 placeholder="e.g. Snorkeling, Art Galleries, Wine Tasting, Nightclubs"
-                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
+                className="w-full px-4 py-3 rounded-[var(--radius-sm)] bg-[var(--color-bg-hover)] border border-[var(--color-border)] text-[var(--color-text-primary)] text-[var(--text-sm)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] placeholder:text-[var(--color-text-muted)]"
               />
             </div>
 
             {/* Favorite Destinations */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold  tracking-normal text-textSecondary dark:text-dark-text-muted">Dream Destinations</label>
+              <label className="text-[var(--text-xs)] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Dream Destinations</label>
               <input
                 type="text"
                 value={favoriteDestinations}
                 onChange={(e) => setFavoriteDestinations(e.target.value)}
                 placeholder="e.g. Bali, Paris, Tokyo, Switzerland"
-                className="w-full px-4 py-4 rounded-sm bg-stoneMuted dark:bg-dark-card border border-stoneMuted dark:border-dark-border text-textSecondary dark:text-warmWhite text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary"
+                className="w-full px-4 py-3 rounded-[var(--radius-sm)] bg-[var(--color-bg-hover)] border border-[var(--color-border)] text-[var(--color-text-primary)] text-[var(--text-sm)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] placeholder:text-[var(--color-text-muted)]"
               />
             </div>
           </div>
 
-          <div className="flex justify-between items-center pt-4 border-t border-stoneMuted dark:border-dark-border">
-            <div className="flex items-center space-x-2 text-xs text-textSecondary dark:text-dark-text-muted">
-              <Shield className="w-4 h-4 text-successSage" />
+          <div className="flex justify-between items-center pt-8 border-t border-[var(--color-border-subtle)]">
+            <div className="flex items-center space-x-2 text-xs text-[var(--color-text-muted)]">
+              <Shield className="w-4 h-4 text-[var(--color-success)]" />
               <span>Secure storage. We do not sell preference profiles.</span>
             </div>
             
             <button
               type="submit"
               disabled={saveLoading}
-              className="px-6 py-4 bg-primary text-warmWhite font-semibold rounded-sm shadow-md shadow-primary/15 hover:bg-primary flex items-center justify-center gap-2 transition-all text-sm disabled:opacity-50"
+              className="btn-primary h-12 px-8"
             >
               <Save className="w-4 h-4" /> {saveLoading ? 'Saving...' : 'Save Preferences'}
             </button>

@@ -17,38 +17,38 @@ export const AttractionCard: React.FC<AttractionCardProps> = ({ attractions }) =
 
   const getCategoryColor = (cat: string) => {
     switch (cat.toLowerCase()) {
-      case 'adventure': return 'bg-warningAmber/10 text-warningAmber dark:text-warningAmber';
-      case 'nature': return 'bg-successSage/10 text-successSage dark:text-successSage';
-      case 'food': return 'bg-coral/10 text-coral dark:text-coral';
-      case 'culture': return 'bg-primary/10 text-primary dark:text-primary';
-      case 'nightlife': return 'bg-coral/10 text-coral dark:text-coral';
-      default: return 'bg-stoneMuted/30 text-textPrimary dark:text-dark-text-muted';
+      case 'adventure': return 'bg-[var(--color-warning-bg)] text-[var(--color-warning)] border-[var(--color-warning-border)]';
+      case 'nature': return 'bg-[var(--color-success-bg)] text-[var(--color-success)] border-[var(--color-success-border)]';
+      case 'food': return 'bg-[var(--color-accent-light)] text-[var(--color-accent)] border-[var(--color-accent)]/20';
+      case 'culture': return 'bg-[var(--color-primary-light)] text-[var(--color-primary)] border-[var(--color-primary)]/20';
+      case 'nightlife': return 'bg-[var(--color-accent-light)] text-[var(--color-accent)] border-[var(--color-accent)]/20';
+      default: return 'bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] border-[var(--color-border)]';
     }
   };
 
   return (
-    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-md p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+    <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)]">
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+          <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
             <Compass className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-textPrimary dark:text-dark-text">Must-Visit Attractions</h3>
-            <p className="text-xs text-textSecondary dark:text-dark-text-muted">Top sights and local gems by category</p>
+            <h3 className="font-semibold text-lg text-[var(--color-text-primary)]">Must-Visit Attractions</h3>
+            <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">Top sights and local gems by category</p>
           </div>
         </div>
 
         {/* Category Toggles */}
-        <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide py-1 max-w-full">
+        <div className="flex items-center space-x-1.5 overflow-x-auto scrollbar-hide py-1 max-w-full">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-md text-xs font-semibold transition-all whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-[var(--radius-md)] text-[var(--text-xs)] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
                 selectedCategory === cat
-                  ? 'bg-primary text-warmWhite shadow-sm'
-                  : 'bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textSecondary hover:text-textPrimary dark:text-dark-text'
+                  ? 'bg-[var(--color-primary)] text-white shadow-[var(--shadow-sm)]'
+                  : 'bg-[var(--color-bg-hover)] hover:bg-[var(--color-bg-active)] text-[var(--color-text-secondary)] border border-[var(--color-border)]'
               }`}
             >
               {cat}
@@ -58,43 +58,43 @@ export const AttractionCard: React.FC<AttractionCardProps> = ({ attractions }) =
       </div>
 
       {filteredAttractions.length === 0 ? (
-        <div className="text-center py-12 bg-warmWhite dark:bg-dark-elevated rounded-md border border-dashed border-stoneMuted dark:border-dark-border">
-          <Sparkles className="w-6 h-6 text-textSecondary mx-auto mb-2" />
-          <p className="text-sm font-normal text-textSecondary dark:text-dark-text-muted">No recommendations found in this category.</p>
+        <div className="text-center py-16 bg-[var(--color-bg-hover)] rounded-[var(--radius-lg)] border border-dashed border-[var(--color-border)]">
+          <Sparkles className="w-6 h-6 text-[var(--color-text-muted)] mx-auto mb-2" />
+          <p className="text-sm font-medium text-[var(--color-text-secondary)]">No recommendations found in this category.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {filteredAttractions.map((attraction, idx) => (
             <div 
               key={idx} 
-              className="p-comfortable rounded-md bg-warmWhite/50 dark:bg-dark-elevated/40 border border-stoneMuted dark:border-dark-border/60 hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.99] transition-all flex flex-col justify-between"
+              className="p-comfortable rounded-[var(--radius-lg)] bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-sm ${getCategoryColor(attraction.category)}`}>
+                  <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-sm border ${getCategoryColor(attraction.category)}`}>
                     {attraction.category}
                   </span>
                   {attraction.rating && (
-                    <div className="flex items-center gap-1 text-xs font-semibold text-warningAmber">
-                      <Star className="w-4 h-4 fill-warningAmber stroke-warningAmber" />
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-[var(--color-warning)]">
+                      <Star className="w-3.5 h-3.5 fill-[var(--color-warning)]" />
                       <span>{attraction.rating}</span>
                     </div>
                   )}
                 </div>
 
-                <h4 className="text-sm font-semibold text-textPrimary dark:text-dark-text mb-1">
+                <h4 className="text-[15px] font-semibold text-[var(--color-text-primary)] mb-1.5 leading-snug">
                   {attraction.name}
                 </h4>
 
-                <p className="text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed mb-4">
+                <p className="text-[13px] text-[var(--color-text-secondary)] leading-relaxed mb-4">
                   {attraction.description}
                 </p>
               </div>
 
               {attraction.location && (
-                <div className="pt-4 border-t border-stoneMuted/50 dark:border-dark-border flex items-center gap-1 text-xs text-textSecondary dark:text-dark-text-muted">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  <span>{attraction.location}</span>
+                <div className="pt-4 border-t border-[var(--color-border-subtle)] flex items-center gap-1.5 text-[11px] font-medium text-[var(--color-text-secondary)]">
+                  <MapPin className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                  <span className="truncate">{attraction.location}</span>
                 </div>
               )}
             </div>

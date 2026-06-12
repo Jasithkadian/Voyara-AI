@@ -62,7 +62,7 @@ export const Sidebar: React.FC = () => {
   const hasUnread = notifications.some(n => !n.is_read);
 
   return (
-    <aside className="w-[240px] shrink-0 h-screen sticky top-0 bg-warmWhite dark:bg-dark-card border-r border-stoneMuted/60 dark:border-dark-border/60 flex flex-col justify-between p-comfortable z-30 font-sans text-left">
+    <aside className="w-[240px] shrink-0 h-screen sticky top-0 bg-[var(--color-bg-sidebar)] border-r border-[var(--color-border)] flex flex-col justify-between p-6 z-30 font-sans text-left">
       <div className="space-y-8">
         {/* Brand Logo */}
         <Link to="/" className="flex items-center px-tight">
@@ -70,7 +70,7 @@ export const Sidebar: React.FC = () => {
         </Link>
 
         {/* Primary Nav Links */}
-        <nav className="space-y-1.5">
+        <nav className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -78,18 +78,14 @@ export const Sidebar: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center justify-between px-comfortable py-3 rounded-md text-xs font-semibold tracking-wide transition-all border select-none ${
-                  active
-                    ? 'bg-primary/5 dark:bg-primary/10 border-primary/20 text-primary shadow-xs'
-                    : 'bg-transparent border-transparent text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/40'
-                }`}
+                className={`sidebar-item ${active ? 'active' : ''}`}
               >
                 <div className="flex items-center space-x-3">
-                  <Icon className={`w-4.5 h-4.5 shrink-0 ${active ? 'text-primary' : 'text-textSecondary'}`} />
+                  <Icon className="w-4.5 h-4.5 shrink-0" />
                   <span>{item.label}</span>
                 </div>
                 {item.path === '/saved-trips' && hasUnread && (
-                  <span className="w-2 h-2 rounded-full bg-coral animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-[var(--color-error)] animate-pulse" />
                 )}
               </Link>
             );
@@ -97,7 +93,7 @@ export const Sidebar: React.FC = () => {
         </nav>
       </div>
 
-      <div className="space-y-4 pt-4 border-t border-stoneMuted/50 dark:border-dark-border/50">
+      <div className="space-y-4 pt-4 border-t border-[var(--color-border)]">
         {/* Alerts & Theme Actions */}
         <div className="flex items-center justify-between px-tight">
           {/* Notifications Trigger */}
@@ -107,29 +103,29 @@ export const Sidebar: React.FC = () => {
                 setShowNotifDropdown(!showNotifDropdown);
                 if (!showNotifDropdown) handleNotificationsRead();
               }}
-              className="p-2 rounded-md bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text transition-colors relative"
+              className="p-2 rounded-md bg-[var(--color-bg-hover)] hover:bg-[var(--color-bg-active)] text-[var(--color-text-primary)] transition-colors relative"
               title="Alerts"
             >
               <Bell className="w-4.5 h-4.5" />
               {hasUnread && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-coral border border-warmWhite dark:border-dark-card"></span>
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[var(--color-error)] border border-[var(--color-bg-sidebar)]"></span>
               )}
             </button>
 
             {showNotifDropdown && (
-              <div className="absolute left-0 bottom-12 w-72 bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-lg shadow-xl py-3 z-50 animate-fade-in max-h-80 overflow-y-auto">
-                <div className="px-4 pb-2 border-b border-stoneMuted/50 dark:border-dark-border flex justify-between items-center mb-1">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-textPrimary dark:text-dark-text">Notifications</span>
-                  <span className="text-[10px] text-textSecondary">Smart Alerts</span>
+              <div className="absolute left-0 bottom-12 w-72 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg shadow-lg py-3 z-50 animate-fade-in max-h-80 overflow-y-auto">
+                <div className="px-4 pb-2 border-b border-[var(--color-border-subtle)] flex justify-between items-center mb-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-primary)]">Notifications</span>
+                  <span className="text-[10px] text-[var(--color-text-secondary)]">Smart Alerts</span>
                 </div>
                 {notifications.length === 0 ? (
-                  <p className="text-xs text-textSecondary text-center py-4">No alerts recorded.</p>
+                  <p className="text-xs text-[var(--color-text-secondary)] text-center py-4">No alerts recorded.</p>
                 ) : (
-                  <div className="divide-y divide-stoneMuted/30 dark:divide-dark-border/40">
+                  <div className="divide-y divide-[var(--color-border-subtle)]">
                     {notifications.map((n) => (
-                      <div key={n.id} className={`p-3 text-[11px] leading-relaxed text-left ${!n.is_read ? 'bg-primary/5' : ''}`}>
-                        <div className="font-semibold text-textPrimary dark:text-dark-text">{n.title}</div>
-                        <p className="text-textSecondary dark:text-dark-text-muted mt-0.5">{n.message}</p>
+                      <div key={n.id} className={`p-3 text-[11px] leading-relaxed text-left ${!n.is_read ? 'bg-[var(--color-primary-light)]' : ''}`}>
+                        <div className="font-semibold text-[var(--color-text-primary)]">{n.title}</div>
+                        <p className="text-[var(--color-text-secondary)] mt-0.5">{n.message}</p>
                       </div>
                     ))}
                   </div>
@@ -141,7 +137,7 @@ export const Sidebar: React.FC = () => {
           {/* Theme Switcher */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-md bg-stoneMuted/30 hover:bg-stoneMuted/50 dark:bg-dark-muted dark:hover:bg-dark-muted text-textPrimary dark:text-dark-text transition-colors"
+            className="p-2 rounded-md bg-[var(--color-bg-hover)] hover:bg-[var(--color-bg-active)] text-[var(--color-text-primary)] transition-colors"
             title="Toggle Theme"
           >
             {theme === 'dark' ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
@@ -150,11 +146,11 @@ export const Sidebar: React.FC = () => {
 
         {/* Currency Dropdown Selector */}
         <div className="flex items-center justify-between px-tight">
-          <span className="text-[10px] uppercase font-bold text-textSecondary dark:text-dark-text-muted">Currency</span>
+          <span className="text-[10px] uppercase font-bold text-[var(--color-text-secondary)]">Currency</span>
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
-            className="px-2 py-1 text-[11px] rounded bg-stoneMuted/30 dark:bg-dark-muted border border-stoneMuted/50 dark:border-dark-border/50 text-textPrimary dark:text-warmWhite focus:outline-none cursor-pointer font-semibold"
+            className="px-2 py-1 text-[11px] rounded bg-[var(--color-bg-hover)] border border-[var(--color-border)] text-[var(--color-text-primary)] focus:outline-none cursor-pointer font-semibold"
           >
             <option value="INR">INR (₹)</option>
             <option value="USD">USD ($)</option>
@@ -166,20 +162,20 @@ export const Sidebar: React.FC = () => {
 
 
         {/* User Profile Block */}
-        <div className="flex items-center justify-between p-2 rounded-md bg-stoneMuted/20 dark:bg-dark-muted/20 border border-stoneMuted/40 dark:border-dark-border/40">
+        <div className="flex items-center justify-between p-2 rounded-md bg-[var(--color-bg-hover)] border border-[var(--color-border)]">
           <Link to="/profile" className="flex items-center space-x-2.5 min-w-0 flex-1">
-            <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
+            <div className="w-8 h-8 rounded-md bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
               {(user?.name === 'Investor Guest' ? 'Guest User' : (user?.name || user?.email?.split('@')[0] || 'U')).charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1 text-left">
-              <p className="text-xs font-bold text-textPrimary dark:text-dark-text truncate leading-none">
+              <p className="text-xs font-bold text-[var(--color-text-primary)] truncate leading-none">
                 {user?.name === 'Investor Guest' ? 'Guest User' : (user?.name || user?.email?.split('@')[0] || 'User')}
               </p>
             </div>
           </Link>
           <button
             onClick={handleLogout}
-            className="p-1.5 rounded text-textSecondary hover:text-coral hover:bg-coral/10 transition-all ml-1"
+            className="p-1.5 rounded text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] transition-all ml-1"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />

@@ -623,54 +623,54 @@ export const Dashboard: React.FC = () => {
 
             {/* Recommended Flights Section */}
             {flights.length > 0 && (
-              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-xl space-y-4">
-                <h3 className="font-sans font-semibold text-xl text-textPrimary dark:text-dark-text flex items-center gap-2">
-                  <Plane className="w-5 h-5 text-primary" /> Recommended Flights
+              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-lg)] space-y-4">
+                <h3 className="text-xl font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
+                  <Plane className="w-5 h-5 text-[var(--color-primary)]" /> Recommended Flights
                 </h3>
                 <div className="space-y-4">
                   {flights.map((flight, idx) => {
                     const isBooked = bookings.some(b => b.booking_type === 'Flight' && b.provider_name === flight.airline && b.details?.flightNumber === flight.flightNumber);
                     return (
-                      <div key={idx} className="p-4 bg-warmWhite/50 dark:bg-dark-elevated/30 rounded-md border border-stoneMuted dark:border-dark-border/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.99] transition-all">
+                      <div key={idx} className="p-4 bg-[var(--color-bg-hover)] rounded-[var(--radius-md)] border border-[var(--color-border)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 active:scale-[0.99] transition-all">
                         <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 rounded-md bg-primary/10 text-primary flex items-center justify-center font-semibold text-xs  tracking-normal">
+                          <div className="w-12 h-12 rounded-[var(--radius-md)] bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center font-bold text-xs tracking-normal">
                             {flight.airline.slice(0, 3)}
                           </div>
                           <div>
-                            <span className="text-xs text-textSecondary font-mono font-semibold block">Flight {flight.flightNumber}</span>
-                            <span className="text-sm font-semibold text-textPrimary dark:text-dark-text">{flight.airline}</span>
+                            <span className="flight-code text-[var(--color-text-muted)] font-semibold block">Flight {flight.flightNumber}</span>
+                            <span className="text-sm font-semibold text-[var(--color-text-primary)]">{flight.airline}</span>
                           </div>
                         </div>
                         
                         <div className="grid grid-cols-3 gap-6 text-xs w-full sm:w-auto">
                           <div>
-                            <span className="text-textSecondary block mb-1">Depart</span>
-                            <span className="font-semibold font-mono text-textPrimary dark:text-dark-text">{flight.departure}</span>
+                            <span className="text-[var(--color-text-muted)] block mb-1 uppercase font-bold tracking-wider text-[10px]">Depart</span>
+                            <span className="date-value text-[var(--color-text-primary)]">{flight.departure}</span>
                           </div>
                           <div>
-                            <span className="text-textSecondary block mb-1">Arrive</span>
-                            <span className="font-semibold font-mono text-textPrimary dark:text-dark-text">{flight.arrival}</span>
+                            <span className="text-[var(--color-text-muted)] block mb-1 uppercase font-bold tracking-wider text-[10px]">Arrive</span>
+                            <span className="date-value text-[var(--color-text-primary)]">{flight.arrival}</span>
                           </div>
                           <div>
-                            <span className="text-textSecondary block mb-1">Stops</span>
-                            <span className="font-semibold text-textPrimary dark:text-dark-text">{flight.stops} stop{flight.stops !== 1 ? 's' : ''}</span>
+                            <span className="text-[var(--color-text-muted)] block mb-1 uppercase font-bold tracking-wider text-[10px]">Stops</span>
+                            <span className="text-[var(--color-text-primary)] font-semibold">{flight.stops} stop{flight.stops !== 1 ? 's' : ''}</span>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-t-0 pt-4 sm:pt-0 border-stoneMuted">
+                        <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto border-t sm:border-t-0 pt-4 sm:pt-0 border-[var(--color-border-subtle)]">
                           <div>
-                            <span className="text-xs text-textSecondary block">Total Fare</span>
-                            <span className="text-base font-semibold text-[#1E293B] dark:text-dark-text font-mono">{formatCurrency(flight.price)}</span>
+                            <span className="text-[10px] text-[var(--color-text-muted)] uppercase font-bold tracking-wider block">Total Fare</span>
+                            <span className="price text-[var(--color-text-primary)]">{formatCurrency(flight.price)}</span>
                           </div>
                           {isBooked ? (
                             <Badge type="verified" label="Booked" />
                           ) : (
-                            <Button
-                              variant="primary"
+                            <button
                               onClick={() => handleBook('Flight', flight.airline, flight.price, { flightNumber: flight.flightNumber, departure: flight.departure, arrival: flight.arrival })}
+                              className="btn-primary"
                             >
                               Book Flight
-                            </Button>
+                            </button>
                           )}
                         </div>
                       </div>
@@ -683,26 +683,26 @@ export const Dashboard: React.FC = () => {
             {/* Hotels recommendations list */}
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h3 className="font-sans font-semibold text-xl text-textPrimary dark:text-dark-text flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
                   🏨 Smart Hotel Matches
                 </h3>
-                <div className="flex bg-stoneMuted/45 dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border rounded-md p-1 self-start sm:self-auto shadow-xs">
+                <div className="flex bg-[var(--color-bg-hover)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-1 self-start sm:self-auto shadow-[var(--shadow-xs)]">
                   <button
                     onClick={() => setHotelViewMode('list')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-sm transition-all select-none ${
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all select-none ${
                       hotelViewMode === 'list'
-                        ? 'bg-primary text-warmWhite shadow-sm'
-                        : 'text-textSecondary hover:text-textPrimary dark:text-dark-text-muted dark:hover:text-dark-text bg-transparent'
+                        ? 'bg-[var(--color-primary)] text-white shadow-[var(--shadow-sm)]'
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] bg-transparent'
                     }`}
                   >
                     List View
                   </button>
                   <button
                     onClick={() => setHotelViewMode('map')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-sm transition-all select-none ${
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all select-none ${
                       hotelViewMode === 'map'
-                        ? 'bg-primary text-warmWhite shadow-sm'
-                        : 'text-textSecondary hover:text-textPrimary dark:text-dark-text-muted dark:hover:text-dark-text bg-transparent'
+                        ? 'bg-[var(--color-primary)] text-white shadow-[var(--shadow-sm)]'
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] bg-transparent'
                     }`}
                   >
                     Map View
@@ -1184,10 +1184,10 @@ export const Dashboard: React.FC = () => {
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-sans font-semibold text-textPrimary dark:text-warmWhite flex items-center gap-2">
+          <h2 className="page-title">
             Hi, {(user?.name === 'Investor Guest' ? 'Guest' : (user?.name?.split(' ')[0] || 'User'))}!
           </h2>
-          <p className="text-textSecondary dark:text-dark-text-muted text-sm">
+          <p className="text-[var(--color-text-secondary)] text-base">
             {savedTrips.length === 0 
               ? "Where are you going next?" 
               : "Ready for your next adventure?"}
@@ -1195,7 +1195,7 @@ export const Dashboard: React.FC = () => {
         </div>
         <Link
           to="/planner"
-          className="h-11 px-6 bg-primary text-warmWhite font-semibold rounded-sm shadow-sm hover:opacity-95 flex items-center justify-center gap-2 hover:-translate-y-0.5 active:scale-[0.99] transition-all text-sm"
+          className="btn-primary h-11 px-8"
         >
           <Plus className="w-4 h-4" /> Plan a New Trip
         </Link>
@@ -1203,36 +1203,36 @@ export const Dashboard: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border p-6 rounded-md shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all">
-          <div className="w-10 h-10 rounded-md bg-primary/10 text-primary flex items-center justify-center mb-4">
+        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all">
+          <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center mb-4">
             <Compass className="w-5 h-5" />
           </div>
-          <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold  tracking-normal">Total Trips</p>
-          <h3 className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-warmWhite mt-1">{totalTrips} {totalTrips === 1 ? 'Trip' : 'Trips'}</h3>
+          <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">Total Trips</p>
+          <h3 className="stat-number mt-1">{totalTrips}</h3>
         </div>
 
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border p-6 rounded-md shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all">
-          <div className="w-10 h-10 rounded-md bg-successSage/10 text-successSage flex items-center justify-center mb-4">
+        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all">
+          <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-success-bg)] text-[var(--color-success)] flex items-center justify-center mb-4">
             <Wallet className="w-5 h-5" />
           </div>
-          <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold  tracking-normal">Allocated Budget</p>
-          <h3 className="text-2xl sm:text-3xl font-semibold text-coral font-mono mt-1 truncate">{formatCurrency(totalBudget)}</h3>
+          <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">Allocated Budget</p>
+          <h3 className="budget-amount text-[var(--color-text-primary)] mt-1 truncate">{formatCurrency(totalBudget)}</h3>
         </div>
 
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border p-6 rounded-md shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all">
-          <div className="w-10 h-10 rounded-md bg-coral/10 text-coral dark:text-coral flex items-center justify-center mb-4">
+        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all">
+          <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-accent-light)] text-[var(--color-accent)] flex items-center justify-center mb-4">
             <Calendar className="w-5 h-5" />
           </div>
-          <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold  tracking-normal">Travel Days</p>
-          <h3 className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-warmWhite mt-1">{totalDays} {totalDays === 1 ? 'Day' : 'Days'}</h3>
+          <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">Travel Days</p>
+          <h3 className="stat-number mt-1">{totalDays}</h3>
         </div>
 
-        <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border p-6 rounded-md shadow-sm hover:shadow-card-hover hover:-translate-y-0.5 transition-all">
-          <div className="w-10 h-10 rounded-md bg-coral/10 text-coral dark:text-coral flex items-center justify-center mb-4">
+        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all">
+          <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-accent-light)] text-[var(--color-accent)] flex items-center justify-center mb-4">
             <MapPin className="w-5 h-5" />
           </div>
-          <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold  tracking-normal">Destinations</p>
-          <h3 className="text-2xl sm:text-3xl font-semibold text-textPrimary dark:text-warmWhite mt-1">{uniqueDestinations} {uniqueDestinations === 1 ? 'City' : 'Cities'}</h3>
+          <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">Destinations</p>
+          <h3 className="stat-number mt-1">{uniqueDestinations}</h3>
         </div>
       </div>
 

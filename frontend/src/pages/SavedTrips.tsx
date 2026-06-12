@@ -141,18 +141,18 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-8 font-sans">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-8 font-sans bg-[var(--color-bg-page)]">
       {/* Sub-Navigation Tab Bar */}
-      <div className="border-b border-stoneMuted/60 dark:border-dark-border/60">
+      <div className="border-b border-[var(--color-border)]">
         <div className="flex space-x-8">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id as any)}
-              className={`pb-4 text-sm font-semibold border-b-2 transition-all relative ${
+              className={`pb-4 text-[var(--text-xs)] font-bold uppercase tracking-widest border-b-2 transition-all relative ${
                 activeTab === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-textSecondary hover:text-textPrimary dark:text-dark-text-muted dark:hover:text-dark-text'
+                  ? 'border-[var(--color-primary)] text-[var(--color-primary)]'
+                  : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
               }`}
             >
               {tab.label}
@@ -165,14 +165,14 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
       {activeTab === 'list' && (
         <div className="space-y-12 animate-fade-in text-left">
           <div>
-            <h2 className="text-3xl font-semibold text-textPrimary dark:text-warmWhite">Saved Trips</h2>
-            <p className="text-sm text-textSecondary dark:text-dark-text-muted mt-1">
+            <h2 className="page-title">Saved Trips</h2>
+            <p className="text-base text-[var(--color-text-secondary)] mt-1">
               Browse and manage all your saved travel plans, itineraries, and chat sessions.
             </p>
           </div>
 
           {error && (
-            <div className="p-comfortable bg-coral dark:bg-coral/20 text-coral dark:text-coral rounded-md border border-coral">
+            <div className="p-4 bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-[var(--radius-md)] border border-[var(--color-error-border)] font-semibold">
               {error}
             </div>
           )}
@@ -182,53 +182,53 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
               <EmptyState type="no-saved-trips" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {trips.map((trip) => (
                 <div
                   key={trip.id}
                   onClick={() => navigate('/dashboard/trip', { state: { trip } })}
-                  className="bg-warmWhite dark:bg-dark-card border border-stoneMuted dark:border-dark-border rounded-md p-comfortable hover:shadow-card-hover hover:-translate-y-0.5 active:scale-[0.99] transition-all flex flex-col justify-between group cursor-pointer relative shadow-sm"
+                  className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-8 hover:shadow-[var(--shadow-md)] hover:-translate-y-1 active:scale-[0.99] transition-all flex flex-col justify-between group cursor-pointer relative shadow-[var(--shadow-sm)]"
                 >
                   <div>
-                    <div className="flex justify-between items-start mb-4">
+                    <div className="flex justify-between items-start mb-6">
                       <Badge type="duration" label={`${trip.days} ${trip.days === 1 ? 'Day' : 'Days'}`} />
                       <button
                         onClick={(e) => handleDeleteTrip(trip.id, e)}
-                        className="p-2 rounded-sm text-textSecondary hover:text-coral hover:bg-coral/10 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                        className="p-2 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] opacity-0 group-hover:opacity-100 transition-all duration-200"
                         title="Delete Trip"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <h3 className="font-sans font-semibold text-xl text-textPrimary dark:text-warmWhite group-hover:text-primary transition-colors line-clamp-1">
+                    <h3 className="trip-name group-hover:text-[var(--color-primary)] transition-colors line-clamp-1">
                       {trip.destination}
                     </h3>
                     
-                    <p className="text-xs text-textSecondary dark:text-dark-text-muted flex items-center gap-1 mt-1">
-                      <MapPin className="w-4 h-4 text-primary" /> From {trip.source}
+                    <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] flex items-center gap-1.5 mt-2 font-medium">
+                      <MapPin className="w-4 h-4 text-[var(--color-primary)]" /> From {trip.source}
                     </p>
 
-                    <div className="mt-6 grid grid-cols-2 gap-4 border-t border-stoneMuted dark:border-dark-border pt-4 text-xs">
+                    <div className="mt-8 grid grid-cols-2 gap-6 border-t border-[var(--color-border-subtle)] pt-6 text-[var(--text-xs)]">
                       <div>
-                        <span className="text-textSecondary dark:text-dark-text-muted block mb-1 font-semibold tracking-normal">Budget</span>
-                        <span className="font-semibold text-coral font-mono">{formatCurrency(trip.budget)}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block mb-1">Budget</span>
+                        <span className="price text-[var(--color-accent)]">{formatCurrency(trip.budget)}</span>
                       </div>
                       <div>
-                        <span className="text-textSecondary dark:text-dark-text-muted block mb-1 font-semibold tracking-normal">Travelers</span>
-                        <span className="font-semibold text-textPrimary dark:text-dark-text-muted">{trip.travelers} Guests</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block mb-1">Travelers</span>
+                        <span className="font-bold text-[var(--color-text-primary)]">{trip.travelers} Guests</span>
                       </div>
                     </div>
 
                     {trip.interests && trip.interests.length > 0 && (
-                      <div className="mt-4 flex flex-wrap gap-1">
+                      <div className="mt-6 flex flex-wrap gap-1.5">
                         {trip.interests.slice(0, 3).map((interest, idx) => (
-                          <span key={idx} className="text-xs bg-stoneMuted dark:bg-dark-card text-textSecondary dark:text-dark-text-muted px-2 py-1 rounded-sm">
+                          <span key={idx} className="text-[10px] font-bold uppercase tracking-tight bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] px-2.5 py-1 rounded-[var(--radius-xs)] border border-[var(--color-border)]">
                             #{interest.replace('_', ' ')}
                           </span>
                         ))}
                         {trip.interests.length > 3 && (
-                          <span className="text-xs text-textSecondary font-semibold px-2 py-1">
+                          <span className="text-[10px] text-[var(--color-text-muted)] font-bold px-2 py-1">
                             +{trip.interests.length - 3} more
                           </span>
                         )}
@@ -236,9 +236,9 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
                     )}
                   </div>
 
-                  <div className="mt-6 pt-4 flex justify-end">
-                    <span className="text-xs font-semibold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                      View full plan <ArrowRight className="w-3.5 h-3.5" />
+                  <div className="mt-8 pt-4 flex justify-end">
+                    <span className="btn-ghost text-[var(--color-primary)] font-bold group-hover:translate-x-1 transition-transform p-0 hover:bg-transparent">
+                      View full plan <ArrowRight className="w-4 h-4" />
                     </span>
                   </div>
                 </div>

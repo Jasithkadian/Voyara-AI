@@ -92,17 +92,17 @@ export const Explore: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
         {/* Search controls card */}
-        <div className="lg:col-span-1 bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-xl p-6 space-y-6 shadow-sm">
-          <h3 className="font-sans font-semibold text-lg text-textPrimary dark:text-dark-text flex items-center gap-2">
-            <Search className="w-4 h-4 text-primary" /> Filter Preferences
+        <div className="lg:col-span-1 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-xl)] p-6 space-y-6 shadow-[var(--shadow-sm)]">
+          <h3 className="font-semibold text-lg text-[var(--color-text-primary)] flex items-center gap-2">
+            <Search className="w-4 h-4 text-[var(--color-primary)]" /> Filter Preferences
           </h3>
 
           <div className="space-y-4">
             {/* Budget range slider */}
             <div className="space-y-2">
-              <div className="flex justify-between items-center text-xs font-semibold text-textSecondary dark:text-dark-text-muted">
+              <div className="flex justify-between items-center text-xs font-semibold text-[var(--color-text-secondary)]">
                 <span>Budget (Total)</span>
-                <span className="text-coral font-mono">{formatPrice(budget)}</span>
+                <span className="price text-[var(--color-accent)]">{formatPrice(budget)}</span>
               </div>
               <input
                 type="range"
@@ -111,9 +111,9 @@ export const Explore: React.FC = () => {
                 step={5000}
                 value={budget}
                 onChange={(e) => setBudget(Number(e.target.value))}
-                className="w-full accent-primary bg-stoneMuted/50 dark:bg-dark-muted rounded-lg appearance-none h-1.5 focus:outline-none cursor-pointer"
+                className="w-full accent-[var(--color-primary)] bg-[var(--color-bg-hover)] rounded-lg appearance-none h-1.5 focus:outline-none cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] font-mono text-textSecondary dark:text-dark-text-muted/75">
+              <div className="flex justify-between text-[10px] font-mono text-[var(--color-text-muted)]">
                 <span>{formatPrice(10000)}</span>
                 <span>{formatPrice(250000)}</span>
               </div>
@@ -233,11 +233,11 @@ export const Explore: React.FC = () => {
               {results.map((dest) => (
                 <div 
                   key={dest.name} 
-                  className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-xl overflow-hidden shadow-sm hover:shadow-card-hover hover:-translate-y-1 transition-all group flex flex-col justify-between h-[340px]"
+                  className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-xl)] overflow-hidden shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-1 transition-all group flex flex-col justify-between h-[340px]"
                 >
                   
                   {/* Image banner strip */}
-                  <div className="h-[150px] relative overflow-hidden bg-stoneMuted">
+                  <div className="h-[150px] relative overflow-hidden bg-[var(--color-bg-hover)]">
                     <img 
                       src={dest.image} 
                       alt={dest.name} 
@@ -245,37 +245,37 @@ export const Explore: React.FC = () => {
                     />
                     
                     {/* Match Score pill */}
-                    <span className="absolute top-3 right-3 bg-slate-900/85 backdrop-blur-xs text-cyan-400 font-mono font-bold text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm border border-cyan-400/20 shadow-md">
+                    <span className="absolute top-3 right-3 bg-[var(--color-text-primary)]/85 backdrop-blur-xs text-[var(--color-primary-light)] font-mono font-bold text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-[var(--radius-xs)] border border-white/10 shadow-md">
                       ✨ {dest.matchScore}% Match
                     </span>
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex items-end p-comfortable">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex items-end p-4">
                       <div className="flex items-center gap-1.5 text-white">
-                        <MapPin className="w-4 h-4 text-coral" />
-                        <h4 className="font-sans font-bold text-lg leading-none">{dest.name}</h4>
+                        <MapPin className="w-4 h-4 text-[var(--color-accent)]" />
+                        <h4 className="destination-name text-white">{dest.name}</h4>
                       </div>
                     </div>
                   </div>
 
                   {/* Card description details */}
                   <div className="p-comfortable flex-1 flex flex-col justify-between space-y-4">
-                    <p className="text-xs text-textSecondary dark:text-dark-text-muted line-clamp-2 leading-relaxed">
+                    <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] line-clamp-2 leading-relaxed">
                       {dest.description}
                     </p>
 
-                    <div className="flex justify-between items-center text-[11px] font-semibold text-textSecondary dark:text-dark-text-muted border-t border-stoneMuted/30 pt-2 font-sans">
+                    <div className="flex justify-between items-center text-[11px] font-semibold text-[var(--color-text-secondary)] border-t border-[var(--color-border-subtle)] pt-2 font-sans">
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-primary" />
+                        <Calendar className="w-3.5 h-3.5 text-[var(--color-primary)]" />
                         <span>{dest.bestSeason}</span>
                       </div>
-                      <div className="text-coral font-bold font-mono">
+                      <div className="price text-[var(--color-accent)]">
                         Cost: {formatPrice(dest.estimatedCost)}
                       </div>
                     </div>
 
                     <button
                       onClick={() => selectDestination(dest.name)}
-                      className="w-full py-2 bg-stoneMuted/40 dark:bg-dark-muted/40 hover:bg-primary hover:text-white dark:hover:bg-primary font-semibold text-[11px] rounded-md transition-all text-center text-textPrimary dark:text-dark-text shadow-xs"
+                      className="btn-primary w-full bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] hover:bg-[var(--color-primary)] hover:text-white"
                     >
                       Create Itinerary
                     </button>
