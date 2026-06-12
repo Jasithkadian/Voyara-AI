@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { tripsApi } from '../services/api';
+import { tripsApi, TripPlan } from '../services/api';
 import { Sparkles, ShieldCheck } from 'lucide-react';
 import { DestinationCard } from '../components/DestinationCard';
 
@@ -79,7 +79,7 @@ export const Demo: React.FC = () => {
       }
 
       // 2. Fetch the preloaded high-fidelity itinerary
-      const itinerary = await tripsApi.getDemoItinerary(dest.name);
+      const itinerary = await tripsApi.getDemoItinerary(dest.name) as TripPlan;
 
       // 3. Save the trip package to the user's database portfolio
       const savePayload = {

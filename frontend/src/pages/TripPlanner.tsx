@@ -413,25 +413,35 @@ export const TripPlanner: React.FC = () => {
                   </div>
 
                   {/* Moods/Interests selections */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative z-10">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
                       Travel Moods (Select Multiple)
                     </label>
                     <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
                       {Object.keys(INTEREST_LABELS).map((key) => {
                         const isSelected = parsedParams.interests.includes(key);
+                        const label = INTEREST_LABELS[key];
+                        const spaceIdx = label.indexOf(' ');
+                        const emoji = spaceIdx !== -1 ? label.substring(0, spaceIdx) : '';
+                        const text = spaceIdx !== -1 ? label.substring(spaceIdx + 1) : label;
+
                         return (
                           <button
                             key={key}
                             type="button"
                             onClick={() => toggleInterest(key)}
-                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
+                            className={`interest-chip px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
                               isSelected
-                                ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-[var(--shadow-sm)]'
+                                ? 'selected border-[var(--color-primary)] text-white'
                                 : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
                             }`}
                           >
-                            {INTEREST_LABELS[key]}
+                            <span className="relative z-10 flex items-center gap-1">
+                              <span className={isSelected ? 'emoji-bounce' : ''}>
+                                {emoji}
+                              </span>
+                              <span> {text}</span>
+                            </span>
                           </button>
                         );
                       })}

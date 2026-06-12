@@ -1,7 +1,7 @@
 import React from 'react';
 import { BudgetBreakdown } from '../services/api';
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { Wallet, Hotel, Utensils, Car, Compass, HelpCircle } from 'lucide-react';
+import { DonutChart } from './DonutChart';
 
 interface BudgetChartProps {
   breakdown: BudgetBreakdown;
@@ -10,10 +10,10 @@ interface BudgetChartProps {
 
 export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudget }) => {
   const data = [
-    { name: 'Hotels', value: breakdown.hotel_cost, color: '#1A56DB', icon: Hotel },
-    { name: 'Food', value: breakdown.food_cost, color: '#F97316', icon: Utensils },
-    { name: 'Transport', value: breakdown.transportation_cost, color: '#64748B', icon: Car },
-    { name: 'Activities', value: breakdown.activity_cost, color: '#059669', icon: Compass },
+    { name: 'Hotels', value: breakdown.hotel_cost, color: '#0A1628', icon: Hotel },
+    { name: 'Food', value: breakdown.food_cost, color: '#FF5733', icon: Utensils },
+    { name: 'Transport', value: breakdown.transportation_cost, color: '#0D9488', icon: Car },
+    { name: 'Activities', value: breakdown.activity_cost, color: '#D97706', icon: Compass },
     { name: 'Misc', value: breakdown.miscellaneous_cost, color: '#94A3B8', icon: HelpCircle },
   ];
 
@@ -27,10 +27,11 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
 
   const remainingBudget = targetBudget - breakdown.total_cost;
   
-  const pieData = data.filter(d => d.value > 0);
-  if (remainingBudget > 0) {
-    pieData.push({ name: 'Unallocated', value: remainingBudget, color: '#E2E8F0', icon: HelpCircle }); // Gray segment for unallocated
-  }
+  const segments = data.map(item => ({
+    label: item.name,
+    value: item.value,
+    color: item.color
+  }));
 
   return (
     <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] relative overflow-hidden">
@@ -45,46 +46,9 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        {/* Pie Chart */}
+        {/* Donut Chart */}
         <div className="h-60 w-full flex items-center justify-center relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                innerRadius={65}
-                outerRadius={85}
-                paddingAngle={3}
-                dataKey="value"
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value: number) => formatCurrency(value)}
-                contentStyle={{ 
-                  backgroundColor: 'var(--color-text-primary)', 
-                  border: 'none', 
-                  borderRadius: 'var(--radius-md)',
-                  color: 'white',
-                  fontSize: '11px',
-                  boxShadow: 'var(--shadow-md)'
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute flex flex-col items-center justify-center text-center px-4">
-            <span className={`text-[12px] font-bold ${remainingBudget === 0 ? 'text-[var(--color-success)]' : remainingBudget < 0 ? 'text-[var(--color-error)]' : 'text-[var(--color-text-secondary)]'}`}>
-              {remainingBudget === 0 
-                ? 'Exactly on budget' 
-                : remainingBudget < 0 
-                ? `Over budget by ${formatCurrency(Math.abs(remainingBudget))}`
-                : `${formatCurrency(remainingBudget)} remaining`
-              }
-            </span>
-          </div>
+          <DonutChart segments={segments} total={breakdown.total_cost} />
         </div>
 
         {/* Progress Bars & Info */}

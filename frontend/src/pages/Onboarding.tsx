@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { tripsApi } from '../services/api';
+import { tripsApi, TripPlan } from '../services/api';
 import { Sparkles, MapPin, Compass, CheckCircle2, ChevronRight, ChevronLeft } from 'lucide-react';
 import { DestinationCard } from '../components/DestinationCard';
 
@@ -99,7 +99,7 @@ export const Onboarding: React.FC = () => {
       }
 
       // 2. Fetch the preloaded itinerary for the suggested destination
-      const itinerary = await tripsApi.getDemoItinerary(recommendation.name);
+      const itinerary = await tripsApi.getDemoItinerary(recommendation.name) as TripPlan;
 
       // 3. Save it to history portfolio
       const payload = {

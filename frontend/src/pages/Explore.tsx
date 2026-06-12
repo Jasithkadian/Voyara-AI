@@ -49,7 +49,7 @@ export const Explore: React.FC = () => {
         moods: selectedMoods,
         surprise_me: surprise,
       };
-      const data = await tripsApi.explore(payload);
+      const data = await tripsApi.explore(payload) as DestinationResult[];
       setResults(data);
     } catch {
       setError('Failed to fetch destination recommendations.');
@@ -67,8 +67,9 @@ export const Explore: React.FC = () => {
         const data = await tripsApi.explore({
           budget: 50000,
           duration: 5,
+          moods: [],
           surprise_me: false
-        });
+        }) as DestinationResult[];
         if (isMounted) setResults(data);
       } catch {
         if (isMounted) setError('Failed to fetch destination recommendations.');

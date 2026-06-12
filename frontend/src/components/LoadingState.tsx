@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plane, Circle, MapPin } from 'lucide-react';
+import { Plane, Circle } from 'lucide-react';
 
 interface LoadingStateProps {
   source?: string;
@@ -12,51 +12,94 @@ interface LoadingStateProps {
 
 const FlightPathAnimation: React.FC = () => {
   return (
-    <div className="fixed inset-0 z-[10000] bg-[#0F172A] flex items-center justify-center animate-fade-out" style={{ animationDelay: '1.5s', animationFillMode: 'forwards' }}>
-      <div className="relative w-full max-w-2xl px-8">
-        <svg viewBox="65 8 15 25" className="w-full h-auto opacity-20 stroke-white fill-none">
-          <path d="M 60 0 L 80 0 L 80 40 L 60 40 Z" fill="none" />
-          {/* Simplified India Outline Mockup */}
-          <path d="M 72 10 L 78 12 L 77 20 L 73 24 L 68 18 L 70 12 Z" strokeWidth="0.2" />
-        </svg>
-
-        {/* Delhi Pin */}
-        <div className="absolute top-[32%] left-[76%] -translate-x-1/2 -translate-y-1/2 animate-pin-pulse">
-          <MapPin className="w-4 h-4 text-white fill-white" />
-        </div>
-
-        {/* Goa Pin (Appears later) */}
-        <div className="absolute top-[60%] left-[73%] -translate-x-1/2 -translate-y-1/2 opacity-0" style={{ animation: 'pinPulse 0.3s ease-out 1s forwards' }}>
-          <div className="absolute inset-0 w-8 h-8 -left-2 -top-2 bg-white/20 rounded-full animate-ping" />
-          <MapPin className="w-5 h-5 text-[var(--color-accent)] fill-[var(--color-accent)]" />
-        </div>
-
-        {/* Flight Path Arc */}
-        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
+    <div className="flight-path-overlay">
+      <div className="relative w-full max-w-2xl px-8 flex items-center justify-center">
+        {/* SVG Viewport: 650 80 150 250 (Scaled crop of India region) */}
+        <svg viewBox="650 80 150 250" className="w-full h-auto stroke-white fill-none overflow-visible">
+          {/* India Outline: Subtle gray path */}
           <path 
-            id="flight-path"
-            d="M 76 32 Q 60 45 73 60" 
+            d="M 720 100 L 780 120 L 770 200 L 730 240 L 680 180 L 700 120 Z" 
+            stroke="#E8E6E1" 
+            strokeWidth="0.5" 
+            fill="none" 
+            className="opacity-25" 
+          />
+
+          {/* Dotted path animation mask */}
+          <defs>
+            <mask id="flight-path-mask">
+              <path 
+                d="M 772 100 Q 640 150 738 220" 
+                fill="none" 
+                stroke="white" 
+                strokeWidth="2.5"
+                style={{
+                  strokeDasharray: 300,
+                  strokeDashoffset: 300,
+                  animation: 'drawPath 1.2s ease-in-out 0.2s forwards'
+                }}
+              />
+            </mask>
+          </defs>
+
+          {/* Dotted path (Delhi to Goa) revealed by mask */}
+          <path 
+            d="M 772 100 Q 640 150 738 220" 
             fill="none" 
             stroke="white" 
-            strokeWidth="0.5" 
+            strokeWidth="0.8" 
             strokeDasharray="2,2"
-            style={{ 
-              strokeDasharray: 100, 
-              strokeDashoffset: 100, 
-              animation: 'drawPath 1s ease-out 0.2s forwards' 
-            }}
+            mask="url(#flight-path-mask)"
           />
-          {/* Plane Icon */}
-          <g style={{ offsetPath: "path('M 76 32 Q 60 45 73 60')", animation: 'planeFly 1s ease-out 0.2s forwards' }}>
-            <foreignObject width="20" height="20" x="-10" y="-10">
-              <Plane className="w-4 h-4 text-white rotate-45" />
+
+          {/* Delhi Pin: 8px radius navy fill */}
+          <g transform="translate(772, 100)">
+            <circle r="8" fill="#0A1628" stroke="white" strokeWidth="1" />
+            <text x="12" y="4" fill="white" fontSize="12" fontFamily="DM Sans" fontWeight="bold" stroke="none" className="select-none">Delhi</text>
+          </g>
+
+          {/* Goa Pin: 8px radius navy fill + Ripple Ping on arrival (at 1.4s) */}
+          <g transform="translate(738, 220)">
+            {/* Ripple rings: scale 1 to 2.5, opacity 0.6 to 0, staggered 400ms */}
+            <circle r="8" fill="none" stroke="#FF5733" strokeWidth="1" className="animate-ripple-1" style={{ transformOrigin: 'center' }} />
+            <circle r="8" fill="none" stroke="#FF5733" strokeWidth="1" className="animate-ripple-2" style={{ transformOrigin: 'center' }} />
+            
+            <circle r="8" fill="#0A1628" stroke="white" strokeWidth="1" />
+            <text x="12" y="4" fill="white" fontSize="12" fontFamily="DM Sans" fontWeight="bold" stroke="none" className="select-none">Goa</text>
+          </g>
+
+          {/* Plane Icon: coral plane sliding along path */}
+          <g>
+            <foreignObject width="16" height="16" x="-8" y="-8" className="overflow-visible">
+              <Plane className="w-4 h-4 text-[#FF5733] fill-[#FF5733] -rotate-45" />
             </foreignObject>
+            <animateMotion 
+              dur="1.2s" 
+              repeatCount="1"
+              fill="freeze"
+              begin="0.2s"
+              path="M 772 100 Q 640 150 738 220"
+              rotate="auto"
+            />
           </g>
         </svg>
 
-        <div className="mt-12 text-center text-white/60 font-mono text-sm tracking-widest uppercase animate-pulse">
-          Establishing Flight Path...
-        </div>
+        <style>{`
+          @keyframes rippleRing {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(2.5); opacity: 0; }
+          }
+          .animate-ripple-1 {
+            animation: rippleRing 1s ease-out 1.4s infinite;
+          }
+          .animate-ripple-2 {
+            animation: rippleRing 1s ease-out 1.8s infinite;
+          }
+          @keyframes drawPath {
+            from { stroke-dashoffset: 300; }
+            to { stroke-dashoffset: 0; }
+          }
+        `}</style>
       </div>
     </div>
   );
@@ -127,7 +170,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
     if (allStepsAnimated && isApiReady && onFinished) {
       const timeout = setTimeout(() => {
         setFadeOut(true);
-        setTimeout(onFinished, 400); // Wait for fade out animation
+        setTimeout(onFinished, 300); // Wait for exit card transition
       }, 1200);
       return () => clearTimeout(timeout);
     }
@@ -141,7 +184,39 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
     <>
       {showMap && <FlightPathAnimation />}
       
-      <div className={`fixed inset-0 z-50 bg-[var(--color-bg-page)] overflow-hidden flex flex-col transition-all duration-350 ${fadeOut ? 'opacity-0 translate-y-[-20px] scale-95' : 'opacity-100'}`}>
+      <div className={`fixed inset-0 z-50 bg-[var(--color-bg-page)] overflow-hidden flex flex-col transition-opacity duration-300 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
+        <style>{`
+          @keyframes stepIn {
+            from { opacity: 0; transform: translateX(-12px); }
+            to { opacity: 1; transform: translateX(0); }
+          }
+          @keyframes fillDown {
+            to { height: 100%; }
+          }
+          @keyframes progressPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+          }
+          .progress-pulse {
+            animation: progressPulse 400ms ease-out forwards;
+          }
+          .step-active {
+            background-color: rgba(234, 83, 32, 0.05); /* subtle coral fill */
+            position: relative;
+          }
+          .step-active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 0;
+            background-color: #EA5320; /* 3px coral left border */
+            animation: fillDown 0.8s ease-out forwards;
+          }
+        `}</style>
+
         {/* Background Skeleton representing Itinerary Page */}
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-12 py-12 space-y-12 opacity-40 blur-sm pointer-events-none">
           <div className="flex justify-between items-center bg-[var(--color-bg-card)] p-6 rounded-[var(--radius-lg)] border border-[var(--color-border)]">
@@ -171,8 +246,13 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
         </div>
 
         {/* Floating Center Card */}
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[2px] animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <div className="flex flex-col items-center justify-center py-12 px-8 text-center max-w-md w-full bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-xl)] shadow-[var(--shadow-lg)]">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
+          <div 
+            className={`flex flex-col items-center justify-center py-12 px-8 text-center max-w-md w-full bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-xl)] shadow-[var(--shadow-lg)] ${
+              fadeOut ? 'generating-card-exit' : 'animate-fade-in'
+            }`}
+            style={!fadeOut ? { animationDelay: '0.3s' } : {}}
+          >
             {/* Animated Core Icon Container */}
             <div className="relative mb-8 w-20 h-20 flex items-center justify-center">
               <div className="absolute inset-0 rounded-[var(--radius-xl)] bg-[var(--color-primary-light)] animate-ping" />
@@ -200,12 +280,16 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
                 return (
                   <div 
                     key={idx} 
-                    className={`flex items-start gap-4 transition-all duration-200 relative ${
-                      isPending ? 'opacity-40' : 'opacity-100 translate-x-0'
-                    } ${!isPending && !isActive && !isCompleted ? 'translate-x-[-12px] opacity-0' : ''}`}
-                    style={{ animation: !isPending ? 'pageIn 0.2s ease-out forwards' : 'none' }}
+                    className={`flex items-start gap-4 p-2.5 rounded-lg relative ${
+                      isActive ? 'step-active' : ''
+                    }`}
+                    style={{ 
+                      opacity: isPending ? 0.4 : 1,
+                      animation: !isPending ? 'stepIn 200ms ease-out forwards' : 'none',
+                      animationDelay: !isPending ? `${idx * 300}ms` : '0ms'
+                    }}
                   >
-                    <div className="shrink-0 mt-0.5 relative">
+                    <div className="shrink-0 mt-0.5 relative z-10">
                       {isCompleted ? (
                         <DrawnCheckmark />
                       ) : isActive ? (
@@ -215,7 +299,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
                       )}
                     </div>
                     
-                    <div className={`flex-1 relative ${isActive ? 'step-active' : ''}`}>
+                    <div className="flex-1 relative z-10">
                       <span className={`text-xs font-semibold leading-normal transition-colors ${
                         isActive 
                           ? 'text-[var(--color-primary)]' 
@@ -231,16 +315,25 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
               })}
             </div>
 
-            {/* Final Waiting Status */}
+            {/* Final Waiting Status / Progress Bar */}
             {isFinalWaiting ? (
               <div className="text-[11px] text-[var(--color-text-secondary)] animate-pulse flex items-center gap-2 justify-center font-bold">
                 <span>AI is polishing itinerary details...</span>
               </div>
             ) : (
-              <div className={`w-full bg-[var(--color-bg-hover)] h-2 rounded-full overflow-hidden transition-all duration-500 ${isComplete ? 'scale-[1.02] shadow-sm' : ''}`}>
+              <div 
+                className={`w-full bg-[var(--color-bg-hover)] h-2 rounded-full overflow-hidden transition-all duration-500 ${
+                  isComplete ? 'progress-pulse shadow-sm' : ''
+                }`}
+              >
                 <div 
-                  className={`h-full transition-all duration-300 ease-out ${isComplete ? 'bg-[var(--color-success)]' : 'bg-[var(--color-primary)]'}`}
-                  style={{ width: `${Math.max(progress, 5)}%` }}
+                  className="h-full transition-all ease-out"
+                  style={{ 
+                    width: `${Math.max(progress, 5)}%`,
+                    backgroundColor: isComplete ? '#059669' : '#1A56DB',
+                    transitionDuration: '400ms',
+                    transitionProperty: 'width, background-color'
+                  }}
                 />
               </div>
             )}

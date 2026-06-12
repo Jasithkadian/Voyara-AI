@@ -30,15 +30,16 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
     }, 150);
   };
 
-  const getWeatherIcon = (weatherStr: string) => {
+  const getWeatherIcon = (weatherStr: string, isActiveTab: boolean) => {
     const w = weatherStr?.toLowerCase() || '';
+    const iconClass = `w-[18px] h-[18px] shrink-0 ${isActiveTab ? 'weather-bounce' : ''}`;
     if (w.includes('sun') || w.includes('clear') || w.includes('hot')) {
-      return <Sun className="w-[18px] h-[18px] text-[var(--color-warning)] shrink-0" />;
+      return <Sun className={`${iconClass} text-[var(--color-warning)]`} />;
     }
     if (w.includes('rain') || w.includes('shower') || w.includes('storm') || w.includes('monsoon')) {
-      return <CloudRain className="w-[18px] h-[18px] text-[var(--color-primary)] shrink-0" />;
+      return <CloudRain className={`${iconClass} text-[var(--color-primary)]`} />;
     }
-    return <CloudSun className="w-[18px] h-[18px] text-[var(--color-text-secondary)] shrink-0" />;
+    return <CloudSun className={`${iconClass} text-[var(--color-text-secondary)]`} />;
   };
 
   const mapItems: MapMarkerItem[] = [
@@ -97,7 +98,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
               >
                 <span className="flex items-center gap-1.5">
                   <span>Day {day.day}</span>
-                  {getWeatherIcon(weatherString)}
+                  {getWeatherIcon(weatherString, activeDay === day.day)}
                   <span className={`font-mono text-[13px] ${activeDay === day.day ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'}`}>
                     {weatherTemp || weatherDesc}
                   </span>
@@ -110,7 +111,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
       </div>
 
       <div 
-        className={`transition-opacity duration-150 ease-in-out ${fadeState === 'in' ? 'opacity-100' : 'opacity-0'}`}
+        className={fadeState === 'in' ? 'day-fade-in' : 'day-fade-out'}
       >
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

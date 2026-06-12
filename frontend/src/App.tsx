@@ -1,7 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { AuthProvider } from './context/AuthProvider';
 import { CurrencyProvider } from './context/CurrencyProvider';
+import { ToastProvider } from './context/ToastContext';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { CommandPalette } from './components/CommandPalette';
@@ -20,6 +21,7 @@ import { Explore } from './pages/Explore';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
 
   return (
     <div 
@@ -55,8 +57,9 @@ function AppContent() {
           <Sidebar />
           <div className="flex-1 h-screen overflow-y-auto flex flex-col justify-between">
             <main className="flex-grow w-full">
-              <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <div key={location.pathname} className="page-content">
+                <Routes>
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/login" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/register" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -72,8 +75,9 @@ function AppContent() {
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/share/:token" element={<SharedTrip />} />
                 <Route path="/explore" element={<Explore />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
-              </Routes>
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                </Routes>
+              </div>
             </main>
           </div>
         </>
@@ -88,7 +92,9 @@ function App() {
     <Router>
       <AuthProvider>
         <CurrencyProvider>
-          <AppContent />
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
         </CurrencyProvider>
       </AuthProvider>
     </Router>

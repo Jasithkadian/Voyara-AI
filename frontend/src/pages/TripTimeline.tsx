@@ -62,7 +62,7 @@ export const TripTimeline: React.FC = () => {
   const fetchBookings = useCallback(async () => {
     if (!selectedTrip) return;
     try {
-      const bData = await tripsApi.getBookings(selectedTrip.id);
+      const bData = await tripsApi.getBookings(selectedTrip.id) as BookingItem[];
       setBookings(bData);
     } catch {
       // Ignored
@@ -95,7 +95,7 @@ export const TripTimeline: React.FC = () => {
     setCheckingMonitor(true);
     setMonitorResult(null);
     try {
-      const res = await tripsApi.triggerMonitoringCheck(selectedTrip.id);
+      const res = await tripsApi.triggerMonitoringCheck(selectedTrip.id) as MonitorResult;
       setMonitorResult(res);
       setHasUnreadAlerts(false); // Mark as read when checked
       if (res.status === 'rescheduled') {

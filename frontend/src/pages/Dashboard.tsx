@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
@@ -18,8 +18,10 @@ import {
   Compass, Calendar, Wallet, MapPin, ArrowRight, Plus, 
   Trash2, Sparkles, RefreshCw, Save, MessageSquare, 
   X, AlertCircle, Plane, CheckCircle,
-  Clock, Share2, FileText, CalendarRange, Building2
+  Clock, Share2, FileText, CalendarRange, Building2,
+  Bookmark
 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 interface TripVersion {
   versionId: string;
@@ -49,6 +51,7 @@ export const Dashboard: React.FC = () => {
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const location = useLocation();
+  const { showToast } = useToast();
   
   // Detect if we are viewing the active trip results
   const isTripView = location.pathname === '/dashboard/trip';
@@ -62,6 +65,7 @@ export const Dashboard: React.FC = () => {
   const [activeTrip, setActiveTrip] = useState<SavedTrip | null>(null);
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [bookmarkBounce, setBookmarkBounce] = useState(false);
 
   // Version history & Hotel view mode states
   const [showVersionPanel, setShowVersionPanel] = useState(false);
@@ -160,9 +164,9 @@ export const Dashboard: React.FC = () => {
       setActiveTrip(res.trip);
       setOriginalPlanBeforePreview(null);
       setPreviewingVersionId(null);
-      setError('Itinerary restored to previous version successfully!');
+      showToast('Itinerary restored to previous version successfully!', 'success');
     } catch {
-      setError('Failed to restore version to backend.');
+      showToast('Failed to restore version to backend.', 'error');
     } finally {
       setLoading(false);
     }
@@ -178,20 +182,20 @@ export const Dashboard: React.FC = () => {
   const [replanCustomText, setReplanCustomText] = useState<string>('');
   const [replanLoading, setReplanLoading] = useState(false);
   // Flights & Bookings States
-  const [flights, setFlights] = useState<unknown[]>([]);
+  const [flights, setFlights] = useState<any[]>([]);
   const [flightsLoading, setFlightsLoading] = useState(false);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [flightSortKey, setFlightSortKey] = useState<'price' | 'duration' | 'departure'>('price');
-  const [bookings, setBookings] = useState<unknown[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [budgetCopilot, setBudgetCopilot] = useState<BudgetCopilotData | null>(null);
 
   const [activeTab, setActiveTab] = useState<'budget' | 'packing' | 'tips'>('budget');
 
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [checkoutItem, setCheckoutItem] = useState<{ type: string; provider: string; price: number; details: unknown } | null>(null);
+  const [checkoutItem, setCheckoutItem] = useState<{ type: string; provider: string; price: number; details: any } | null>(null);
   const [selectedGateway, setSelectedGateway] = useState<'Stripe' | 'Razorpay'>('Stripe');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [paymentResult, setPaymentResult] = useState<unknown>(null);
+  const [paymentResult, setPaymentResult] = useState<any>(null);
   const [cancelLoading, setCancelLoading] = useState<number | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
 
@@ -315,11 +319,9 @@ export const Dashboard: React.FC = () => {
       const res = await tripsApi.share(activeTrip.id);
       const shareUrl = `${window.location.origin}/share/${res.share_token}`;
       await navigator.clipboard.writeText(shareUrl);
-      setError(`✓ Public share link copied to clipboard: ${shareUrl}`);
-      setTimeout(() => setError(''), 8000);
+      showToast('Public share link copied to clipboard ✓', 'info');
     } catch {
-      setError("Failed to generate public share token.");
-      setTimeout(() => setError(''), 4000);
+      showToast('Failed to generate public share token.', 'error');
     } finally {
       setShareLoading(false);
     }
@@ -327,7 +329,7 @@ export const Dashboard: React.FC = () => {
 
   const handleBook = (type: string, provider: string, price: number, details: unknown) => {
     if (!activeTrip || activeTrip.id === 0) {
-      setError("Please save this trip first to purchase bookings!");
+      showToast('Please save this trip first to purchase bookings!', 'warning');
       return;
     }
     setCheckoutItem({ type, provider, price, details });
@@ -383,7 +385,7 @@ export const Dashboard: React.FC = () => {
       fetchBookings();
       fetchBudgetCopilot();
     } catch {
-      setError("Secure checkout payment authorization failed.");
+      showToast('Secure checkout payment authorization failed.', 'error');
     } finally {
       setCheckoutLoading(false);
     }
@@ -395,64 +397,15 @@ export const Dashboard: React.FC = () => {
     setError('');
     try {
       const result = await tripsApi.cancelBooking(bookingId) as { refund_status: string };
-      setError(`Booking cancelled successfully. Refund Status: ${result.refund_status}.`);
+      showToast(`Booking cancelled successfully. Refund Status: ${result.refund_status}.`, 'success');
       fetchBookings();
-      setTimeout(() => setError(''), 4000);
     } catch {
-      setError("Cancellation request failed.");
+      showToast("Cancellation request failed.", 'error');
     } finally {
       setCancelLoading(null);
     }
   };
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const data = await tripsApi.getHistory();
-      setSavedTrips(data);
-      
-      // If viewing active trip, check if we have one in location state or local storage
-      if (isTripView) {
-        const stateTrip = location.state?.trip as SavedTrip | null;
-        const generatedPlan = location.state?.generatedPlan as TripPlan | null;
-        const originalInput = location.state?.originalInput as Record<string, unknown> | null;
-        
-        if (stateTrip) {
-          setActiveTrip(stateTrip);
-          setReplanBudget(stateTrip.budget);
-          setReplanDays(stateTrip.days);
-          setReplanTravelers(stateTrip.travelers);
-          setSaveSuccess(true);
-        } else if (generatedPlan && originalInput) {
-          // Unsaved generated trip context
-          const tempTrip: SavedTrip = {
-            id: 0, // Unsaved
-            source: (originalInput.source as string) || '',
-            destination: (originalInput.destination as string) || '',
-            budget: (originalInput.budget as number) || 0,
-            days: (originalInput.days as number) || 5,
-            travelers: (originalInput.travelers as number) || 1,
-            interests: (originalInput.interests as string[]) || [],
-            generated_plan: generatedPlan,
-            created_at: new Date().toISOString()
-          };
-          setActiveTrip(tempTrip);
-          setReplanBudget(tempTrip.budget);
-          setReplanDays(tempTrip.days);
-          setReplanTravelers(tempTrip.travelers);
-          setSaveSuccess(false);
-        } else {
-          // If no active trip is passed, redirect to planner
-          navigate('/planner');
-        }
-      }
-    } catch {
-      setError('Could not retrieve dashboard data.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDeleteTrip = async (id: number, e: React.MouseEvent) => {
     e.preventDefault();
@@ -465,7 +418,7 @@ export const Dashboard: React.FC = () => {
           navigate('/dashboard');
         }
       } catch {
-        alert('Failed to delete trip.');
+        showToast('Failed to delete trip.', 'error');
       }
     }
   };
@@ -487,10 +440,12 @@ export const Dashboard: React.FC = () => {
       const response = await tripsApi.save(payload);
       setSaveSuccess(true);
       setActiveTrip(response.trip);
-      setError('Trip saved successfully!');
+      setBookmarkBounce(true);
+      showToast('Trip to ' + activeTrip.destination + ' saved ✓', 'success');
+      setTimeout(() => setBookmarkBounce(false), 500);
     } catch (err) {
       const error = err as { response?: { data?: { detail?: string } } };
-      setError(error.response?.data?.detail || 'Failed to save trip.');
+      showToast(error.response?.data?.detail || 'Failed to save trip.', 'error');
     } finally {
       setSaveLoading(false);
     }
@@ -502,7 +457,7 @@ export const Dashboard: React.FC = () => {
     
     // Check if trip is saved. If not, we tell the user they must save it first (or we auto-save it, but prompt says "replan saved trip")
     if (activeTrip.id === 0) {
-      setError('Please save this trip first before applying replanning.');
+      showToast('Please save this trip first before applying replanning.', 'warning');
       setShowReplanModal(false);
       return;
     }
@@ -526,10 +481,10 @@ export const Dashboard: React.FC = () => {
       setActiveTrip(response.trip);
       setShowReplanModal(false);
       setReplanCustomText('');
-      setError('Trip replanned successfully!');
+      showToast('Trip replanned successfully!', 'success');
     } catch (err) {
       const error = err as { response?: { data?: { detail?: string } } };
-      setError(error.response?.data?.detail || 'Failed to replan trip.');
+      showToast(error.response?.data?.detail || 'Failed to replan trip.', 'error');
     } finally {
       setReplanLoading(false);
     }
@@ -579,7 +534,7 @@ export const Dashboard: React.FC = () => {
   if (isTripView && activeTrip) {
     const plan = activeTrip.generated_plan;
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-6 itinerary-fade-in">
         
         {/* Error/Success Banner */}
         {error && (
@@ -605,11 +560,13 @@ export const Dashboard: React.FC = () => {
                 disabled={saveLoading}
                 className="btn-primary flex-1 sm:flex-initial"
               >
-                <Save className="w-4 h-4" /> {saveLoading ? 'Saving...' : 'Save Trip'}
+                <Bookmark className={`w-4 h-4 ${bookmarkBounce ? 'bookmark-bounce' : ''}`} />
+                <span>{saveLoading ? 'Saving...' : 'Save Trip'}</span>
               </button>
             ) : (
-              <span className="flex-1 sm:flex-initial text-center px-4 py-2 bg-[var(--color-success-bg)] text-[var(--color-success)] font-bold text-[10px] uppercase tracking-wider rounded-[var(--radius-sm)] border border-[var(--color-success-border)]">
-                ✓ Saved to History
+              <span className="flex-1 sm:flex-initial text-center px-4 py-2 bg-[var(--color-success-bg)] text-[var(--color-success)] font-bold text-[10px] uppercase tracking-wider rounded-[var(--radius-sm)] border border-[var(--color-success-border)] flex items-center justify-center gap-1.5">
+                <Bookmark className={`w-4 h-4 ${bookmarkBounce ? 'bookmark-bounce' : ''}`} fill="currentColor" />
+                <span>Saved to History</span>
               </span>
             )}
             

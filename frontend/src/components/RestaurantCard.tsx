@@ -39,7 +39,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = React.memo(({
   };
 
   return (
-    <div className="card-base restaurant-card">
+    <div className="card-base restaurant-card card-interactive cursor-pointer">
       <div className="w-full h-[120px] relative overflow-hidden bg-[var(--color-bg-hover)]">
         {loading ? (
           <div className="w-full h-full skeleton" />

@@ -34,7 +34,7 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="destination-card"
+      className="destination-card card-interactive cursor-pointer"
     >
       {/* Background Photo */}
       <img

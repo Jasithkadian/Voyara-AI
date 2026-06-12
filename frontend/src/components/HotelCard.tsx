@@ -41,13 +41,15 @@ export const HotelCard: React.FC<HotelCardProps> = ({
   }
 
   return (
-    <div className="hotel-card">
+    <div className="hotel-card card-interactive cursor-pointer">
       {/* Photo (using CSS structure) */}
-      <img
-        src={photo}
-        alt={hotel.name}
-        className="hotel-card__image"
-      />
+      <div className="hotel-card__image-wrapper">
+        <img
+          src={photo}
+          alt={hotel.name}
+          className="hotel-card__image"
+        />
+      </div>
 
       {/* Body Content */}
       <div className="hotel-card__body">

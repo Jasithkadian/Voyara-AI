@@ -3,11 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi, SavedTrip } from '../services/api';
 import { 
-  ResponsiveContainer, PieChart, Pie, Cell, Tooltip, 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend 
+  ResponsiveContainer, 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip 
 } from 'recharts';
 import { Wallet, Plus, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useCurrency } from '../context/CurrencyContext';
+import { useToast } from '../context/ToastContext';
+import { DonutChart } from '../components/DonutChart';
 
 interface ExpenseItem {
   id: number | string;
@@ -21,6 +23,7 @@ interface ExpenseItem {
 export const Expenses: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { formatPrice } = useCurrency();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -62,7 +65,7 @@ export const Expenses: React.FC = () => {
   const fetchExpenses = useCallback(async () => {
     if (!selectedTrip || selectedTrip.id === 0) return;
     try {
-      const expList = await tripsApi.getExpenses(selectedTrip.id);
+      const expList = await tripsApi.getExpenses(selectedTrip.id) as ExpenseItem[];
       setExpenses(expList);
     } catch {
       // Ignored
@@ -106,14 +109,13 @@ export const Expenses: React.FC = () => {
         description,
         spent_date: spentDate
       });
-      setSuccess('Expense logged successfully!');
+      showToast('Expense logged successfully!', 'success');
       setAmount('');
       setDescription('');
       fetchExpenses();
-      setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
       const error = err as { response?: { data?: { detail?: string } } };
-      setError(error.response?.data?.detail || 'Failed to log expense.');
+      showToast(error.response?.data?.detail || 'Failed to log expense.', 'error');
     } finally {
       setFormLoading(false);
     }
@@ -219,11 +221,11 @@ export const Expenses: React.FC = () => {
 
   // Chart 1: Spent Pie Data - Exactly mapped to design system hexes as per Step 6
   const spentPieData = [
-    { name: 'Hotels', value: spentByCategory.Hotels, color: '#1A56DB' },      // var(--color-primary)
-    { name: 'Food', value: spentByCategory.Food, color: '#F97316' },        // Orange 500
-    { name: 'Transport', value: spentByCategory.Transport, color: '#64748B' }, // Slate 500
-    { name: 'Activities', value: spentByCategory.Activities, color: '#059669' }, // var(--color-success)
-    { name: 'Misc', value: spentByCategory.Miscellaneous, color: '#94A3B8' }  // Slate 400
+    { label: 'Hotels', value: spentByCategory.Hotels, color: '#0A1628' },
+    { label: 'Food', value: spentByCategory.Food, color: '#FF5733' },
+    { label: 'Transport', value: spentByCategory.Transport, color: '#0D9488' },
+    { label: 'Activities', value: spentByCategory.Activities, color: '#D97706' },
+    { label: 'Misc', value: spentByCategory.Miscellaneous, color: '#94A3B8' }
   ].filter(item => item.value > 0);
 
   // Chart 2: Planned vs Actual Bar Data
@@ -376,7 +378,7 @@ export const Expenses: React.FC = () => {
 
             <div className="space-y-3">
               {displayExpenses.map((exp) => (
-                <div key={exp.id} className="p-4 bg-[var(--color-bg-hover)] rounded-[var(--radius-md)] border border-[var(--color-border)] flex justify-between items-center text-[var(--text-sm)] hover:shadow-[var(--shadow-xs)] transition-all">
+                <div key={exp.id} className="p-4 bg-[var(--color-bg-hover)] rounded-[var(--radius-md)] border border-[var(--color-border)] flex justify-between items-center text-[var(--text-sm)] hover:shadow-[var(--shadow-xs)] transition-all expense-row-enter">
                   <div className="text-left">
                     <div className="flex items-center gap-2 font-bold text-[var(--color-text-primary)]">
                       <span>{exp.category}</span>
@@ -415,55 +417,43 @@ export const Expenses: React.FC = () => {
               </span>
             </div>
 
-            <div className={`p-5 rounded-[var(--radius-lg)] border shadow-[var(--shadow-sm)] ${
-              remainingBudget === 0 
-                ? 'bg-[var(--color-success-bg)] border-[var(--color-success-border)]'
-                : 'bg-[var(--color-bg-card)] border-[var(--color-border)]'
-            }`}>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Remaining</span>
-              <span className={`price mt-1 block truncate ${
-                remainingBudget === 0
-                  ? 'text-[var(--color-success)]'
-                  : remainingBudget < 0 
-                  ? 'text-[var(--color-error)]'
-                  : 'text-[var(--color-success)]'
-              }`}>
-                {remainingBudget === 0 ? 'Balanced' : formatCurrency(remainingBudget)}
-              </span>
-            </div>
+            {/* Remaining limit threshold checks */}
+            {(() => {
+              const isApproachingLimit = totalBudget > 0 && totalSpent / totalBudget > 0.80 && remainingBudget >= 0;
+              return (
+                <div className={`p-5 rounded-[var(--radius-lg)] border shadow-[var(--shadow-sm)] transition-all duration-300 ${
+                  remainingBudget === 0 
+                    ? 'bg-[var(--color-success-bg)] border-[var(--color-success-border)]'
+                    : remainingBudget < 0
+                    ? 'bg-[var(--color-error-bg)] border-[var(--color-error-border)]'
+                    : isApproachingLimit
+                    ? 'bg-[#FFFBEB] border-[#FDE68A]'
+                    : 'bg-[var(--color-bg-card)] border border-[var(--color-border)]'
+                }`}>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] block">Remaining</span>
+                  <span className={`price mt-1 block truncate ${
+                    remainingBudget === 0
+                      ? 'text-[var(--color-success)]'
+                      : remainingBudget < 0 
+                      ? 'text-[var(--color-error)]'
+                      : isApproachingLimit
+                      ? 'text-amber-600 animate-pulse-subtle'
+                      : 'text-[var(--color-success)]'
+                  }`}>
+                    {remainingBudget === 0 ? 'Balanced' : formatCurrency(remainingBudget)}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
 
-          {/* Pie Chart Card */}
+          {/* Custom Donut Chart Card */}
           {spentPieData.length > 0 && (
             <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[var(--radius-xl)] shadow-[var(--shadow-sm)] space-y-8">
               <h4 className="font-semibold text-base text-[var(--color-text-primary)]">Expense Distribution (Spent)</h4>
               
               <div className="h-64 w-full flex items-center justify-center relative">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={spentPieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={65}
-                      outerRadius={85}
-                      paddingAngle={4}
-                      dataKey="value"
-                    >
-                      {spentPieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value: number) => formatCurrency(value)}
-                      contentStyle={{ borderRadius: 'var(--radius-md)', border: 'none', boxShadow: 'var(--shadow-md)' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute flex flex-col items-center justify-center">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">Total Spent</span>
-                  <span className="price text-[var(--color-accent)] text-lg">{formatCurrency(totalSpent)}</span>
-                </div>
+                <DonutChart segments={spentPieData} total={totalSpent} />
               </div>
             </div>
           )}
@@ -479,7 +469,7 @@ export const Expenses: React.FC = () => {
                   <XAxis dataKey="name" stroke="var(--color-text-secondary)" fontSize={12} tickLine={false} />
                   <YAxis stroke="var(--color-text-secondary)" fontSize={12} tickLine={false} />
                   <Tooltip 
-                    formatter={(value: number) => formatCurrency(value)}
+                    formatter={(value: any) => formatCurrency(value)}
                     contentStyle={{ borderRadius: 'var(--radius-md)', border: 'none', boxShadow: 'var(--shadow-md)' }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11, paddingTop: 20 }} />

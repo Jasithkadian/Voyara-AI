@@ -77,7 +77,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = React.memo(({
 
   return (
     <div 
-      className="card-base activity-card hover:transform-none" 
+      className="card-base activity-card card-interactive cursor-pointer" 
       onClick={onClick}
     >
       <div className="activity-card__header">

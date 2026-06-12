@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi, SavedTrip } from '../services/api';
 import { Mail, Calendar, Compass, LogOut, Shield, Wallet, Save, Sparkles, AlertCircle } from 'lucide-react';
@@ -22,6 +22,15 @@ const ProfileCollageItem: React.FC<ProfileCollageItemProps> = ({ destinationName
     />
   );
 };
+
+interface ProfilePreferences {
+  travel_style?: string;
+  budget_range?: string;
+  favorite_destinations?: string[];
+  preferred_hotels?: string[];
+  food_preferences?: string[];
+  preferred_activities?: string[];
+}
 
 export const Profile: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -50,7 +59,7 @@ export const Profile: React.FC = () => {
       setTotalSpent(trips.reduce((sum, t) => sum + t.budget, 0));
       setTotalDays(trips.reduce((sum, t) => sum + t.days, 0));
 
-      const profile = await tripsApi.getProfile();
+      const profile = await tripsApi.getProfile() as ProfilePreferences;
       if (profile) {
         setTravelStyle(profile.travel_style || 'Relaxation');
         setBudgetRange(profile.budget_range || 'Mid-Range');

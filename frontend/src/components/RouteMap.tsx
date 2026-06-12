@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { tripsApi, DailyPlan, HotelRecommendation, AttractionRecommendation } from '../services/api';
+import { tripsApi, DailyPlan, HotelRecommendation, AttractionRecommendation, RouteDataResponse, RouteMarker, RouteSegment } from '../services/api';
 import { MapPin, Navigation, Clock, Sparkles } from 'lucide-react';
 
 interface RouteMapProps {
@@ -7,25 +7,6 @@ interface RouteMapProps {
   itinerary: DailyPlan[];
   attractions?: AttractionRecommendation[];
   hotels: HotelRecommendation[];
-}
-
-interface RouteMarker {
-  name: string;
-  category: 'Hotel' | 'Restaurant' | 'Activity';
-}
-
-interface RouteSegment {
-  from: string;
-  to: string;
-  distance: string;
-  duration: string;
-}
-
-interface RouteDataResponse {
-  markers: RouteMarker[];
-  totalDistanceKm: number;
-  totalTimeMin: number;
-  segments: RouteSegment[];
 }
 
 export const RouteMap: React.FC<RouteMapProps> = ({ itinerary, hotels }) => {
