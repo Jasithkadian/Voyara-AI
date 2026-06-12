@@ -7,11 +7,75 @@ import httpx
 from app.services.weather_service import get_weather_forecast
 from app.services.hotel_service import search_hotels
 from app.services.flight_service import search_flights
+import datetime
 
 logger = logging.getLogger(__name__)
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+
+def compute_budget_tier(total_budget: float, days: int, travelers: int, destination: str, travel_month: int = None, booking_lead_days: int = 30) -> str:
+    days = 1 if days <= 0 else days
+    travelers = 1 if travelers <= 0 else travelers
+    raw_daily_per_person = total_budget / days / travelers
+    
+    dest_meta = None
+    try:
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        json_path = os.path.join(base_dir, "..", "frontend", "src", "data", "destinations.json")
+        if not os.path.exists(json_path):
+            json_path = os.path.join(base_dir, "frontend", "src", "data", "destinations.json")
+        if not os.path.exists(json_path):
+            json_path = "c:\\Users\\Umang Kadian\\Desktop\\flyscanner\\frontend\\src\\data\\destinations.json"
+            
+        if os.path.exists(json_path):
+            with open(json_path, 'r') as f:
+                destinations = json.load(f)
+                for d in destinations:
+                    if d.get("name", "").strip().lower() == destination.strip().lower():
+                        dest_meta = d
+                        break
+    except Exception:
+        pass
+        
+    if not dest_meta:
+        fallbacks = {
+            "goa": {"baseCostMultiplier": 1.0, "peakSeasonMonths": [11, 12, 1, 2], "isIslandDestination": False, "hasWaterRoute": False, "hasTrainAccess": True},
+            "andaman islands": {"baseCostMultiplier": 1.5, "peakSeasonMonths": [12, 1, 2, 3], "isIslandDestination": True, "hasWaterRoute": True, "hasTrainAccess": False},
+            "lakshadweep": {"baseCostMultiplier": 1.6, "peakSeasonMonths": [12, 1, 2, 3], "isIslandDestination": True, "hasWaterRoute": True, "hasTrainAccess": False},
+            "kerala": {"baseCostMultiplier": 1.1, "peakSeasonMonths": [10, 11, 12, 1], "isIslandDestination": False, "hasWaterRoute": True, "hasTrainAccess": True},
+            "rajasthan": {"baseCostMultiplier": 1.1, "peakSeasonMonths": [11, 12, 1, 2], "isIslandDestination": False, "hasWaterRoute": False, "hasTrainAccess": True},
+            "delhi": {"baseCostMultiplier": 1.0, "peakSeasonMonths": [11, 12, 1, 2], "isIslandDestination": False, "hasWaterRoute": False, "hasTrainAccess": True},
+            "mumbai": {"baseCostMultiplier": 1.2, "peakSeasonMonths": [11, 12, 1, 2], "isIslandDestination": False, "hasWaterRoute": False, "hasTrainAccess": True},
+            "bali": {"baseCostMultiplier": 1.3, "peakSeasonMonths": [6, 7, 8, 12], "isIslandDestination": True, "hasWaterRoute": True, "hasTrainAccess": False},
+            "dubai": {"baseCostMultiplier": 1.6, "peakSeasonMonths": [11, 12, 1, 2], "isIslandDestination": False, "hasWaterRoute": False, "hasTrainAccess": False}
+        }
+        dest_meta = fallbacks.get(destination.strip().lower())
+
+    base_multiplier = 1.0
+    peak_months = []
+    is_seasonally_adjusted = False
+    
+    if dest_meta:
+        base_multiplier = dest_meta.get("baseCostMultiplier", 1.0)
+        peak_months = dest_meta.get("peakSeasonMonths", [])
+        if travel_month in peak_months:
+            is_seasonally_adjusted = True
+            
+    seasonal_multiplier = base_multiplier * 1.4 if is_seasonally_adjusted else base_multiplier
+    effective_daily_budget = raw_daily_per_person / (seasonal_multiplier or 1.0)
+    
+    if booking_lead_days < 7:
+        effective_daily_budget = effective_daily_budget * 0.85
+        
+    if effective_daily_budget < 2000:
+        return "Backpacker"
+    elif effective_daily_budget < 5000:
+        return "Budget Traveler"
+    elif effective_daily_budget <= 12000:
+        return "Mid Range"
+    else:
+        return "Premium"
 
 class WeatherAgent:
     """Specialized agent responsible for weather forecasts and local climate context."""
@@ -39,8 +103,12 @@ class HotelAgent:
 
 class PlannerAgent:
     """Specialized agent responsible for generating the daily activities schedule."""
-    def run(self, source: str, destination: str, days: int, interests: List[str], weather_data: List[Dict[str, Any]], hotels: List[Dict[str, Any]], preferences: Dict[str, Any] = None) -> List[Dict[str, Any]]:
+    def run(self, source: str, destination: str, days: int, interests: List[str], weather_data: List[Dict[str, Any]], hotels: List[Dict[str, Any]], preferences: Dict[str, Any] = None, budget: float = 30000.0, travelers: int = 1) -> List[Dict[str, Any]]:
         logger.info(f"[PlannerAgent] Generating day-by-day itinerary...")
+        
+        # Calculate budget tier
+        current_month = datetime.datetime.now().month
+        tier_name = compute_budget_tier(budget, days, travelers, destination, current_month, 30)
         
         pref_str = json.dumps(preferences) if preferences else "None"
         prompt = f"""
@@ -49,6 +117,7 @@ class PlannerAgent:
         User Profile Preferences: {pref_str}
         Weather Context: {json.dumps(weather_data)}
         Selected Lodging Options: {json.dumps(hotels)}
+        Detected Budget Tier: {tier_name}
         
         You MUST respond with a JSON array named "dailyItinerary" matching this structure:
         [
@@ -76,6 +145,26 @@ class PlannerAgent:
             ]
           }}
         ]
+        
+        Follow these tier-specific constraints strictly in your suggestions:
+        - If Detected Budget Tier is "Backpacker" (effective daily budget under ₹2,000 per day per person):
+          * Transport mode MUST be "bus" or "train-sleeper" only.
+          * Accommodation recommendations MUST be hostel dorm beds (personal lockers, social events, kitchen, and free wifi details).
+          * Dining recommendations MUST be street food or local dhabas under ₹150 per meal.
+          * Activities MUST be free or under ₹200.
+        - If Detected Budget Tier is "Budget Traveler" (effective daily budget ₹2,000 to ₹4,999 per day per person):
+          * Transport mode MUST be "train-sleeper" or "bus".
+          * Accommodation recommendations MUST be budget guesthouses or 2-star hotels.
+          * Dining recommendations MUST be local restaurants under ₹300 per meal.
+          * Activities MUST be under ₹500.
+        - If Detected Budget Tier is "Mid Range" (effective daily budget ₹5,000 to ₹12,000 per day per person):
+          * Transport mode MUST be AC trains ("train-ac") or flights.
+          * Accommodation recommendations MUST be 3-star hotels.
+          * Dining recommendations MUST be mid-range dining under ₹800 per meal.
+        - If Detected Budget Tier is "Premium" (effective daily budget over ₹12,000 per day per person):
+          * Transport mode MUST be flights only.
+          * Accommodation recommendations MUST be 4-star or 5-star luxury hotels.
+          * Dining recommendations MUST be premium or fine-dining.
         
         Respond ONLY with valid JSON. No markdown wrappers.
         """
@@ -180,46 +269,43 @@ class SafetyAgent:
 
 class BudgetAgent:
     """Specialized agent responsible for calculating and auditing the budget breakdown."""
-    def run(self, budget: float, days: int, travelers: int, hotel_options: List[Dict[str, Any]], itinerary: List[Dict[str, Any]]) -> Dict[str, float]:
+    def run(self, budget: float, days: int, travelers: int, hotel_options: List[Dict[str, Any]], itinerary: List[Dict[str, Any]], destination: str = "Goa") -> Dict[str, float]:
         logger.info(f"[BudgetAgent] Auditing travel expenses...")
         
-        # Calculate estimated sum of activities from itinerary
-        total_activity_cost = 0.0
-        for day in itinerary:
-            for act in day.get("activities", []):
-                total_activity_cost += act.get("estimatedCost", 0.0)
-            for rest in day.get("restaurants", []):
-                total_activity_cost += rest.get("estimatedCost", 0.0)
-                
-        # Parse average hotel rate
-        avg_hotel_price = 4500.0
-        if hotel_options:
-            try:
-                price_str = hotel_options[0]["price"].replace("₹", "").replace(",", "").split(" ")[0]
-                avg_hotel_price = float(price_str)
-            except:
-                pass
-        total_hotel_cost = avg_hotel_price * days
+        current_month = datetime.datetime.now().month
+        tier_name = compute_budget_tier(budget, days, travelers, destination, current_month, 30)
         
-        transport_cost = round(budget * 0.15, 2)
-        misc_cost = round(budget * 0.10, 2)
-        total_cost = total_hotel_cost + total_activity_cost + transport_cost + misc_cost
+        if tier_name == "Backpacker":
+            stay_pct, transport_pct, food_pct, activities_pct, misc_pct = 0.30, 0.15, 0.35, 0.10, 0.10
+        elif tier_name == "Budget Traveler":
+            stay_pct, transport_pct, food_pct, activities_pct, misc_pct = 0.35, 0.20, 0.30, 0.10, 0.05
+        elif tier_name == "Mid Range":
+            stay_pct, transport_pct, food_pct, activities_pct, misc_pct = 0.40, 0.25, 0.20, 0.10, 0.05
+        else: # Premium
+            stay_pct, transport_pct, food_pct, activities_pct, misc_pct = 0.45, 0.30, 0.15, 0.08, 0.02
+            
+        total_hotel_cost = round(budget * stay_pct, 2)
+        transport_cost = round(budget * transport_pct, 2)
+        food_cost = round(budget * food_pct, 2)
+        activity_cost = round(budget * activities_pct, 2)
+        misc_cost = round(budget * misc_pct, 2)
+        total_cost = total_hotel_cost + food_cost + transport_cost + activity_cost + misc_cost
         
         # Ensure it fits within budget
         if total_cost > budget:
-            # Scale down
             scale = budget / total_cost
             total_hotel_cost = round(total_hotel_cost * scale, 2)
-            total_activity_cost = round(total_activity_cost * scale, 2)
+            food_cost = round(food_cost * scale, 2)
             transport_cost = round(transport_cost * scale, 2)
+            activity_cost = round(activity_cost * scale, 2)
             misc_cost = round(misc_cost * scale, 2)
             total_cost = budget
             
         return {
             "hotel_cost": total_hotel_cost,
-            "food_cost": round(total_activity_cost * 0.4, 2),
+            "food_cost": food_cost,
             "transportation_cost": transport_cost,
-            "activity_cost": round(total_activity_cost * 0.6, 2),
+            "activity_cost": activity_cost,
             "miscellaneous_cost": misc_cost,
             "total_cost": total_cost
         }
@@ -258,7 +344,9 @@ class CoordinatorAgent:
             interests=interests,
             weather_data=weather_forecast,
             hotels=hotels,
-            preferences=user_preferences
+            preferences=user_preferences,
+            budget=budget,
+            travelers=travelers
         )
         
         # 4. Formulate safety guidelines & tips
@@ -270,7 +358,8 @@ class CoordinatorAgent:
             days=days,
             travelers=travelers,
             hotel_options=hotels,
-            itinerary=itinerary
+            itinerary=itinerary,
+            destination=destination
         )
         
         # 6. Search Flights (real flight matches)

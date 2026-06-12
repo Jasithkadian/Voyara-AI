@@ -212,7 +212,7 @@ export const tripsApi = {
     const response = await api.delete(`/api/trips/${tripId}`);
     return response.data;
   },
-  replan: async (tripId: number, changes: string): Promise<{ status: string; trip: SavedTrip }> => {
+  replan: async (tripId: number, changes: string): Promise<{ status: string; trip: SavedTrip; tier_changed?: boolean; old_tier?: string; new_tier?: string }> => {
     const response = await api.post('/api/trips/replan', { trip_id: tripId, changes });
     return response.data;
   },

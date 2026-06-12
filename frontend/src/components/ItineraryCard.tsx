@@ -6,19 +6,22 @@ import { RestaurantCard } from './RestaurantCard';
 import { MapWidget, MapMarkerItem } from './MapWidget';
 import { useWeather } from '../hooks/useWeather';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DiningType } from '../types';
 
 interface ItineraryCardProps {
   dailyPlan: DailyPlan[];
   destination?: string;
   tripId?: number;
   onRegenerateDay?: (dayNumber: number) => Promise<void>;
+  diningTier?: DiningType;
 }
 
 export const ItineraryCard: React.FC<ItineraryCardProps> = ({ 
   dailyPlan, 
   destination = 'Goa', 
   tripId = 0,
-  onRegenerateDay 
+  onRegenerateDay,
+  diningTier = 'mid-range'
 }) => {
   const [activeDay, setActiveDay] = useState(1);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
@@ -303,6 +306,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
                         meal={rest.recommendedMeal || 'Breakfast'}
                         cuisine={rest.cuisine}
                         cost={rest.estimatedCost}
+                        diningTier={diningTier}
                       />
                     </div>
                   );
@@ -356,6 +360,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
                         meal={rest.recommendedMeal || 'Lunch'}
                         cuisine={rest.cuisine}
                         cost={rest.estimatedCost}
+                        diningTier={diningTier}
                       />
                     </div>
                   );
@@ -409,6 +414,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
                         meal={rest.recommendedMeal || 'Dinner'}
                         cuisine={rest.cuisine}
                         cost={rest.estimatedCost}
+                        diningTier={diningTier}
                       />
                     </div>
                   );

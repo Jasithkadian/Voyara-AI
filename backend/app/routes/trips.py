@@ -8,7 +8,7 @@ from app.routes.auth import get_current_user, SECRET_KEY, ALGORITHM
 from app.models.user import User
 from app.models.trip import Trip
 from app.models.user_profile import UserProfile
-from app.services.agent_service import CoordinatorAgent
+from app.services.agent_service import CoordinatorAgent, compute_budget_tier
 from jose import jwt
 import json
 import logging
@@ -258,6 +258,36 @@ def replan_trip(
             detail="Trip not found or unauthorized"
         )
 
+    # Determine old budget tier
+    old_month = datetime.datetime.now().month
+    # Parse month from changes if any
+    changes_lower = request.changes.lower()
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    for i, m in enumerate(months):
+        if m in changes_lower:
+            old_month = i + 1
+            break
+            
+    lead_days = 30
+    if "today" in changes_lower:
+        lead_days = 0
+    elif "tomorrow" in changes_lower:
+        lead_days = 1
+    else:
+        import re
+        match = re.search(r'in\s+(\d+)\s+day', changes_lower)
+        if match:
+            lead_days = int(match.group(1))
+
+    old_tier = compute_budget_tier(
+        total_budget=trip.budget,
+        days=trip.days,
+        travelers=trip.travelers,
+        destination=trip.destination,
+        travel_month=old_month,
+        booking_lead_days=lead_days
+    )
+
     # Replan using Claude/OpenAI
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     openai_key = os.getenv("OPENAI_API_KEY", "")
@@ -405,9 +435,25 @@ def replan_trip(
 
     try:
         # Update trip in database
-        trip.budget = new_plan["budgetBreakdown"].get("total_cost", trip.budget)
-        trip.days = new_plan["tripSummary"].get("days", trip.days)
-        trip.travelers = new_plan["tripSummary"].get("travelers", trip.travelers)
+        new_budget = new_plan["budgetBreakdown"].get("total_cost", trip.budget)
+        new_days = new_plan["tripSummary"].get("days", trip.days)
+        new_travelers = new_plan["tripSummary"].get("travelers", trip.travelers)
+        new_destination = new_plan["tripSummary"].get("destination", trip.destination)
+
+        new_tier = compute_budget_tier(
+            total_budget=new_budget,
+            days=new_days,
+            travelers=new_travelers,
+            destination=new_destination,
+            travel_month=old_month,
+            booking_lead_days=lead_days
+        )
+        
+        tier_changed = old_tier != new_tier
+
+        trip.budget = new_budget
+        trip.days = new_days
+        trip.travelers = new_travelers
         trip.generated_plan = new_plan
         
         db.commit()
@@ -415,6 +461,9 @@ def replan_trip(
         
         return {
             "status": "success",
+            "tier_changed": tier_changed,
+            "old_tier": old_tier,
+            "new_tier": new_tier,
             "trip": {
                 "id": trip.id,
                 "source": trip.source,

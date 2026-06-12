@@ -3,13 +3,15 @@ import { BudgetBreakdown } from '../services/api';
 import { Wallet, Hotel, Utensils, Car, Compass, HelpCircle } from 'lucide-react';
 import { DonutChart } from './DonutChart';
 import { motion } from 'framer-motion';
+import { TransportMode } from '../types';
 
 interface BudgetChartProps {
   breakdown: BudgetBreakdown;
   targetBudget: number;
+  transportMode?: TransportMode;
 }
 
-export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudget }) => {
+export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudget, transportMode = 'flight' }) => {
   const data = [
     { name: 'Hotels', value: breakdown.hotel_cost, color: '#2563EB', icon: Hotel },
     { name: 'Food', value: breakdown.food_cost, color: '#7C3AED', icon: Utensils },
@@ -49,7 +51,7 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         {/* Donut Chart */}
         <div className="h-60 w-full flex items-center justify-center relative">
-          <DonutChart segments={segments} total={breakdown.total_cost} />
+          <DonutChart segments={segments} total={breakdown.total_cost} transportMode={transportMode} />
         </div>
 
         {/* Progress Bars & Info */}

@@ -7,7 +7,10 @@ import { tripsApi, TripGenerateInput, TripPlan } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useTripStore } from '../store/useTripStore';
 import { parseNaturalLanguage, ParsedTripParams } from '../utils/parser';
-import { Compass, AlertCircle, MessageSquare, Sparkles, MapPin, Calendar, Wallet, Users, RefreshCw, ChevronRight } from 'lucide-react';
+import { Compass, AlertCircle, MessageSquare, Sparkles, MapPin, Calendar, Wallet, Users, RefreshCw, ChevronRight, Bed, ChevronUp, Info, Utensils, Car } from 'lucide-react';
+import { BudgetTierBadge } from '../components/BudgetTierBadge';
+import { detectBudgetTier, getUpgradeNudge, getBudgetBreakdownEstimate } from '../utils/detectBudgetTier';
+import { useToast } from '../context/ToastContext';
 
 const INTEREST_LABELS: Record<string, string> = {
   beaches: '🏖️ Beaches',
@@ -20,6 +23,249 @@ const INTEREST_LABELS: Record<string, string> = {
   shopping: '🛍️ Shopping',
   relaxation: '🧘 Spa & Wellness',
   history: '🏰 History & Castles',
+};
+
+const getMonthNumber = (dateStr: string): number => {
+  const s = dateStr.toLowerCase();
+  if (s.includes('jan')) return 1;
+  if (s.includes('feb')) return 2;
+  if (s.includes('mar')) return 3;
+  if (s.includes('apr')) return 4;
+  if (s.includes('may')) return 5;
+  if (s.includes('jun')) return 6;
+  if (s.includes('jul')) return 7;
+  if (s.includes('aug')) return 8;
+  if (s.includes('sep')) return 9;
+  if (s.includes('oct')) return 10;
+  if (s.includes('nov')) return 11;
+  if (s.includes('dec')) return 12;
+  return new Date().getMonth() + 1;
+};
+
+const getLeadDays = (dateStr: string): number => {
+  const s = dateStr.toLowerCase();
+  const match = s.match(/in\s+(\d+)\s+day/);
+  if (match) return parseInt(match[1]);
+  if (s.includes('tomorrow')) return 1;
+  if (s.includes('today')) return 0;
+  return 30; // default 30 days lead time
+};
+
+interface BudgetFeedbackProps {
+  budget: number;
+  days: number;
+  travelers: number;
+  destination: string;
+  dates: string;
+}
+
+const BudgetFeedbackSection: React.FC<BudgetFeedbackProps> = ({
+  budget,
+  days,
+  travelers,
+  destination,
+  dates,
+}) => {
+  const travelMonth = getMonthNumber(dates);
+  const bookingLeadDays = getLeadDays(dates);
+
+  const tier = detectBudgetTier({
+    totalBudget: budget,
+    tripDays: days,
+    travelerCount: travelers,
+    destination,
+    travelMonth,
+    bookingLeadDays,
+  });
+
+  const nudge = getUpgradeNudge({
+    totalBudget: budget,
+    tripDays: days,
+    travelerCount: travelers,
+    destination,
+    travelMonth,
+    bookingLeadDays,
+  });
+
+  const breakdown = getBudgetBreakdownEstimate(tier, days, travelers);
+
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
+
+  // Check island override
+  const isIsland = tier.transportModes.length === 1 && tier.transportModes[0] === 'flight' && (tier.tierNumber === 1 || tier.tierNumber === 2);
+
+  // Warnings
+  const showOneDayWarning = days === 1 && tier.tierNumber === 1;
+  const rawDaily = budget / (days || 1) / (travelers || 1);
+  const showTightWarning = rawDaily < 500;
+
+  // Colors for breakdown segments
+  const colors = {
+    stay: '#2563eb', // blue
+    transport: '#0d9488', // teal
+    food: '#7c3aed', // purple
+    activities: '#d97706', // amber
+    misc: '#94a3b8', // slate
+  };
+
+  // Friendly message based on tier
+  let friendlyMsg = '';
+  if (tier.tierNumber === 1) {
+    friendlyMsg = 'We will find you buses and trains — stretching every rupee for the best experience.';
+  } else if (tier.tierNumber === 2) {
+    friendlyMsg = 'Sleeper trains recommended — great value and comfortable for this route.';
+  } else if (tier.tierNumber === 3) {
+    friendlyMsg = 'Mix of AC trains and budget flights depending on route and availability.';
+  } else if (tier.tierNumber === 4) {
+    friendlyMsg = 'Flights recommended for the best experience on this budget.';
+  }
+
+  // Recommended Stay label
+  let recommendedStay = 'Budget Hotel';
+  if (tier.tierNumber === 1) recommendedStay = 'Hostel Dorm Beds';
+  else if (tier.tierNumber === 2) recommendedStay = 'Guesthouse / 2-Star Hotel';
+  else if (tier.tierNumber === 3) recommendedStay = '3-Star Hotel';
+  else if (tier.tierNumber === 4) recommendedStay = '4-Star or Above Luxury Stay';
+
+  // Recommended Transport label
+  let recommendedTrans = 'Flight';
+  if (tier.tierNumber === 1) recommendedTrans = 'Bus only';
+  else if (tier.tierNumber === 2) recommendedTrans = 'Train (Sleeper) / Bus';
+  else if (tier.tierNumber === 3) recommendedTrans = 'Train (AC) / Budget Flight';
+  else if (tier.tierNumber === 4) recommendedTrans = 'Flight only';
+
+  if (isIsland) {
+    recommendedTrans = 'Flight (Required)';
+  }
+
+  // Recommended Food label
+  let recommendedFood = '₹300 - ₹800 per meal';
+  if (tier.tierNumber === 1) recommendedFood = 'Street Food & Dhabas (under ₹150)';
+  else if (tier.tierNumber === 2) recommendedFood = 'Local Restaurants (under ₹300)';
+  else if (tier.tierNumber === 3) recommendedFood = 'Mid-range Restaurants (under ₹800)';
+  else if (tier.tierNumber === 4) recommendedFood = 'Fine Dining & Rooftops (above ₹800)';
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Animation values
+  const animationProps = prefersReducedMotion 
+    ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 1, y: 0 }, transition: { duration: 0 } }
+    : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.2, ease: 'easeOut' } } as any;
+
+  // Calculate percentages for horizontal progress bar
+  const totalCost = breakdown.stay + breakdown.transport + breakdown.food + breakdown.activities + breakdown.miscellaneous;
+  const stayPct = (breakdown.stay / (totalCost || 1)) * 100;
+  const transPct = (breakdown.transport / (totalCost || 1)) * 100;
+  const foodPct = (breakdown.food / (totalCost || 1)) * 100;
+  const actPct = (breakdown.activities / (totalCost || 1)) * 100;
+  const miscPct = (breakdown.miscellaneous / (totalCost || 1)) * 100;
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={tier.tierNumber}
+        {...animationProps}
+        className="mt-4 p-5 rounded-2xl border border-white/10 bg-white/[0.02] space-y-5 backdrop-blur-md"
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
+            Detected Budget Class
+          </span>
+          <BudgetTierBadge
+            totalBudget={budget}
+            tripDays={days}
+            travelerCount={travelers}
+            destination={destination}
+            travelMonth={travelMonth}
+            bookingLeadDays={bookingLeadDays}
+          />
+        </div>
+
+        {/* Horizontal Progress Breakdown Bar */}
+        <div className="space-y-2">
+          <div className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
+            Estimated Cost Breakdown (Daily)
+          </div>
+          <div className="w-full h-2 rounded-full overflow-hidden flex bg-white/5 border border-white/5">
+            <div style={{ width: `${stayPct}%`, backgroundColor: colors.stay }} title={`Stay: ${formatCurrency(breakdown.stay)}`} />
+            <div style={{ width: `${transPct}%`, backgroundColor: colors.transport }} title={`Transport: ${formatCurrency(breakdown.transport)}`} />
+            <div style={{ width: `${foodPct}%`, backgroundColor: colors.food }} title={`Food: ${formatCurrency(breakdown.food)}`} />
+            <div style={{ width: `${actPct}%`, backgroundColor: colors.activities }} title={`Activities: ${formatCurrency(breakdown.activities)}`} />
+            <div style={{ width: `${miscPct}%`, backgroundColor: colors.misc }} title={`Misc: ${formatCurrency(breakdown.miscellaneous)}`} />
+          </div>
+          <div className="grid grid-cols-5 gap-1 text-[9px] font-bold text-stone-400 font-mono text-center">
+            <div className="truncate" style={{ color: colors.stay }}>Stay<span className="block font-normal mt-0.5 text-white">{formatCurrency(breakdown.stay)}</span></div>
+            <div className="truncate" style={{ color: colors.transport }}>Transit<span className="block font-normal mt-0.5 text-white">{formatCurrency(breakdown.transport)}</span></div>
+            <div className="truncate" style={{ color: colors.food }}>Food<span className="block font-normal mt-0.5 text-white">{formatCurrency(breakdown.food)}</span></div>
+            <div className="truncate" style={{ color: colors.activities }}>Act<span className="block font-normal mt-0.5 text-white">{formatCurrency(breakdown.activities)}</span></div>
+            <div className="truncate" style={{ color: colors.misc }}>Misc<span className="block font-normal mt-0.5 text-white">{formatCurrency(breakdown.miscellaneous)}</span></div>
+          </div>
+        </div>
+
+        {/* Details Rows */}
+        <div className="space-y-2.5 pt-1 border-t border-white/5 text-xs text-stone-300">
+          <div className="flex items-center gap-2">
+            <Car size={14} className="text-teal-400 shrink-0" />
+            <span className="font-semibold text-stone-400 w-16 shrink-0">Transit:</span>
+            <span>{recommendedTrans}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Bed size={14} className="text-blue-400 shrink-0" />
+            <span className="font-semibold text-stone-400 w-16 shrink-0">Stay:</span>
+            <span>{recommendedStay}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Utensils size={14} className="text-purple-400 shrink-0" />
+            <span className="font-semibold text-stone-400 w-16 shrink-0">Dining:</span>
+            <span>{recommendedFood}</span>
+          </div>
+        </div>
+
+        {/* Tier friendly message */}
+        <p className="text-xs text-stone-400 italic pt-1 leading-relaxed border-t border-white/5">
+          "{friendlyMsg}"
+        </p>
+
+        {/* Island Override Alert */}
+        {isIsland && (
+          <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[11px] leading-relaxed flex items-start gap-2 animate-fade-in">
+            <Info size={14} className="shrink-0 mt-0.5 text-blue-400" />
+            <span>Flights are required for this destination — no surface transport available regardless of budget.</span>
+          </div>
+        )}
+
+        {/* 1-day backpacker trip warning */}
+        {showOneDayWarning && (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] leading-relaxed flex items-start gap-2 animate-fade-in">
+            <AlertCircle size={14} className="shrink-0 mt-0.5 text-amber-400" />
+            <span>Single day backpacker trips can be very tight. Consider adding a day or increasing your budget slightly.</span>
+          </div>
+        )}
+
+        {/* under 500 per day warning */}
+        {showTightWarning && (
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[11px] leading-relaxed flex items-start gap-2 animate-fade-in">
+            <AlertCircle size={14} className="shrink-0 mt-0.5 text-rose-400" />
+            <span>This budget may be very tight for a comfortable trip. We recommend at least ₹1,500 per person per day for a basic comfortable experience.</span>
+          </div>
+        )}
+
+        {/* Upgrade Nudge */}
+        {nudge && (
+          <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-[11px] leading-relaxed flex items-start gap-2 shadow-inner animate-fade-in">
+            <ChevronUp size={14} className="shrink-0 mt-0.5 text-purple-400 animate-bounce" />
+            <span>{nudge}</span>
+          </div>
+        )}
+      </motion.div>
+    </AnimatePresence>
+  );
 };
 
 export const TripPlanner: React.FC = () => {
@@ -43,6 +289,52 @@ export const TripPlanner: React.FC = () => {
 
   const apiResultRef = useRef<TripPlan | null>(null);
   const [activeInput, setActiveInput] = useState<TripGenerateInput | null>(null);
+
+  const prevTierRef = useRef<number | null>(null);
+  const [srAnnouncement, setSrAnnouncement] = useState('');
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    if (parsedParams) {
+      const travelMonth = getMonthNumber(parsedParams.dates);
+      const bookingLeadDays = getLeadDays(parsedParams.dates);
+      const tier = detectBudgetTier({
+        totalBudget: parsedParams.budget,
+        tripDays: parsedParams.days,
+        travelerCount: parsedParams.travelers,
+        destination: parsedParams.destination,
+        travelMonth,
+        bookingLeadDays
+      });
+
+      if (prevTierRef.current !== null && prevTierRef.current !== tier.tierNumber) {
+        // Announcement text
+        let recommendedStay = 'Budget Hotel';
+        if (tier.tierNumber === 1) recommendedStay = 'Hostel Dorm Beds';
+        else if (tier.tierNumber === 2) recommendedStay = 'Guesthouse / 2-Star Hotel';
+        else if (tier.tierNumber === 3) recommendedStay = '3-Star Hotel';
+        else if (tier.tierNumber === 4) recommendedStay = '4-Star or Above Luxury Stay';
+
+        const transportLabel = tier.transportModes.join(' or ');
+        const announceText = `Budget updated. Now showing ${tier.tierName} tier. Recommended transport: ${transportLabel}. Recommended stay: ${recommendedStay}.`;
+        setSrAnnouncement(announceText);
+
+        // Toast notification
+        let toastMsg = '';
+        if (tier.tierNumber > prevTierRef.current) {
+          if (tier.tierNumber === 2) toastMsg = "Budget updated — switching to train recommendations.";
+          if (tier.tierNumber === 3) toastMsg = "Budget updated — AC trains and flights now available.";
+          if (tier.tierNumber === 4) toastMsg = "Budget updated — flights recommended for this route.";
+        } else {
+          toastMsg = `Budget reduced — adjusting to ${tier.tierName} recommendations.`;
+        }
+        if (toastMsg) {
+          showToast(toastMsg, 'info');
+        }
+      }
+      prevTierRef.current = tier.tierNumber;
+    }
+  }, [parsedParams?.budget, parsedParams?.days, parsedParams?.travelers, parsedParams?.destination, parsedParams?.dates]);
 
   // Listen to redirect errors (e.g., from loading screen failure)
   useEffect(() => {
@@ -185,6 +477,10 @@ export const TripPlanner: React.FC = () => {
 
   return (
     <div className="min-h-screen py-16 px-4 bg-[#0b0c16] text-white flex items-center justify-center relative overflow-hidden font-sans">
+      {/* Visually hidden screen reader announcements */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {srAnnouncement}
+      </div>
       {/* Background glow animations */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] -z-10" />
       <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] -z-10" />
@@ -424,9 +720,16 @@ export const TripPlanner: React.FC = () => {
                   <option value={2} className="bg-stone-900">2 Travelers (Couple)</option>
                   <option value={3} className="bg-stone-900">3 Travelers</option>
                   <option value={4} className="bg-stone-900">4 Travelers (Family)</option>
-                  <option value={5} className="bg-stone-900">5+ Group Travelers</option>
                 </select>
               </div>
+
+              <BudgetFeedbackSection
+                budget={parsedParams.budget}
+                days={parsedParams.days}
+                travelers={parsedParams.travelers}
+                destination={parsedParams.destination}
+                dates={parsedParams.dates}
+              />
 
               <div className="space-y-3 relative z-10">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-stone-400">

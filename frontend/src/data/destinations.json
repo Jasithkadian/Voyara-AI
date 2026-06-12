@@ -1,0 +1,83 @@
+[
+  {
+    "name": "Goa",
+    "isIslandDestination": false,
+    "hasTrainAccess": true,
+    "hasWaterRoute": true,
+    "peakSeasonMonths": [11, 12, 1, 2],
+    "baseCostMultiplier": 1.0,
+    "coastalRoutes": ["Panaji Ferry", "Betim Ferry"]
+  },
+  {
+    "name": "Andaman Islands",
+    "isIslandDestination": true,
+    "hasTrainAccess": false,
+    "hasWaterRoute": true,
+    "peakSeasonMonths": [11, 12, 1, 2, 3],
+    "baseCostMultiplier": 1.4,
+    "coastalRoutes": ["Port Blair to Havelock Ferry", "Port Blair to Neil Island Ferry"]
+  },
+  {
+    "name": "Lakshadweep",
+    "isIslandDestination": true,
+    "hasTrainAccess": false,
+    "hasWaterRoute": true,
+    "peakSeasonMonths": [10, 11, 12, 1, 2, 3],
+    "baseCostMultiplier": 1.8,
+    "coastalRoutes": []
+  },
+  {
+    "name": "Kerala",
+    "isIslandDestination": false,
+    "hasTrainAccess": true,
+    "hasWaterRoute": true,
+    "peakSeasonMonths": [11, 12, 1, 2],
+    "baseCostMultiplier": 1.1,
+    "coastalRoutes": ["Alleppey Backwaters", "Kumarakom Ferry", "Vypeen Ferry"]
+  },
+  {
+    "name": "Rajasthan",
+    "isIslandDestination": false,
+    "hasTrainAccess": true,
+    "hasWaterRoute": false,
+    "peakSeasonMonths": [10, 11, 12, 1, 2],
+    "baseCostMultiplier": 1.3,
+    "coastalRoutes": []
+  },
+  {
+    "name": "Delhi",
+    "isIslandDestination": false,
+    "hasTrainAccess": true,
+    "hasWaterRoute": false,
+    "peakSeasonMonths": [10, 11, 12],
+    "baseCostMultiplier": 1.0,
+    "coastalRoutes": []
+  },
+  {
+    "name": "Mumbai",
+    "isIslandDestination": false,
+    "hasTrainAccess": true,
+    "hasWaterRoute": true,
+    "peakSeasonMonths": [11, 12, 1],
+    "baseCostMultiplier": 1.2,
+    "coastalRoutes": ["Gateway of India Ferry", "Elephanta Ferry"]
+  },
+  {
+    "name": "Bali",
+    "isIslandDestination": true,
+    "hasTrainAccess": false,
+    "hasWaterRoute": true,
+    "peakSeasonMonths": [7, 8, 12],
+    "baseCostMultiplier": 1.2,
+    "coastalRoutes": ["Bali to Lombok Ferry", "Bali to Nusa Penida Ferry"]
+  },
+  {
+    "name": "Dubai",
+    "isIslandDestination": false,
+    "hasTrainAccess": false,
+    "hasWaterRoute": false,
+    "peakSeasonMonths": [11, 12, 1, 2, 3],
+    "baseCostMultiplier": 2.0,
+    "coastalRoutes": []
+  }
+]

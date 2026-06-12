@@ -25,6 +25,9 @@ import {
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BudgetTierBadge } from '../components/BudgetTierBadge';
+import { detectBudgetTier } from '../utils/detectBudgetTier';
+import { BudgetTier, AccommodationType } from '../types';
 
 // Confetti Particle Generator Component
 const Confetti: React.FC = () => {
@@ -150,6 +153,76 @@ interface BudgetCopilotData {
   flags: BudgetCopilotFlag[];
   recommendations: string[];
 }
+
+const getMonthNumber = (dateStr: string): number => {
+  const s = dateStr.toLowerCase();
+  if (s.includes('jan')) return 1;
+  if (s.includes('feb')) return 2;
+  if (s.includes('mar')) return 3;
+  if (s.includes('apr')) return 4;
+  if (s.includes('may')) return 5;
+  if (s.includes('jun')) return 6;
+  if (s.includes('jul')) return 7;
+  if (s.includes('aug')) return 8;
+  if (s.includes('sep')) return 9;
+  if (s.includes('oct')) return 10;
+  if (s.includes('nov')) return 11;
+  if (s.includes('dec')) return 12;
+  return new Date().getMonth() + 1;
+};
+
+const getLeadDays = (dateStr: string): number => {
+  const s = dateStr.toLowerCase();
+  const match = s.match(/in\s+(\d+)\s+day/);
+  if (match) return parseInt(match[1]);
+  if (s.includes('tomorrow')) return 1;
+  if (s.includes('today')) return 0;
+  return 30; // default 30 days lead time
+};
+
+const getTripBudgetTier = (trip: SavedTrip | null) => {
+  if (!trip) return null;
+  const storeDates = useTripStore.getState().dates || '';
+  const travelMonth = getMonthNumber(storeDates);
+  const bookingLeadDays = getLeadDays(storeDates);
+  return detectBudgetTier({
+    totalBudget: trip.budget,
+    tripDays: trip.days,
+    travelerCount: trip.travelers,
+    destination: trip.destination,
+    travelMonth,
+    bookingLeadDays
+  });
+};
+
+const getSavedTripBudgetTier = (trip: SavedTrip) => {
+  return detectBudgetTier({
+    totalBudget: trip.budget,
+    tripDays: trip.days,
+    travelerCount: trip.travelers,
+    destination: trip.destination,
+    travelMonth: new Date().getMonth() + 1,
+    bookingLeadDays: 30
+  });
+};
+
+const getAccommodationType = (index: number, tier: BudgetTier | null): AccommodationType => {
+  if (!tier) return 'budget-hotel';
+  const types = tier.accommodationTypes;
+  if (types.length === 0) return 'budget-hotel';
+  if (types.length === 1) return types[0];
+  return types[index % types.length];
+};
+
+const getTierLabel = (tier: BudgetTier | null) => {
+  if (!tier) return '';
+  return `${tier.tierName} Pick`;
+};
+
+const getDiningTier = (tier: BudgetTier | null) => {
+  if (!tier) return 'mid-range';
+  return tier.diningTypes[0] || 'mid-range';
+};
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -356,6 +429,9 @@ export const Dashboard: React.FC = () => {
           const response = await tripsApi.replan(activeTrip.id, userMessage);
           setActiveTrip(response.trip);
           useTripStore.getState().setGeneratedItinerary(response.trip.generated_plan);
+          if (response.tier_changed) {
+            showToast(`Itinerary updated — adjusted to ${response.new_tier} recommendations.`, 'info');
+          }
           setChatMessages(prev => [...prev, { 
             role: 'assistant', 
             text: `✓ I've updated the itinerary based on your request: "${userMessage}". The daily timeline and budget allocation charts have been recalculated.`
@@ -716,7 +792,11 @@ export const Dashboard: React.FC = () => {
       setActiveTrip(response.trip);
       setShowReplanModal(false);
       setReplanCustomText('');
-      showToast('Trip replanned successfully!', 'success');
+      if (response.tier_changed) {
+        showToast(`Itinerary updated — adjusted to ${response.new_tier} recommendations.`, 'info');
+      } else {
+        showToast('Trip replanned successfully!', 'success');
+      }
     } catch (err) {
       const error = err as { response?: { data?: { detail?: string } } };
       showToast(error.response?.data?.detail || 'Failed to replan trip.', 'error');
@@ -823,7 +903,10 @@ export const Dashboard: React.FC = () => {
             <Link to="/dashboard" className="btn-ghost mb-2 -ml-3.5">
               ← Back to Dashboard
             </Link>
-            <h1 className="page-title">Your voira Itinerary</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="page-title">Your voira Itinerary</h1>
+              <BudgetTierBadge tier={getTripBudgetTier(activeTrip)} />
+            </div>
           </div>
           
           <div className="flex items-center gap-4 w-full sm:w-auto">
@@ -945,6 +1028,7 @@ export const Dashboard: React.FC = () => {
               dailyPlan={plan.dailyItinerary} 
               destination={activeTrip.destination} 
               tripId={activeTrip.id}
+              diningTier={getDiningTier(getTripBudgetTier(activeTrip))}
               onRegenerateDay={async (dayNumber) => {
                 try {
                   const prompt = `Regenerate Day ${dayNumber}`;
@@ -1115,6 +1199,8 @@ export const Dashboard: React.FC = () => {
                         index={index}
                         isBooked={isBooked}
                         isSelected={isSelected}
+                        accommodationType={getAccommodationType(index, getTripBudgetTier(activeTrip))}
+                        tierLabel={getTierLabel(getTripBudgetTier(activeTrip))}
                         onSelect={() => {
                           const isAlreadySelected = selectedHotels.some(h => h.name === hotel.name);
                           if (isAlreadySelected) {
@@ -1239,7 +1325,11 @@ export const Dashboard: React.FC = () => {
               </div>
 
               <div className={`sidebar-panel ${activeTab === 'budget' ? 'active' : ''} p-6 space-y-8 max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin`}>
-                <BudgetChart breakdown={plan.budgetBreakdown} targetBudget={activeTrip.budget} />
+                <BudgetChart 
+                  breakdown={plan.budgetBreakdown} 
+                  targetBudget={activeTrip.budget} 
+                  transportMode={getTripBudgetTier(activeTrip)?.transportModes[0] || 'flight'} 
+                />
 
                 {/* Budget Co-pilot widget */}
                 {budgetCopilot && (
@@ -1491,7 +1581,11 @@ export const Dashboard: React.FC = () => {
                 )}
                 {activeTab === 'budget' && (
                   <div className="space-y-6">
-                    <BudgetChart breakdown={plan.budgetBreakdown} targetBudget={activeTrip.budget} />
+                    <BudgetChart 
+                      breakdown={plan.budgetBreakdown} 
+                      targetBudget={activeTrip.budget} 
+                      transportMode={getTripBudgetTier(activeTrip)?.transportModes[0] || 'flight'} 
+                    />
                     
                     {budgetCopilot && (
                       <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 space-y-4 text-left shadow-[var(--shadow-xs)]">
@@ -1991,7 +2085,10 @@ export const Dashboard: React.FC = () => {
               >
                 <div>
                   <div className="flex justify-between items-start mb-6">
-                    <Badge type="duration" label={`${trip.days} ${trip.days === 1 ? 'Day' : 'Days'}`} />
+                    <div className="flex gap-2">
+                      <Badge type="duration" label={`${trip.days} ${trip.days === 1 ? 'Day' : 'Days'}`} />
+                      <BudgetTierBadge tier={getSavedTripBudgetTier(trip)} />
+                    </div>
                     <button
                       onClick={(e) => handleDeleteTrip(trip.id, e)}
                       aria-label="Delete trip"
