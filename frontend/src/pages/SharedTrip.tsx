@@ -7,7 +7,7 @@ import { HotelCard } from '../components/HotelCard';
 import { AttractionCard } from '../components/AttractionCard';
 import { BudgetChart } from '../components/BudgetChart';
 import { PackingList } from '../components/PackingList';
-import { Compass, Sparkles, MapPin, Calendar, Heart } from 'lucide-react';
+import { Compass, Sparkles } from 'lucide-react';
 
 export const SharedTrip: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -24,7 +24,7 @@ export const SharedTrip: React.FC = () => {
         setError('');
         const data = await tripsApi.getShared(token);
         setTrip(data);
-      } catch (err: any) {
+      } catch {
         
         setError("This shared trip itinerary could not be found or is no longer public.");
       } finally {

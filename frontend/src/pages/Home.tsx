@@ -1,11 +1,9 @@
 import React from 'react';
 import { HeroSection } from '../components/HeroSection';
-import { Compass, Wallet, Hotel, MessageSquare, RefreshCw, Star, ShieldCheck, Zap, ArrowRight, CheckCircle } from 'lucide-react';
+import { Compass, Wallet, Hotel, MessageSquare, RefreshCw, Star, ShieldCheck, Zap, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 
 export const Home: React.FC = () => {
-  const { isAuthenticated } = useAuth();
 
   const features = [
     {

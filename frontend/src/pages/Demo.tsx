@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi } from '../services/api';
-import { Sparkles, Navigation, ShieldCheck } from 'lucide-react';
+import { Sparkles, ShieldCheck } from 'lucide-react';
 import { DestinationCard } from '../components/DestinationCard';
 
 interface DestinationDemo {
@@ -96,7 +96,7 @@ export const Demo: React.FC = () => {
       
       // 4. Redirect to the Dashboard focusing on this trip
       navigate('/dashboard/trip', { state: { trip: saveResult.trip } });
-    } catch (err: any) {
+    } catch {
       
       setError('Failed to deploy demo package. Please try again.');
     } finally {

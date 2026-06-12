@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Shield, Smartphone, Shirt, Sparkles, CheckSquare, Square, RefreshCw } from 'lucide-react';
 
 interface PackingListProps {
@@ -24,9 +24,7 @@ export const PackingList: React.FC<PackingListProps> = ({
   weatherCondition = 'Sunny',
   interests = [],
 }) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
+  const getInitialCategories = () => {
     // Generate initial items based on context
     const basicDocs = [
       { id: 'doc-1', name: 'Passport & Visa copies', checked: false },
@@ -94,14 +92,23 @@ export const PackingList: React.FC<PackingListProps> = ({
       adaptiveItems.push({ id: 'adapt-i8', name: 'Slip-on shoes for quick removal', checked: false });
     }
 
-    setCategories([
+    return [
       { name: 'Documents & Cards', icon: <Shield className="w-4 h-4 text-emerald-500" />, items: basicDocs },
       { name: 'Clothing & Footwear', icon: <Shirt className="w-4 h-4 text-sky-500" />, items: clothing },
       { name: 'Electronics & Gear', icon: <Smartphone className="w-4 h-4 text-purple-500" />, items: basicElectronics },
       { name: 'Toiletries & Health', icon: <Sparkles className="w-4 h-4 text-pink-500" />, items: basicToiletries },
       { name: 'Weather & Travel Adaptations', icon: <RefreshCw className="w-4 h-4 text-coral" />, items: adaptiveItems },
-    ]);
-  }, [destination, weatherCondition, interests]);
+    ];
+  };
+
+  const key = destination + '|' + weatherCondition + '|' + (interests || []).join(',');
+  const [prevKey, setPrevKey] = useState(key);
+  const [categories, setCategories] = useState<Category[]>(getInitialCategories);
+
+  if (key !== prevKey) {
+    setPrevKey(key);
+    setCategories(getInitialCategories());
+  }
 
   const handleToggle = (catIdx: number, itemIdx: number) => {
     setCategories(prev => {

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi, SavedTrip } from '../services/api';
 import { Badge } from '../components/Badge';
-import { MapPin, Trash2, ArrowRight, Compass } from 'lucide-react';
+import { MapPin, Trash2, ArrowRight } from 'lucide-react';
 import { EmptyState } from '../components/EmptyState';
 
 // Import sub-navigation page components
@@ -21,7 +21,6 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Tab State
   const [activeTab, setActiveTab] = useState<'list' | 'timeline' | 'expenses' | 'analytics'>(defaultTab);
@@ -31,37 +30,45 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
   const [undoTimeoutId, setUndoTimeoutId] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
 
-  useEffect(() => {
-    setActiveTab(defaultTab);
-  }, [defaultTab]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchTrips();
-    } else {
-      setLoading(false);
-      navigate('/login');
-    }
-    
-    // Cleanup timeout on unmount
-    return () => {
-      if (undoTimeoutId) {
-        window.clearTimeout(undoTimeoutId);
-      }
-    };
-  }, [isAuthenticated]);
-
-  const fetchTrips = async () => {
+  const fetchTrips = useCallback(async () => {
     try {
       setLoading(true);
       const data = await tripsApi.getHistory();
       setTrips(data);
-    } catch (err) {
+    } catch {
       setError('Could not fetch saved trips. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setActiveTab(defaultTab);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [defaultTab]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const timer = setTimeout(() => {
+      if (isAuthenticated) {
+        fetchTrips();
+      } else {
+        if (isMounted) setLoading(false);
+        navigate('/login');
+      }
+    }, 0);
+    
+    // Cleanup timeout on unmount
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+      if (undoTimeoutId) {
+        window.clearTimeout(undoTimeoutId);
+      }
+    };
+  }, [isAuthenticated, navigate, fetchTrips, undoTimeoutId]);
 
   const handleDeleteTrip = (id: number, e: React.MouseEvent) => {
     e.preventDefault();
@@ -74,7 +81,7 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
     if (undoTimeoutId) {
       window.clearTimeout(undoTimeoutId);
       if (undoTrip) {
-        tripsApi.delete(undoTrip.id).catch(err => );
+        tripsApi.delete(undoTrip.id).catch(() => {});
       }
     }
 
@@ -89,8 +96,8 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
         setShowToast(false);
         setUndoTrip(null);
         setUndoTimeoutId(null);
-      } catch (err) {
-        
+      } catch {
+        // Ignored
       }
     }, 5000);
 
@@ -134,7 +141,7 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
     );
   }
 
-  const tabs = [
+  const tabs: { id: 'list' | 'timeline' | 'expenses' | 'analytics'; label: string }[] = [
     { id: 'list', label: 'My Saved Trips' },
     { id: 'timeline', label: 'Timeline' },
     { id: 'expenses', label: 'Expenses' }
@@ -148,7 +155,7 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
           {tabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => handleTabChange(tab.id as any)}
+              onClick={() => handleTabChange(tab.id)}
               className={`pb-4 text-[var(--text-xs)] font-bold uppercase tracking-widest border-b-2 transition-all relative ${
                 activeTab === tab.id
                   ? 'border-[var(--color-primary)] text-[var(--color-primary)]'

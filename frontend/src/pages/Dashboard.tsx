@@ -4,12 +4,11 @@ import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import api, { tripsApi, SavedTrip, TripPlan } from '../services/api';
 import { useCurrency } from '../context/CurrencyContext';
-import { TripOverview } from '../components/TripOverview';
 import { BudgetChart } from '../components/BudgetChart';
 import { ItineraryCard } from '../components/ItineraryCard';
 import { HotelCard } from '../components/HotelCard';
 import { AttractionCard } from '../components/AttractionCard';
-import { RouteMap } from '../components/RouteMap';
+import { FlightRow } from '../components/FlightRow';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 import { TravelTips } from '../components/TravelTips';
@@ -17,10 +16,33 @@ import { MapWidget } from '../components/MapWidget';
 import { PackingList } from '../components/PackingList';
 import { 
   Compass, Calendar, Wallet, MapPin, ArrowRight, Plus, 
-  Trash2, Sparkles, Smile, RefreshCw, Save, MessageSquare, 
-  X, AlertCircle, Sun, CloudRain, Users, Thermometer, Plane, CheckCircle,
-  Clock, Share2, FileText, CalendarRange, Building2, UtensilsCrossed
+  Trash2, Sparkles, RefreshCw, Save, MessageSquare, 
+  X, AlertCircle, Plane, CheckCircle,
+  Clock, Share2, FileText, CalendarRange, Building2
 } from 'lucide-react';
+
+interface TripVersion {
+  versionId: string;
+  timestamp: string;
+  plan: TripPlan;
+  budget: number;
+  days: number;
+  travelers: number;
+  interests: string[];
+}
+
+interface BudgetCopilotFlag {
+  category: string;
+  spent: number;
+  planned: number;
+  deviation: number;
+}
+
+interface BudgetCopilotData {
+  comment: string;
+  flags: BudgetCopilotFlag[];
+  recommendations: string[];
+}
 
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -43,17 +65,25 @@ export const Dashboard: React.FC = () => {
 
   // Version history & Hotel view mode states
   const [showVersionPanel, setShowVersionPanel] = useState(false);
-  const [versionsList, setVersionsList] = useState<any[]>([]);
+  const [versionsList, setVersionsList] = useState<TripVersion[]>([]);
   const [previewingVersionId, setPreviewingVersionId] = useState<string | null>(null);
   const [originalPlanBeforePreview, setOriginalPlanBeforePreview] = useState<TripPlan | null>(null);
   const [hotelViewMode, setHotelViewMode] = useState<'list' | 'map'>('list');
 
   // Load versions whenever activeTrip changes
   useEffect(() => {
+    let isMounted = true;
     if (activeTrip && activeTrip.id !== 0) {
-      const stored = localStorage.getItem(`voira_trip_versions_${activeTrip.id}`);
-      setVersionsList(stored ? JSON.parse(stored) : []);
+      setTimeout(() => {
+        if (isMounted) {
+          const stored = localStorage.getItem(`voira_trip_versions_${activeTrip.id}`);
+          setVersionsList(stored ? JSON.parse(stored) : []);
+        }
+      }, 0);
     }
+    return () => {
+      isMounted = false;
+    };
   }, [activeTrip]);
 
   const saveCurrentVersion = (trip: SavedTrip) => {
@@ -82,7 +112,7 @@ export const Dashboard: React.FC = () => {
     setVersionsList(versions);
   };
 
-  const handlePreviewVersion = (version: any) => {
+  const handlePreviewVersion = (version: TripVersion) => {
     if (!activeTrip) return;
     if (!originalPlanBeforePreview) {
       setOriginalPlanBeforePreview(activeTrip.generated_plan);
@@ -115,7 +145,7 @@ export const Dashboard: React.FC = () => {
     setPreviewingVersionId(null);
   };
 
-  const handleRestoreVersion = async (version: any) => {
+  const handleRestoreVersion = async (version: TripVersion) => {
     if (!activeTrip) return;
     setLoading(true);
     try {
@@ -131,8 +161,7 @@ export const Dashboard: React.FC = () => {
       setOriginalPlanBeforePreview(null);
       setPreviewingVersionId(null);
       setError('Itinerary restored to previous version successfully!');
-    } catch (err) {
-      
+    } catch {
       setError('Failed to restore version to backend.');
     } finally {
       setLoading(false);
@@ -148,73 +177,126 @@ export const Dashboard: React.FC = () => {
   const [replanWeather, setReplanWeather] = useState<string>('Rain');
   const [replanCustomText, setReplanCustomText] = useState<string>('');
   const [replanLoading, setReplanLoading] = useState(false);
-
   // Flights & Bookings States
-  const [flights, setFlights] = useState<any[]>([]);
+  const [flights, setFlights] = useState<unknown[]>([]);
   const [flightsLoading, setFlightsLoading] = useState(false);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [flightSortKey, setFlightSortKey] = useState<'price' | 'duration' | 'departure'>('price');
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [budgetCopilot, setBudgetCopilot] = useState<any>(null);
+  const [bookings, setBookings] = useState<unknown[]>([]);
+  const [budgetCopilot, setBudgetCopilot] = useState<BudgetCopilotData | null>(null);
 
-  const [selectedHotel, setSelectedHotel] = useState<any>(null);
-  const [showHotelModal, setShowHotelModal] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'budget' | 'packing' | 'tips'>('budget');
 
-  const handleAddFlight = (flight: any) => {
-    setToastMessage(`✓ ${flight.airline} ${flight.flightNumber} added to your ${activeTrip?.destination} itinerary. Departs ${flight.departure} from ${activeTrip?.source}.`);
-    
-    // Simulate updating active trip budget
-    setActiveTrip(prev => {
-      if (!prev) return prev;
-      const updatedPlan = { ...prev.generated_plan };
-      updatedPlan.budgetBreakdown = {
-        ...updatedPlan.budgetBreakdown,
-        transportation_cost: flight.price
-      };
-      return { ...prev, generated_plan: updatedPlan };
-    });
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [checkoutItem, setCheckoutItem] = useState<{ type: string; provider: string; price: number; details: unknown } | null>(null);
+  const [selectedGateway, setSelectedGateway] = useState<'Stripe' | 'Razorpay'>('Stripe');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [paymentResult, setPaymentResult] = useState<unknown>(null);
+  const [cancelLoading, setCancelLoading] = useState<number | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
 
-    setTimeout(() => setToastMessage(''), 5000);
-    setSelectedFlightId(null);
-  };
-
-  const handleAddHotel = (hotel: any) => {
-    setToastMessage(`✓ ${hotel.name} added to your itinerary.`);
-    
-    setActiveTrip(prev => {
-      if (!prev) return prev;
-      const updatedPlan = { ...prev.generated_plan };
-      updatedPlan.budgetBreakdown = {
-        ...updatedPlan.budgetBreakdown,
-        hotel_cost: parseInt((hotel.pricePerNight as string).replace(/[^0-9]/g, '')) * (prev.days || 5)
-      };
-      return { ...prev, generated_plan: updatedPlan };
-    });
-
-    setTimeout(() => setToastMessage(''), 5000);
-    setShowHotelModal(false);
-  };
-
-  const fetchBudgetCopilot = async () => {
+  const fetchBudgetCopilot = useCallback(async () => {
     if (!activeTrip || activeTrip.id === 0) return;
     try {
       const response = await api.get(`/api/trips/${activeTrip.id}/budget-copilot`);
       setBudgetCopilot(response.data);
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     }
-  };
+  }, [activeTrip]);
 
+  const fetchFlights = useCallback(async () => {
+    if (!activeTrip) return;
+    try {
+      setFlightsLoading(true);
+      const list = await tripsApi.searchFlights({
+        source: activeTrip.source,
+        destination: activeTrip.destination,
+        departure_date: '2026-06-12',
+        passengers: activeTrip.travelers
+      });
+      setFlights(list);
+    } catch {
+      // Ignored
+    } finally {
+      setFlightsLoading(false);
+    }
+  }, [activeTrip]);
 
-  // Checkout & Payments states
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [checkoutItem, setCheckoutItem] = useState<{ type: string; provider: string; price: number; details: any } | null>(null);
-  const [selectedGateway, setSelectedGateway] = useState<'Stripe' | 'Razorpay'>('Stripe');
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [paymentResult, setPaymentResult] = useState<any>(null);
-  const [cancelLoading, setCancelLoading] = useState<number | null>(null);
-  const [shareLoading, setShareLoading] = useState(false);
+  const fetchBookings = useCallback(async () => {
+    if (!activeTrip || activeTrip.id === 0) return;
+    try {
+      const list = await tripsApi.getBookings(activeTrip.id);
+      setBookings(list);
+    } catch {
+      // Ignored
+    }
+  }, [activeTrip]);
+
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await tripsApi.getHistory();
+      setSavedTrips(data);
+      
+      // If viewing active trip, check if we have one in location state or local storage
+      if (isTripView) {
+        const stateTrip = location.state?.trip as SavedTrip | null;
+        const generatedPlan = location.state?.generatedPlan as TripPlan | null;
+        const originalInput = location.state?.originalInput as Record<string, unknown> | null;
+        
+        if (stateTrip) {
+          setActiveTrip(stateTrip);
+          setReplanBudget(stateTrip.budget);
+          setReplanDays(stateTrip.days);
+          setReplanTravelers(stateTrip.travelers);
+          setSaveSuccess(true);
+        } else if (generatedPlan && originalInput) {
+          // Unsaved generated trip context
+          const tempTrip: SavedTrip = {
+            id: 0, // Unsaved
+            source: (originalInput.source as string) || '',
+            destination: (originalInput.destination as string) || '',
+            budget: (originalInput.budget as number) || 0,
+            days: (originalInput.days as number) || 5,
+            travelers: (originalInput.travelers as number) || 1,
+            interests: (originalInput.interests as string[]) || [],
+            generated_plan: generatedPlan,
+            created_at: new Date().toISOString()
+          };
+          setActiveTrip(tempTrip);
+          setReplanBudget(tempTrip.budget);
+          setReplanDays(tempTrip.days);
+          setReplanTravelers(tempTrip.travelers);
+          setSaveSuccess(false);
+        } else {
+          // If no active trip is passed, redirect to planner
+          navigate('/planner');
+        }
+      }
+    } catch {
+      setError('Could not retrieve dashboard data.');
+    } finally {
+      setLoading(false);
+    }
+  }, [isTripView, location.state, navigate]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    fetchDashboardData();
+  }, [isAuthenticated, navigate, fetchDashboardData]);
+
+  useEffect(() => {
+    if (activeTrip) {
+      fetchFlights();
+      fetchBookings();
+      fetchBudgetCopilot();
+    }
+  }, [activeTrip, fetchFlights, fetchBookings, fetchBudgetCopilot]);
 
   const downloadPDF = () => {
     if (!activeTrip || activeTrip.id === 0) return;
@@ -235,8 +317,7 @@ export const Dashboard: React.FC = () => {
       await navigator.clipboard.writeText(shareUrl);
       setError(`✓ Public share link copied to clipboard: ${shareUrl}`);
       setTimeout(() => setError(''), 8000);
-    } catch (err) {
-      
+    } catch {
       setError("Failed to generate public share token.");
       setTimeout(() => setError(''), 4000);
     } finally {
@@ -244,52 +325,7 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    fetchDashboardData();
-  }, [isAuthenticated, location.pathname]);
-
-  useEffect(() => {
-    if (activeTrip) {
-      fetchFlights();
-      fetchBookings();
-      fetchBudgetCopilot();
-    }
-  }, [activeTrip]);
-
-  const fetchFlights = async () => {
-    if (!activeTrip) return;
-    try {
-      setFlightsLoading(true);
-      const list = await tripsApi.searchFlights({
-        source: activeTrip.source,
-        destination: activeTrip.destination,
-        departure_date: '2026-06-12',
-        passengers: activeTrip.travelers
-      });
-      setFlights(list);
-    } catch (err) {
-      
-    } finally {
-      setFlightsLoading(false);
-    }
-  };
-
-  const fetchBookings = async () => {
-    if (!activeTrip || activeTrip.id === 0) return;
-    try {
-      const list = await tripsApi.getBookings(activeTrip.id);
-      setBookings(list);
-    } catch (err) {
-      
-    }
-  };
-
-  const handleBook = (type: string, provider: string, price: number, details: any) => {
+  const handleBook = (type: string, provider: string, price: number, details: unknown) => {
     if (!activeTrip || activeTrip.id === 0) {
       setError("Please save this trip first to purchase bookings!");
       return;
@@ -315,13 +351,13 @@ export const Dashboard: React.FC = () => {
         status: 'Pending',
         payment_status: 'Unpaid',
         details: checkoutItem.details
-      });
+      }) as { id: number; booking_reference: string };
 
       // 2. Create payment intent/order on backend
       const paymentRes = await tripsApi.createPaymentIntent({
         booking_id: newBooking.id,
         gateway: selectedGateway
-      });
+      }) as { payment_intent: { paymentIntentId?: string; orderId?: string } };
 
       // Simulate network transition for high-fidelity gateway loader
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -346,8 +382,7 @@ export const Dashboard: React.FC = () => {
       });
       fetchBookings();
       fetchBudgetCopilot();
-    } catch (err) {
-      
+    } catch {
       setError("Secure checkout payment authorization failed.");
     } finally {
       setCheckoutLoading(false);
@@ -359,12 +394,11 @@ export const Dashboard: React.FC = () => {
     setCancelLoading(bookingId);
     setError('');
     try {
-      const result = await tripsApi.cancelBooking(bookingId);
+      const result = await tripsApi.cancelBooking(bookingId) as { refund_status: string };
       setError(`Booking cancelled successfully. Refund Status: ${result.refund_status}.`);
       fetchBookings();
       setTimeout(() => setError(''), 4000);
-    } catch (err) {
-      
+    } catch {
       setError("Cancellation request failed.");
     } finally {
       setCancelLoading(null);
@@ -382,7 +416,7 @@ export const Dashboard: React.FC = () => {
       if (isTripView) {
         const stateTrip = location.state?.trip as SavedTrip | null;
         const generatedPlan = location.state?.generatedPlan as TripPlan | null;
-        const originalInput = location.state?.originalInput as any;
+        const originalInput = location.state?.originalInput as Record<string, unknown> | null;
         
         if (stateTrip) {
           setActiveTrip(stateTrip);
@@ -394,12 +428,12 @@ export const Dashboard: React.FC = () => {
           // Unsaved generated trip context
           const tempTrip: SavedTrip = {
             id: 0, // Unsaved
-            source: originalInput.source,
-            destination: originalInput.destination,
-            budget: originalInput.budget,
-            days: originalInput.days,
-            travelers: originalInput.travelers,
-            interests: originalInput.interests || [],
+            source: (originalInput.source as string) || '',
+            destination: (originalInput.destination as string) || '',
+            budget: (originalInput.budget as number) || 0,
+            days: (originalInput.days as number) || 5,
+            travelers: (originalInput.travelers as number) || 1,
+            interests: (originalInput.interests as string[]) || [],
             generated_plan: generatedPlan,
             created_at: new Date().toISOString()
           };
@@ -413,7 +447,7 @@ export const Dashboard: React.FC = () => {
           navigate('/planner');
         }
       }
-    } catch (err: any) {
+    } catch {
       setError('Could not retrieve dashboard data.');
     } finally {
       setLoading(false);
@@ -430,7 +464,7 @@ export const Dashboard: React.FC = () => {
         if (activeTrip?.id === id) {
           navigate('/dashboard');
         }
-      } catch (err) {
+      } catch {
         alert('Failed to delete trip.');
       }
     }
@@ -454,8 +488,9 @@ export const Dashboard: React.FC = () => {
       setSaveSuccess(true);
       setActiveTrip(response.trip);
       setError('Trip saved successfully!');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to save trip.');
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || 'Failed to save trip.');
     } finally {
       setSaveLoading(false);
     }
@@ -492,8 +527,9 @@ export const Dashboard: React.FC = () => {
       setShowReplanModal(false);
       setReplanCustomText('');
       setError('Trip replanned successfully!');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to replan trip.');
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || 'Failed to replan trip.');
     } finally {
       setReplanLoading(false);
     }
@@ -797,9 +833,10 @@ export const Dashboard: React.FC = () => {
                         index={index}
                         isBooked={isBooked}
                         onBook={() => {
-                          setSelectedHotel(hotel);
-                          setHotelModalImageIdx(0);
-                          setShowHotelModal(true);
+                          const price = typeof hotel.pricePerNight === 'number' 
+                            ? hotel.pricePerNight 
+                            : parseInt(String(hotel.pricePerNight).replace(/[^0-9]/g, '')) || 0;
+                          handleBook('Hotel', hotel.name, price, hotel);
                         }}
                       />
                     );
@@ -818,11 +855,7 @@ export const Dashboard: React.FC = () => {
                       lng: hotel.name.includes("Taj Exotica") ? 73.9561 : hotel.name.includes("Lemon Tree") ? 73.7716 : 73.9491
                     }))}
                     focusedIndex={null}
-                    onMarkerClick={(idx) => {
-                      setSelectedHotel(plan.hotelRecommendations[idx]);
-                      setHotelModalImageIdx(0);
-                      setShowHotelModal(true);
-                    }}
+                    onMarkerClick={() => {}}
                     height="450px"
                   />
                 </div>
@@ -880,7 +913,7 @@ export const Dashboard: React.FC = () => {
 
                     {budgetCopilot.flags && budgetCopilot.flags.length > 0 && (
                       <div className="space-y-2 pt-2">
-                        {budgetCopilot.flags.map((flag: any, fIdx: number) => (
+                        {budgetCopilot.flags.map((flag, fIdx: number) => (
                           <div key={fIdx} className="p-2.5 rounded bg-[var(--color-primary-light)] border border-[var(--color-primary)]/20 text-xs flex justify-between items-center">
                             <span className="font-semibold text-[var(--color-text-primary)]">{flag.category}</span>
                             <span className="font-bold text-[var(--color-accent)]">
@@ -1097,7 +1130,7 @@ export const Dashboard: React.FC = () => {
                   type="submit"
                   disabled={replanLoading}
                   variant="destructive"
-                  size="large"
+                  size="lg"
                   className="w-full mt-4"
                 >
                   {replanLoading ? 'Recalculating Plan...' : 'Regenerate Plan'}
@@ -1237,7 +1270,7 @@ export const Dashboard: React.FC = () => {
                   ) : (
                     <Button
                       variant="primary"
-                      size="large"
+                      size="lg"
                       onClick={executeCheckoutPayment}
                       className="w-full"
                     >

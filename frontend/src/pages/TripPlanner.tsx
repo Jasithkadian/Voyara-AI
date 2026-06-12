@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TripForm } from '../components/TripForm';
 import { LoadingState } from '../components/LoadingState';
-import { tripsApi, TripGenerateInput } from '../services/api';
+import { tripsApi, TripGenerateInput, TripPlan } from '../services/api';
 import { Compass, AlertCircle, MessageSquare, CheckCircle, Sparkles, MapPin, Calendar, Wallet, Users, RefreshCw, ChevronRight } from 'lucide-react';
 
 interface ParsedTripParams {
@@ -150,7 +150,7 @@ export const TripPlanner: React.FC = () => {
   const [nlQuery, setNlQuery] = useState('');
   const [parsedParams, setParsedParams] = useState<ParsedTripParams | null>(null);
 
-  const apiResultRef = useRef<any>(null);
+  const apiResultRef = useRef<TripPlan | null>(null);
   const [activeInput, setActiveInput] = useState<TripGenerateInput | null>(null);
 
   const handleNlSubmit = (e: React.FormEvent) => {
@@ -181,8 +181,9 @@ export const TripPlanner: React.FC = () => {
       const generatedPlan = await tripsApi.generate(input);
       apiResultRef.current = generatedPlan;
       setIsApiReady(true);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to generate your trip plan. Please try again.');
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || 'Failed to generate your trip plan. Please try again.');
       setLoading(false);
     }
   };
@@ -197,8 +198,9 @@ export const TripPlanner: React.FC = () => {
       const generatedPlan = await tripsApi.generate(data);
       apiResultRef.current = generatedPlan;
       setIsApiReady(true);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to generate your trip plan. Please try again.');
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || 'Failed to generate your trip plan. Please try again.');
       setLoading(false);
     }
   };

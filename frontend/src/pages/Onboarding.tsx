@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi } from '../services/api';
-import { Sparkles, MapPin, Compass, ShieldCheck, CheckCircle2, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Sparkles, MapPin, Compass, CheckCircle2, ChevronRight, ChevronLeft } from 'lucide-react';
 import { DestinationCard } from '../components/DestinationCard';
 
 interface TravelStyleOption {
@@ -119,7 +119,7 @@ export const Onboarding: React.FC = () => {
 
       // 5. Navigate to Dashboard focused on this trip
       navigate('/dashboard/trip', { state: { trip: saveResult.trip } });
-    } catch (err) {
+    } catch {
       
       setError('Failed to deploy your onboarding trip sandbox.');
     } finally {

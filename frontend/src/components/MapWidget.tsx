@@ -5,6 +5,38 @@ export interface MapMarkerItem {
   category: 'Hotel' | 'Activity' | 'Restaurant';
   lat?: number;
   lng?: number;
+  price?: string | number;
+  rating?: string | number;
+}
+
+interface LeafletTileLayer {
+  addTo: (map: LeafletMap) => LeafletTileLayer;
+}
+interface LeafletMarker {
+  addTo: (map: LeafletMap) => LeafletMarker;
+  bindPopup: (content: string, options?: Record<string, unknown>) => LeafletMarker;
+  on: (event: string, callback: () => void) => LeafletMarker;
+  remove: () => void;
+  openPopup: () => void;
+}
+interface LeafletMap {
+  setView: (center: [number, number], zoom: number, options?: Record<string, unknown>) => LeafletMap;
+  remove: () => void;
+  fitBounds: (bounds: LeafletLatLngBounds, options?: Record<string, unknown>) => LeafletMap;
+  plottedCoordinates?: Array<{ marker: LeafletMarker; lat: number; lng: number }>;
+}
+interface LeafletLatLngBounds {
+  extend: (coords: [number, number]) => LeafletLatLngBounds;
+}
+interface LeafletGlobal {
+  map: (el: HTMLElement, options?: Record<string, unknown>) => LeafletMap;
+  tileLayer: (url: string, options?: Record<string, unknown>) => LeafletTileLayer;
+  control: {
+    zoom: (options?: Record<string, unknown>) => { addTo: (map: LeafletMap) => void };
+  };
+  latLngBounds: (coords: unknown[]) => LeafletLatLngBounds;
+  divIcon: (options: Record<string, unknown>) => unknown;
+  marker: (coords: [number, number], options?: Record<string, unknown>) => LeafletMarker;
 }
 
 interface MapWidgetProps {
@@ -23,7 +55,7 @@ function loadLeaflet(): Promise<void> {
 
   leafletPromise = new Promise<void>((resolve, reject) => {
     // Check if Leaflet is already loaded globally
-    if ((window as any).L) {
+    if ((window as unknown as { L?: LeafletGlobal }).L) {
       resolve();
       return;
     }
@@ -85,21 +117,21 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
 }) => {
   const [leafletReady, setLeafletReady] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const mapRef = useRef<LeafletMap | null>(null);
+  const markersRef = useRef<LeafletMarker[]>([]);
 
   // Load Leaflet JS & CSS
   useEffect(() => {
     loadLeaflet()
       .then(() => setLeafletReady(true))
-      .catch(err => );
+      .catch(() => {});
   }, []);
 
   // Initialize Map
   useEffect(() => {
     if (!leafletReady || !mapContainerRef.current) return;
 
-    const L = (window as any).L;
+    const L = (window as unknown as { L: LeafletGlobal }).L;
     const center = getCenterForDestination(destination);
 
     // Create Map
@@ -128,7 +160,7 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
   useEffect(() => {
     if (!leafletReady || !mapRef.current) return;
 
-    const L = (window as any).L;
+    const L = (window as unknown as { L: LeafletGlobal }).L;
     const map = mapRef.current;
     const center = getCenterForDestination(destination);
 
@@ -192,15 +224,15 @@ export const MapWidget: React.FC<MapWidgetProps> = ({
     }
 
     // Keep coordinates cached inside map reference
-    (mapRef.current as any).plottedCoordinates = plottedItems;
+    mapRef.current.plottedCoordinates = plottedItems;
 
-  }, [leafletReady, items, destination, focusedIndex]);
+  }, [leafletReady, items, destination, focusedIndex, onMarkerClick]);
 
   // Pan to focused index
   useEffect(() => {
     if (!leafletReady || !mapRef.current || focusedIndex === null) return;
     const map = mapRef.current;
-    const plotted = (map as any).plottedCoordinates;
+    const plotted = map.plottedCoordinates;
 
     if (plotted && plotted[focusedIndex]) {
       const { lat, lng, marker } = plotted[focusedIndex];

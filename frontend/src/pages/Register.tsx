@@ -20,8 +20,9 @@ export const Register: React.FC = () => {
     try {
       await register({ name, email, password });
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Registration failed. Email might already exist.');
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || 'Registration failed. Email might already exist.');
     } finally {
       setLoading(false);
     }

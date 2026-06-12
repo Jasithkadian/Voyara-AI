@@ -11,6 +11,7 @@ export const Button: React.FC<ButtonProps> = ({
   size = 'md', 
   className = '', 
   children, 
+  style,
   ...props 
 }) => {
   const variants = {
@@ -21,12 +22,16 @@ export const Button: React.FC<ButtonProps> = ({
     destructive: "btn-primary bg-[var(--color-error)] hover:bg-[var(--color-error)]/90"
   };
 
-  // Adjust height based on size if needed, but the design system has fixed heights
-  // sm: 36px (ghost/sm), md: 40px (primary/secondary), lg: 48px (cta)
-  
+  const sizeStyles = {
+    sm: { height: '36px', padding: '0 14px', fontSize: '13px' },
+    md: {},
+    lg: { height: '48px', padding: '0 28px', fontSize: '15px' }
+  };
+
   return (
     <button 
       className={`${variants[variant as keyof typeof variants]} ${className}`}
+      style={{ ...sizeStyles[size], ...style }}
       {...props}
     >
       {children}

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Mail, Plane, Sparkles } from 'lucide-react';
-import { Logo } from '../components/Logo';
+import { Lock, Mail, Plane } from 'lucide-react';
 
 export const Login: React.FC = () => {
   const { login, loginGuest } = useAuth();
@@ -19,8 +18,9 @@ export const Login: React.FC = () => {
     try {
       await login({ email, password });
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Invalid email or password. Please try again.');
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -32,7 +32,7 @@ export const Login: React.FC = () => {
     try {
       await loginGuest();
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch {
       setError('Guest login failed. Please try again.');
     } finally {
       setLoading(false);

@@ -21,22 +21,24 @@ export const Analytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
-  const fetchAnalytics = async () => {
+  async function fetchAnalytics() {
     try {
       setLoading(true);
       const res = await tripsApi.getAnalytics();
-      setData(res);
-    } catch (err) {
-      
+      setData(res as AnalyticsData);
+    } catch {
       setError('Failed to fetch analytics metrics.');
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchAnalytics();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-IN', {

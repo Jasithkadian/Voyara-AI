@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plane, Calendar, Wallet, Compass, Sparkles, MapPin, Search, Globe, ChevronRight } from 'lucide-react';
+import { Sparkles, MapPin, Search, Globe, ChevronRight } from 'lucide-react';
 export const HeroSection: React.FC = () => {
 
   return (
@@ -126,13 +126,6 @@ export const HeroSection: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      <div id="features"></div>
-    </div>
-  );
-};
- </div>
       </div>
 
       <div id="features"></div>

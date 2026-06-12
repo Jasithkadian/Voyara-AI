@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DailyPlan } from '../services/api';
 import { Calendar, Sun, CloudRain, CloudSun, Utensils, CheckCircle } from 'lucide-react';
 import { ActivityCard } from './ActivityCard';

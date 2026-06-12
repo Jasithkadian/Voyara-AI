@@ -141,6 +141,6 @@ export const HotelCard: React.FC<HotelCardProps> = ({
       </div>
     </div>
   );
-});
+};
 
 HotelCard.displayName = 'HotelCard';

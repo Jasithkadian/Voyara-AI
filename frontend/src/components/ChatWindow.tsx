@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { aiApi, ChatHistoryItem } from '../services/api';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { aiApi } from '../services/api';
 import { Send, MessageSquare, AlertCircle } from 'lucide-react';
 
 interface ChatWindowProps {
@@ -14,17 +14,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
   const [error, setError] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (tripId) {
-      loadHistory();
-    }
-  }, [tripId]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, loading]);
-
-  async function loadHistory() {
+  const loadHistory = useCallback(async () => {
     try {
       setLoading(true);
       const data = await aiApi.getChatHistory(tripId);
@@ -43,7 +33,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
       } else {
         setMessages(formatted);
       }
-    } catch (err) {
+    } catch {
       setError('Could not load chat history.');
       // Fallback default greeting
       setMessages([
@@ -52,7 +42,25 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
     } finally {
       setLoading(false);
     }
-  }
+  }, [tripId, destination]);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (tripId) {
+      setTimeout(() => {
+        if (isMounted) {
+          loadHistory();
+        }
+      }, 0);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [tripId, loadHistory]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +77,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, destination }) =
     try {
       const result = await aiApi.chat(tripId, userMessage);
       setMessages(prev => [...prev, { role: 'assistant', text: result.reply }]);
-    } catch (err: any) {
+    } catch {
       setError('Failed to send message. Please try again.');
       setMessages(prev => [
         ...prev,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Compass, Briefcase, Globe, MessageSquare, Settings, Keyboard, PlayCircle, PlusCircle, X } from 'lucide-react';
+import { Search, Briefcase, Globe, MessageSquare, Settings, Keyboard, PlusCircle, X } from 'lucide-react';
 import { tripsApi, SavedTrip } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -25,7 +25,7 @@ export const CommandPalette: React.FC = () => {
         setLoadingTrips(true);
         const data = await tripsApi.getHistory();
         setTrips(data);
-      } catch (_err) {
+      } catch {
         // Silent catch for background fetch
       } finally {
         setLoadingTrips(false);

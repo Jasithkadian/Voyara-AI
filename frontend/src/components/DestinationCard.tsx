@@ -67,6 +67,6 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
       </div>
     </div>
   );
-});
+};
 
 DestinationCard.displayName = 'DestinationCard';

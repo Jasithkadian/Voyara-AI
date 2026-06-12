@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Sun, Moon, Menu, X, Plane, User as UserIcon, LogOut, Compass, Briefcase, Bell } from 'lucide-react';
-import { Logo } from './Logo';
+import { Sun, Moon, Menu, X, LogOut, Bell } from 'lucide-react';
 import { tripsApi } from '../services/api';
 import { useCurrency, CurrencyCode } from '../context/CurrencyContext';
+
+export interface NotificationItem {
+  id: number;
+  user_id: number;
+  title: string;
+  message: string;
+  type: string;
+  is_read: boolean;
+  created_at: string;
+}
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout, theme, toggleTheme, login, register, loginGuest } = useAuth();
@@ -19,37 +28,44 @@ export const Navbar: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(false);
 
   // Notification States
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchNotifications();
-      const interval = setInterval(fetchNotifications, 20000);
-      return () => clearInterval(interval);
-    }
-  }, [isAuthenticated]);
-
-  const fetchNotifications = async () => {
+  async function fetchNotifications() {
     try {
       const list = await tripsApi.getNotifications();
       setNotifications(list);
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     }
-  };
+  }
 
-  const handleNotificationsRead = async () => {
+  async function handleNotificationsRead() {
     try {
       await tripsApi.markNotificationsRead();
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     }
-  };
+  }
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const timer = setTimeout(() => {
+        fetchNotifications();
+      }, 0);
+      const interval = setInterval(() => {
+        fetchNotifications();
+      }, 20000);
+      return () => {
+        clearTimeout(timer);
+        clearInterval(interval);
+      };
+    }
+  }, [isAuthenticated]);
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,8 +82,9 @@ export const Navbar: React.FC = () => {
       setPassword('');
       setName('');
       navigate('/dashboard');
-    } catch (err: any) {
-      setAuthError(err.response?.data?.detail || 'Authentication failed. Please try again.');
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setAuthError(error.response?.data?.detail || 'Authentication failed. Please try again.');
     } finally {
       setAuthLoading(false);
     }
@@ -510,7 +527,7 @@ export const Navbar: React.FC = () => {
                       setPassword('');
                       setName('');
                       navigate('/dashboard');
-                    } catch (err: any) {
+                    } catch {
                       setAuthError('Guest login failed. Please try again.');
                     } finally {
                       setAuthLoading(false);

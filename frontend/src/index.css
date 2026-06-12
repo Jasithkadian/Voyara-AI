@@ -96,20 +96,22 @@
 }
 
 @layer base {
-/* Accessibility Focus Styles */
-*:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
+  :root {
+    --gradient-brand: linear-gradient(135deg, #1A56DB 0%, #EA5320 100%);
+    --gradient-brand-hover: linear-gradient(135deg, #1648C6 0%, #D44A1B 100%);
 
-  --gradient-brand: linear-gradient(135deg, #1A56DB 0%, #EA5320 100%);
-  --gradient-brand-hover: linear-gradient(135deg, #1648C6 0%, #D44A1B 100%);
+    /* Legacy variable mapping to prevent breakage during transition */
+    --color-primary-blue: var(--color-primary);
+    --color-coral-accent: var(--color-accent);
+    --color-warm-white: var(--color-bg-page);
+    --color-stone-muted: var(--color-border);
+  }
 
-  /* Legacy variable mapping to prevent breakage during transition */
-  --color-primary-blue: var(--color-primary);
-  --color-coral-accent: var(--color-accent);
-  --color-warm-white: var(--color-bg-page);
-  --color-stone-muted: var(--color-border);
+  /* Accessibility Focus Styles */
+  *:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
 }
 
 @tailwind base;
@@ -375,6 +377,142 @@
   .skeleton-image { height: 180px; width: 100%; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
   .skeleton-image-sq { height: 72px; width: 72px; border-radius: var(--radius-sm); }
   .skeleton-button { height: 36px; width: 100px; border-radius: var(--radius-md); }
+
+  /* ─── MOTION DESIGN ─── */
+  
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Card Hover States */
+  .card-interactive {
+    transition: 
+      transform 150ms ease-out,
+      box-shadow 150ms ease-out,
+      border-color 150ms ease-out;
+    will-change: transform;
+  }
+  .card-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--color-border-strong);
+  }
+  .card-interactive:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .hotel-card__image-wrapper { overflow: hidden; }
+  .hotel-card__image {
+    transition: transform 400ms ease;
+  }
+  .hotel-card:hover .hotel-card__image {
+    transform: scale(1.04);
+  }
+
+  /* Sidebar Nav Active State */
+  .sidebar-item.active::before {
+    transform-origin: top;
+    animation: slideInBar 180ms var(--transition-spring) forwards;
+  }
+  @keyframes slideInBar {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  /* Page Transition */
+  .page-content {
+    animation: pageIn 200ms ease-out;
+  }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateX(8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Generating State Enhancements */
+  .step-active::before {
+    content: ''; position: absolute; left: -12px; top: 0;
+    width: 2px; height: 0;
+    background: var(--color-primary);
+    animation: fillDown 0.8s ease-out forwards;
+  }
+  @keyframes fillDown { to { height: 100%; } }
+
+  /* Toast Notifications */
+  .toast {
+    position: fixed; top: 20px; right: 20px; z-index: 1000;
+    padding: 12px 16px; border-radius: var(--radius-md);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 500;
+    animation: toastIn 300ms var(--transition-spring) forwards;
+    box-shadow: var(--shadow-lg);
+  }
+  @keyframes toastIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .toast.exit {
+    animation: toastOut 250ms ease-in forwards;
+  }
+  @keyframes toastOut {
+    to { transform: translateX(120%); opacity: 0; }
+  }
+
+  .toast-success { background: var(--color-success); color: white; }
+  .toast-info { background: var(--color-primary); color: white; }
+  .toast-warning { background: var(--color-warning); color: white; }
+  .toast-error { background: var(--color-error); color: white; }
+
+  /* Interest Chip Selection */
+  .interest-chip {
+    position: relative; overflow: hidden;
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+  .interest-chip::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--color-primary);
+    transform: scale(0); border-radius: 50%;
+    transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center;
+  }
+  .interest-chip.selected::before { transform: scale(2); }
+  .interest-chip.selected { color: white; }
+
+  /* Flight Path Arc */
+  @keyframes drawPath {
+    from { stroke-dashoffset: 100; }
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes pinPulse {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes planeFly {
+    from { offset-distance: 0%; }
+    to { offset-distance: 100%; }
+  }
+
+  /* SVG Drawing Checkmark */
+  .checkmark-draw circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+  .checkmark-draw path {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.3s forwards;
+  }
+  @keyframes stroke {
+    100% { stroke-dashoffset: 0; }
+  }
 
   /* SIDEBAR TABS */
   .sidebar-tabs { display: flex; border-bottom: 1px solid var(--color-border); margin-bottom: 16px; }

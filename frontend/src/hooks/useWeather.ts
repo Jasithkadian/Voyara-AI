@@ -28,9 +28,11 @@ export const useWeather = (destination: string, startDate: string = '2026-06-12'
           }
         });
         setWeather(response.data);
-      } catch (err: any) {
-        
-        setError(err.message || 'Failed to retrieve weather data.');
+      } catch (err) {
+        const errorMsg = axios.isAxiosError(err) && err.message
+          ? err.message
+          : 'Failed to retrieve weather data.';
+        setError(errorMsg);
       } finally {
         setLoading(false);
       }

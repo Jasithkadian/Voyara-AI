@@ -1,6 +1,6 @@
 import React from 'react';
 import { SavedTrip } from '../services/api';
-import { Compass, Calendar, Wallet, Users, MapPin } from 'lucide-react';
+import { Calendar, Users, MapPin } from 'lucide-react';
 
 interface TripOverviewProps {
   trip: SavedTrip;

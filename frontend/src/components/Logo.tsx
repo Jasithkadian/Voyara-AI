@@ -6,7 +6,7 @@ interface LogoProps {
   color?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({ className = "h-8", iconOnly = false, color = "#0A1628" }) => {
+export const Logo: React.FC<LogoProps> = ({ className = "h-8", iconOnly = false }) => {
   if (iconOnly) {
     return (
       <svg 

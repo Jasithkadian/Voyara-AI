@@ -25,7 +25,6 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
     }).format(val);
   };
 
-  const total = breakdown.total_cost || 1;
   const remainingBudget = targetBudget - breakdown.total_cost;
   
   const pieData = data.filter(d => d.value > 0);
@@ -64,7 +63,7 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value: any) => formatCurrency(value)}
+                formatter={(value: number) => formatCurrency(value)}
                 contentStyle={{ 
                   backgroundColor: 'var(--color-text-primary)', 
                   border: 'none', 

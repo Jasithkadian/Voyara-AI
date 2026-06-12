@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { tripsApi } from '../services/api';
 import { useCurrency } from '../context/CurrencyContext';
 import { Button } from '../components/Button';
-import { Compass, Sparkles, MapPin, Calendar, Heart, Search } from 'lucide-react';
+import { Compass, Sparkles, MapPin, Calendar, Search } from 'lucide-react';
 
 interface DestinationResult {
   name: string;
@@ -17,7 +17,7 @@ interface DestinationResult {
 
 export const Explore: React.FC = () => {
   const navigate = useNavigate();
-  const { formatPrice, convertPrice } = useCurrency();
+  const { formatPrice } = useCurrency();
 
   // Search parameters
   const [budget, setBudget] = useState<number>(50000); // in INR
@@ -51,8 +51,7 @@ export const Explore: React.FC = () => {
       };
       const data = await tripsApi.explore(payload);
       setResults(data);
-    } catch (err: any) {
-      
+    } catch {
       setError('Failed to fetch destination recommendations.');
     } finally {
       setLoading(false);
@@ -61,7 +60,29 @@ export const Explore: React.FC = () => {
 
   // Initial search on mount
   useEffect(() => {
-    handleSearch(false);
+    let isMounted = true;
+    const fetchInitial = async () => {
+      if (isMounted) setLoading(true);
+      try {
+        const data = await tripsApi.explore({
+          budget: 50000,
+          duration: 5,
+          surprise_me: false
+        });
+        if (isMounted) setResults(data);
+      } catch {
+        if (isMounted) setError('Failed to fetch destination recommendations.');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchInitial();
+    }, 0);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, []);
 
   const selectDestination = (destName: string) => {

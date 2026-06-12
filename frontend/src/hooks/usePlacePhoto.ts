@@ -67,40 +67,46 @@ function getSmartFallback(query: string, category: PhotoCategory): string {
 }
 
 export function usePlacePhoto(query: string, category: PhotoCategory): UsePlacePhotoResult {
-  const [photo, setPhoto] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
+  const [photo, setPhoto] = useState<string>(() => {
     if (!query) {
-      setPhoto(FALLBACK_IMAGES[category][0]);
-      setLoading(false);
-      return;
+      return FALLBACK_IMAGES[category][0];
     }
-
     const cleanQuery = query.trim();
     const cacheKey = `voira_photo_cache_${category}_${cleanQuery.toLowerCase()}`;
-
-    // 1. Check LocalStorage Cache
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
-      setPhoto(cached);
-      setLoading(false);
-      return;
+      return cached;
     }
-
-    // 2. Perform Pexels Fetch if API key exists, otherwise use Fallback
     const apiKey = import.meta.env.VITE_PEXELS_API_KEY;
     if (!apiKey) {
       const fallback = getSmartFallback(cleanQuery, category);
       localStorage.setItem(cacheKey, fallback);
-      setPhoto(fallback);
-      setLoading(false);
-      return;
+      return fallback;
     }
+    return '';
+  });
+
+  const [loading, setLoading] = useState<boolean>(() => {
+    if (!query) return false;
+    const cleanQuery = query.trim();
+    const cacheKey = `voira_photo_cache_${category}_${cleanQuery.toLowerCase()}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return false;
+    const apiKey = import.meta.env.VITE_PEXELS_API_KEY;
+    if (!apiKey) return false;
+    return true;
+  });
+
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!loading || photo) return;
+
+    const cleanQuery = query.trim();
+    const cacheKey = `voira_photo_cache_${category}_${cleanQuery.toLowerCase()}`;
+    const apiKey = import.meta.env.VITE_PEXELS_API_KEY;
 
     let isMounted = true;
-    setLoading(true);
 
     async function fetchPhoto() {
       try {
@@ -143,13 +149,12 @@ export function usePlacePhoto(query: string, category: PhotoCategory): UsePlaceP
           setPhoto(imageUrl);
           setLoading(false);
         }
-      } catch (err: any) {
-        
+      } catch (err) {
         if (isMounted) {
           const fallback = getSmartFallback(cleanQuery, category);
           localStorage.setItem(cacheKey, fallback);
           setPhoto(fallback);
-          setError(err);
+          setError(err instanceof Error ? err : new Error(String(err)));
           setLoading(false);
         }
       }
@@ -160,7 +165,7 @@ export function usePlacePhoto(query: string, category: PhotoCategory): UsePlaceP
     return () => {
       isMounted = false;
     };
-  }, [query, category]);
+  }, [query, category, loading, photo]);
 
   return { photo, loading, error };
 }

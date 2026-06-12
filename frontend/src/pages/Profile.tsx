@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi, SavedTrip } from '../services/api';
-import { User, Mail, Calendar, Compass, LogOut, Shield, Wallet, Save, Sparkles, AlertCircle } from 'lucide-react';
+import { Mail, Calendar, Compass, LogOut, Shield, Wallet, Save, Sparkles, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePlacePhoto } from '../hooks/usePlacePhoto';
 
@@ -42,16 +42,7 @@ export const Profile: React.FC = () => {
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/');
-      return;
-    }
-    
-    fetchProfileData();
-  }, [isAuthenticated, navigate]);
-
-  async function fetchProfileData() {
+  const fetchProfileData = useCallback(async () => {
     try {
       const trips = await tripsApi.getHistory();
       setSavedTrips(trips);
@@ -68,10 +59,23 @@ export const Profile: React.FC = () => {
         setFoodPreferences(profile.food_preferences?.join(', ') || '');
         setPreferredActivities(profile.preferred_activities?.join(', ') || '');
       }
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isAuthenticated) {
+        navigate('/');
+        return;
+      }
+      fetchProfileData();
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isAuthenticated, navigate, fetchProfileData]);
 
   const handleSavePreferences = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +96,7 @@ export const Profile: React.FC = () => {
       await tripsApi.updateProfile(payload);
       setMsg('Travel preferences saved successfully! Future AI itineraries will be personalized using this information.');
       setTimeout(() => setMsg(''), 6000);
-    } catch (err) {
+    } catch {
       setError('Failed to save preferences.');
     } finally {
       setSaveLoading(false);

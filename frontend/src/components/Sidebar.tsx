@@ -1,31 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Compass, Briefcase, Globe, MessageSquare, Settings, Sun, Moon, LogOut, Plane, Bell } from 'lucide-react';
+import { Compass, Briefcase, Globe, MessageSquare, Settings, Sun, Moon, LogOut, Bell } from 'lucide-react';
 import { Logo } from './Logo';
 import { tripsApi } from '../services/api';
 import { useCurrency, CurrencyCode } from '../context/CurrencyContext';
+import { NotificationItem } from './Navbar';
 
 export const Sidebar: React.FC = () => {
   const { user, logout, theme, toggleTheme } = useAuth();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
   const fetchNotifications = async () => {
     try {
       const list = await tripsApi.getNotifications();
       setNotifications(list);
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     }
   };
 
@@ -33,10 +28,23 @@ export const Sidebar: React.FC = () => {
     try {
       await tripsApi.markNotificationsRead();
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     }
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchNotifications();
+    }, 0);
+    const interval = setInterval(() => {
+      fetchNotifications();
+    }, 30000);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();

@@ -26,7 +26,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = React.memo(({
   category,
   onClick,
 }) => {
-  const { photo, loading } = usePlacePhoto(name, isAttraction ? 'attraction' : 'activity');
+  const { photo, loading } = usePlacePhoto(name, isAttraction ? 'destination' : 'activity');
 
   const formatCurrency = (val: number | string) => {
     if (typeof val === 'string') return val;

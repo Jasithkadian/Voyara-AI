@@ -1,24 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { tripsApi } from '../services/api';
-import { MapPin, Navigation, Clock, Eye, Sparkles } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { tripsApi, DailyPlan, HotelRecommendation, AttractionRecommendation } from '../services/api';
+import { MapPin, Navigation, Clock, Sparkles } from 'lucide-react';
 
 interface RouteMapProps {
-  tripId: number;
-  itinerary: any[];
-  attractions: any[];
-  hotels: any[];
+  tripId?: number;
+  itinerary: DailyPlan[];
+  attractions?: AttractionRecommendation[];
+  hotels: HotelRecommendation[];
 }
 
-export const RouteMap: React.FC<RouteMapProps> = ({ tripId, itinerary, attractions, hotels }) => {
+interface RouteMarker {
+  name: string;
+  category: 'Hotel' | 'Restaurant' | 'Activity';
+}
+
+interface RouteSegment {
+  from: string;
+  to: string;
+  distance: string;
+  duration: string;
+}
+
+interface RouteDataResponse {
+  markers: RouteMarker[];
+  totalDistanceKm: number;
+  totalTimeMin: number;
+  segments: RouteSegment[];
+}
+
+export const RouteMap: React.FC<RouteMapProps> = ({ itinerary, hotels }) => {
   const [activeDay, setActiveDay] = useState(1);
-  const [routeData, setRouteData] = useState<any>(null);
+  const [routeData, setRouteData] = useState<RouteDataResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    calculateRouteForDay();
-  }, [activeDay, itinerary, hotels]);
-
-  const calculateRouteForDay = async () => {
+  const calculateRouteForDay = useCallback(async () => {
     if (!itinerary || itinerary.length === 0) return;
     setLoading(true);
     try {
@@ -29,7 +44,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ tripId, itinerary, attractio
       const locations = [];
       locations.push({ name: hotel.name, category: "Hotel" });
       
-      dayData.activities.forEach((act: any) => {
+      dayData.activities.forEach((act) => {
         locations.push({ name: act.title, category: "Activity" });
       });
 
@@ -39,12 +54,24 @@ export const RouteMap: React.FC<RouteMapProps> = ({ tripId, itinerary, attractio
 
       const res = await tripsApi.calculateRoute(locations);
       setRouteData(res);
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeDay, itinerary, hotels]);
+
+  useEffect(() => {
+    let isMounted = true;
+    setTimeout(() => {
+      if (isMounted) {
+        calculateRouteForDay();
+      }
+    }, 0);
+    return () => {
+      isMounted = false;
+    };
+  }, [calculateRouteForDay]);
 
   // Get color for category marker
   const getMarkerColor = (category: string) => {
@@ -112,7 +139,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ tripId, itinerary, attractio
               </defs>
               {routeData.markers && routeData.markers.length > 1 && (
                 <path
-                  d={`M ${routeData.markers.map((_: any, i: number) => {
+                  d={`M ${routeData.markers.map((_m: RouteMarker, i: number) => {
                     // Distribute nodes evenly on a wave-shape in the SVG viewport
                     const x = 50 + (i * (80 / (routeData.markers.length - 1))) + "%";
                     const y = 50 + 25 * Math.sin(i * 1.5) + "%";
@@ -129,7 +156,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ tripId, itinerary, attractio
 
             {/* Render interactive marker nodes */}
             <div className="w-full flex justify-between px-6 z-10">
-              {routeData.markers.map((m: any, i: number) => (
+              {routeData.markers.map((m: RouteMarker, i: number) => (
                 <div 
                   key={i} 
                   className="flex flex-col items-center group relative cursor-pointer"
@@ -168,7 +195,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ tripId, itinerary, attractio
               <span className="text-xs  font-semibold text-textSecondary tracking-normal">Itinerary Route Log</span>
               
               <div className="space-y-4 max-h-48 overflow-y-auto pr-1">
-                {routeData.segments.map((seg: any, sIdx: number) => (
+                {routeData.segments.map((seg: RouteSegment, sIdx: number) => (
                   <div key={sIdx} className="text-xs border-l-2 border-coral/40 pl-4 py-1 space-y-1">
                     <div className="font-semibold text-textSecondary dark:text-dark-text-muted flex items-center gap-1">
                       <span>{seg.from}</span>

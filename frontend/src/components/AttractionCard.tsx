@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AttractionRecommendation } from '../services/api';
-import { Star, Compass, MapPin, Sparkles } from 'lucide-react';
+import { Compass, Sparkles } from 'lucide-react';
+import { ActivityCard } from './ActivityCard';
 
 interface AttractionCardProps {
   attractions: AttractionRecommendation[];
@@ -14,17 +15,6 @@ export const AttractionCard: React.FC<AttractionCardProps> = ({ attractions }) =
   const filteredAttractions = selectedCategory === 'All'
     ? attractions
     : attractions.filter(a => a.category.toLowerCase() === selectedCategory.toLowerCase());
-
-  const getCategoryColor = (cat: string) => {
-    switch (cat.toLowerCase()) {
-      case 'adventure': return 'bg-[var(--color-warning-bg)] text-[var(--color-warning)] border-[var(--color-warning-border)]';
-      case 'nature': return 'bg-[var(--color-success-bg)] text-[var(--color-success)] border-[var(--color-success-border)]';
-      case 'food': return 'bg-[var(--color-accent-light)] text-[var(--color-accent)] border-[var(--color-accent)]/20';
-      case 'culture': return 'bg-[var(--color-primary-light)] text-[var(--color-primary)] border-[var(--color-primary)]/20';
-      case 'nightlife': return 'bg-[var(--color-accent-light)] text-[var(--color-accent)] border-[var(--color-accent)]/20';
-      default: return 'bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] border-[var(--color-border)]';
-    }
-  };
 
   return (
     <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)]">
@@ -74,8 +64,6 @@ export const AttractionCard: React.FC<AttractionCardProps> = ({ attractions }) =
               isAttraction={true}
               category={attraction.category}
               rating={attraction.rating}
-              cost={attraction.estimatedCost}
-              duration={attraction.recommendedDuration}
             />
           ))}
         </div>

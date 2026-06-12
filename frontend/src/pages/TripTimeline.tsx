@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi, SavedTrip } from '../services/api';
@@ -8,6 +8,23 @@ import {
 } from 'lucide-react';
 import { EmptyState } from '../components/EmptyState';
 
+interface BookingItem {
+  booking_type: string;
+  status: string;
+  provider_name: string;
+  price: number;
+  currency?: string;
+  confirmation_id?: string;
+  details?: {
+    flightNumber?: string;
+  };
+}
+
+interface MonitorResult {
+  status: string;
+  message: string;
+}
+
 export const TripTimeline: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -15,22 +32,14 @@ export const TripTimeline: React.FC = () => {
 
   const [trips, setTrips] = useState<SavedTrip[]>([]);
   const [selectedTrip, setSelectedTrip] = useState<SavedTrip | null>(null);
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkingMonitor, setCheckingMonitor] = useState(false);
-  const [monitorResult, setMonitorResult] = useState<any>(null);
+  const [monitorResult, setMonitorResult] = useState<MonitorResult | null>(null);
   const [hasUnreadAlerts, setHasUnreadAlerts] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    fetchTripsData();
-  }, [isAuthenticated]);
-
-  const fetchTripsData = async () => {
+  const fetchTripsData = useCallback(async () => {
     try {
       setLoading(true);
       const data = await tripsApi.getHistory();
@@ -43,29 +52,43 @@ export const TripTimeline: React.FC = () => {
       } else if (data.length > 0) {
         setSelectedTrip(data[0]);
       }
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     } finally {
       setLoading(false);
     }
-  };
+  }, [location.state]);
 
-  useEffect(() => {
-    if (selectedTrip) {
-      fetchBookings();
-      setMonitorResult(null);
-    }
-  }, [selectedTrip]);
-
-  async function fetchBookings() {
+  const fetchBookings = useCallback(async () => {
     if (!selectedTrip) return;
     try {
       const bData = await tripsApi.getBookings(selectedTrip.id);
       setBookings(bData);
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     }
-  }
+  }, [selectedTrip]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isAuthenticated) {
+        navigate('/login');
+        return;
+      }
+      fetchTripsData();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, navigate, fetchTripsData]);
+
+  useEffect(() => {
+    if (selectedTrip) {
+      const timer = setTimeout(() => {
+        fetchBookings();
+        setMonitorResult(null);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedTrip, fetchBookings]);
 
   const handleMonitorCheck = async () => {
     if (!selectedTrip) return;
@@ -82,8 +105,8 @@ export const TripTimeline: React.FC = () => {
         const match = updatedTrips.find(t => t.id === selectedTrip.id);
         if (match) setSelectedTrip(match);
       }
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     } finally {
       setCheckingMonitor(false);
     }

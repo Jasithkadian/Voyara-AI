@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi, SavedTrip } from '../services/api';
 import { ChatWindow } from '../components/ChatWindow';
-import { MessageSquare, Compass, ArrowLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { MessageSquare, ChevronRight, Sparkles } from 'lucide-react';
 
 export const Chat: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -13,17 +13,8 @@ export const Chat: React.FC = () => {
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
   const [selectedTrip, setSelectedTrip] = useState<SavedTrip | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    fetchTrips();
-  }, [isAuthenticated]);
-
-  const fetchTrips = async () => {
+  const fetchTrips = useCallback(async () => {
     try {
       setLoading(true);
       const data = await tripsApi.getHistory();
@@ -39,12 +30,23 @@ export const Chat: React.FC = () => {
         // Default to first saved trip
         setSelectedTrip(data[0]);
       }
-    } catch (err) {
-      setError('Could not retrieve saved trips.');
+    } catch {
+      // Ignored
     } finally {
       setLoading(false);
     }
-  };
+  }, [location.state]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    const timer = setTimeout(() => {
+      fetchTrips();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, navigate, fetchTrips]);
 
   if (loading) {
     return (

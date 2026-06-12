@@ -19,7 +19,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = React.memo(({
   cost = 0,
   rating = '4.5',
 }) => {
-  const { photo, loading } = usePlacePhoto(name, 'restaurant');
+  const { photo, loading } = usePlacePhoto(name, 'food');
 
   const formatCurrency = (val: number | string) => {
     if (typeof val === 'string') return val;

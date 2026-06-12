@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { tripsApi, SavedTrip } from '../services/api';
@@ -6,9 +6,17 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip, 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend 
 } from 'recharts';
-import { Button } from '../components/Button';
-import { Wallet, Plus, AlertCircle, HelpCircle, Utensils, Hotel, Car, Compass, Trash2, ArrowLeft } from 'lucide-react';
+import { Wallet, Plus, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useCurrency } from '../context/CurrencyContext';
+
+interface ExpenseItem {
+  id: number | string;
+  category: string;
+  amount: number;
+  description: string;
+  spent_date: string;
+  isDummy?: boolean;
+}
 
 export const Expenses: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -19,7 +27,7 @@ export const Expenses: React.FC = () => {
   // Trips & Selected Trip
   const [trips, setTrips] = useState<SavedTrip[]>([]);
   const [selectedTrip, setSelectedTrip] = useState<SavedTrip | null>(null);
-  const [expenses, setExpenses] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Form State
@@ -31,15 +39,7 @@ export const Expenses: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    fetchTripsData();
-  }, [isAuthenticated]);
-
-  const fetchTripsData = async () => {
+  const fetchTripsData = useCallback(async () => {
     try {
       setLoading(true);
       const data = await tripsApi.getHistory();
@@ -52,28 +52,44 @@ export const Expenses: React.FC = () => {
       } else if (data.length > 0) {
         setSelectedTrip(data[0]);
       }
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     } finally {
       setLoading(false);
     }
-  };
+  }, [location.state]);
 
-  useEffect(() => {
-    if (selectedTrip) {
-      fetchExpenses();
-    }
-  }, [selectedTrip]);
-
-  const fetchExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
     if (!selectedTrip || selectedTrip.id === 0) return;
     try {
       const expList = await tripsApi.getExpenses(selectedTrip.id);
       setExpenses(expList);
-    } catch (err) {
-      
+    } catch {
+      // Ignored
     }
-  };
+  }, [selectedTrip]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isAuthenticated) {
+        navigate('/login');
+        return;
+      }
+      fetchTripsData();
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isAuthenticated, navigate, fetchTripsData]);
+
+  useEffect(() => {
+    if (selectedTrip) {
+      const timer = setTimeout(() => {
+        fetchExpenses();
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedTrip, fetchExpenses]);
 
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,8 +111,9 @@ export const Expenses: React.FC = () => {
       setDescription('');
       fetchExpenses();
       setTimeout(() => setSuccess(''), 4000);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to log expense.');
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || 'Failed to log expense.');
     } finally {
       setFormLoading(false);
     }
@@ -199,7 +216,6 @@ export const Expenses: React.FC = () => {
   const totalSpent = Object.values(spentByCategory).reduce((sum, val) => sum + val, 0);
   const totalBudget = selectedTrip?.budget || 0;
   const remainingBudget = totalBudget - totalSpent;
-  const isLowBudget = remainingBudget > 0 && remainingBudget < (totalBudget * 0.15); // Less than 15% remaining
 
   // Chart 1: Spent Pie Data - Exactly mapped to design system hexes as per Step 6
   const spentPieData = [
@@ -439,7 +455,7 @@ export const Expenses: React.FC = () => {
                       ))}
                     </Pie>
                     <Tooltip 
-                      formatter={(value: any) => formatCurrency(value)}
+                      formatter={(value: number) => formatCurrency(value)}
                       contentStyle={{ borderRadius: 'var(--radius-md)', border: 'none', boxShadow: 'var(--shadow-md)' }}
                     />
                   </PieChart>
@@ -463,7 +479,7 @@ export const Expenses: React.FC = () => {
                   <XAxis dataKey="name" stroke="var(--color-text-secondary)" fontSize={12} tickLine={false} />
                   <YAxis stroke="var(--color-text-secondary)" fontSize={12} tickLine={false} />
                   <Tooltip 
-                    formatter={(value: any) => formatCurrency(value)}
+                    formatter={(value: number) => formatCurrency(value)}
                     contentStyle={{ borderRadius: 'var(--radius-md)', border: 'none', boxShadow: 'var(--shadow-md)' }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11, paddingTop: 20 }} />

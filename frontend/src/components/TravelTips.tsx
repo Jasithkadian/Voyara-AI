@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ComponentType } from 'react';
 import { CloudRain, Sun, Info } from 'lucide-react';
 
 interface TravelTipsProps {
@@ -21,7 +21,7 @@ export const TravelTips: React.FC<TravelTipsProps> = ({ destination, startDate, 
   // Destination and date range specific tip generation
   const getTips = () => {
     const dest = destination.toLowerCase();
-    const tipsList: { type: 'warning' | 'info' | 'success'; title: string; text: string; icon: any }[] = [];
+    const tipsList: { type: 'warning' | 'info' | 'success'; title: string; text: string; icon: ComponentType<{ className?: string }> }[] = [];
 
     // General tips based on destination
     if (dest.includes('goa')) {
