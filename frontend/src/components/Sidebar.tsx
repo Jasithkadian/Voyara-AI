@@ -70,7 +70,7 @@ export const Sidebar: React.FC = () => {
   const hasUnread = notifications.some(n => !n.is_read);
 
   return (
-    <aside className="w-[240px] shrink-0 h-screen sticky top-0 bg-[var(--color-bg-sidebar)] border-r border-[var(--color-border)] flex flex-col justify-between p-6 z-30 font-sans text-left">
+    <aside className="sidebar w-[240px] shrink-0 h-screen sticky top-0 bg-[var(--color-bg-sidebar)] border-r border-[var(--color-border)] flex flex-col justify-between p-6 z-30 font-sans text-left">
       <div className="space-y-8">
         {/* Brand Logo */}
         <Link to="/" className="flex items-center px-tight">

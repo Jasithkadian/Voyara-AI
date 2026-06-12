@@ -72,17 +72,19 @@ export const Home: React.FC = () => {
             return (
               <div 
                 key={idx} 
-                className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-8 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all duration-300 hover:-translate-y-1 active:scale-[0.99] group relative overflow-hidden"
+                className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-8 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all duration-300 hover:-translate-y-1 active:scale-[0.99] group relative overflow-hidden flex flex-row md:flex-col items-start gap-5 md:gap-0"
               >
-                <div className={`w-12 h-12 rounded-[var(--radius-md)] ${featColor} flex items-center justify-center mb-6 group-hover:scale-105 transition-transform`}>
+                <div className={`w-12 h-12 rounded-[var(--radius-md)] ${featColor} flex items-center justify-center mb-0 md:mb-6 shrink-0 group-hover:scale-105 transition-transform`}>
                   <Icon className="w-5.5 h-5.5" />
                 </div>
-                <h3 className="font-semibold text-base text-[var(--color-text-primary)] mb-2 tracking-tight">
-                  {feat.title}
-                </h3>
-                <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] leading-relaxed">
-                  {feat.desc}
-                </p>
+                <div className="flex-grow min-w-0">
+                  <h3 className="font-semibold text-base text-[var(--color-text-primary)] mb-2 tracking-tight">
+                    {feat.title}
+                  </h3>
+                  <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] leading-relaxed">
+                    {feat.desc}
+                  </p>
+                </div>
               </div>
             );
           })}
@@ -138,10 +140,10 @@ export const Home: React.FC = () => {
             <p className="text-base sm:text-lg text-white/80 max-w-lg mx-auto leading-relaxed">
               Experience the full product in 30 seconds. Generate plans, simulate bookings, and track weather timelines immediately.
             </p>
-            <div className="pt-4 flex flex-col sm:flex-row justify-center items-center gap-4">
+            <div className="pt-4 flex flex-col md:flex-row justify-center items-center gap-4">
               <Link
                 to="/planner"
-                className="btn-cta w-full sm:w-auto"
+                className="btn-cta w-full md:w-auto justify-center"
               >
                 <span>Start Planner</span>
                 <ArrowRight className="w-4 h-4" />
@@ -149,7 +151,7 @@ export const Home: React.FC = () => {
               
               <Link
                 to="/demo"
-                className="btn-secondary w-full sm:w-auto bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/40"
+                className="btn-secondary w-full md:w-auto bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/40 justify-center"
               >
                 Explore a sample trip
               </Link>

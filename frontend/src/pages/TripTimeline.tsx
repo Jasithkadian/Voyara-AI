@@ -226,7 +226,7 @@ export const TripTimeline: React.FC = () => {
       )}
 
       {/* Timeline Flow */}
-      <div className="relative border-l-2 border-stoneMuted dark:border-dark-border ml-4 md:ml-12 pl-6 md:pl-12 space-y-12 py-2">
+      <div className="relative border-l-2 border-stoneMuted dark:border-dark-border ml-10 md:ml-12 pl-8 md:pl-12 space-y-12 py-2">
         {/* STEP 1: Flight Departure */}
         <div className="relative">
           <span className="absolute -left-12 md:-left-12 top-0 bg-primary/10 dark:bg-primary/20 text-primary p-2 rounded-lg border-4 border-stoneMuted dark:border-dark-border">

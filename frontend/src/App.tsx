@@ -5,6 +5,7 @@ import { CurrencyProvider } from './context/CurrencyProvider';
 import { ToastProvider } from './context/ToastContext';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
+import { MobileNav } from './components/MobileNav';
 import { CommandPalette } from './components/CommandPalette';
 import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
@@ -60,26 +61,31 @@ function AppContent() {
               <div key={location.pathname} className="page-content">
                 <Routes>
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/register" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard/trip" element={<Dashboard />} />
-                <Route path="/my-expenses" element={<SavedTrips defaultTab="expenses" />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/saved-trips" element={<SavedTrips defaultTab="list" />} />
-                <Route path="/planner" element={<TripPlanner />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/analytics" element={<SavedTrips defaultTab="analytics" />} />
-                <Route path="/trip-timeline" element={<SavedTrips defaultTab="timeline" />} />
-                <Route path="/demo" element={<Demo />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/share/:token" element={<SharedTrip />} />
-                <Route path="/explore" element={<Explore />} />
+                  <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/register" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/dashboard/trip" element={<Dashboard />} />
+                  <Route path="/my-expenses" element={<SavedTrips defaultTab="expenses" />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/saved-trips" element={<SavedTrips defaultTab="list" />} />
+                  <Route path="/planner" element={<TripPlanner />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/analytics" element={<SavedTrips defaultTab="analytics" />} />
+                  <Route path="/trip-timeline" element={<SavedTrips defaultTab="timeline" />} />
+                  <Route path="/demo" element={<Demo />} />
+                  <Route path="/onboarding" element={<Onboarding />} />
+                  <Route path="/share/:token" element={<SharedTrip />} />
+                  <Route path="/explore" element={<Explore />} />
+                  {/* Short redirects */}
+                  <Route path="/plan" element={<Navigate to="/planner" replace />} />
+                  <Route path="/my-trips" element={<Navigate to="/saved-trips" replace />} />
+                  <Route path="/settings" element={<Navigate to="/profile" replace />} />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
               </div>
             </main>
           </div>
+          <MobileNav />
         </>
       )}
       <CommandPalette />

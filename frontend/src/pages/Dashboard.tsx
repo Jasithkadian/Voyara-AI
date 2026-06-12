@@ -73,6 +73,7 @@ export const Dashboard: React.FC = () => {
   const [previewingVersionId, setPreviewingVersionId] = useState<string | null>(null);
   const [originalPlanBeforePreview, setOriginalPlanBeforePreview] = useState<TripPlan | null>(null);
   const [hotelViewMode, setHotelViewMode] = useState<'list' | 'map'>('list');
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
 
   // Load versions whenever activeTrip changes
   useEffect(() => {
@@ -507,7 +508,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Stats Cards Skeletons */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="stat-grid">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 rounded-[var(--radius-lg)]">
               <div className="w-10 h-10 rounded-[var(--radius-md)] skeleton mb-4" />
@@ -830,8 +831,8 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Sidebar Panel with Tabs */}
-          <div className="lg:col-span-4 space-y-8">
+          {/* Right: Sidebar Panel with Tabs (desktop only) */}
+          <div className="hidden lg:block lg:col-span-4 space-y-8">
             <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] overflow-hidden shadow-[var(--shadow-sm)] sticky top-24">
               <div className="sidebar-tabs px-2 pt-2 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-hover)]">
                 <button 
@@ -978,6 +979,175 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Mobile Bottom Sheet Handle Bar */}
+        <div 
+          onClick={() => setShowBottomSheet(true)}
+          className="lg:hidden fixed bottom-[64px] md:bottom-0 left-0 right-0 h-12 bg-[var(--color-bg-card)] border-t border-[var(--color-border)] flex items-center justify-between px-4 z-40 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] cursor-pointer"
+        >
+          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--color-text-primary)]">
+            <span>Budget {formatCurrency(activeTrip.budget)} · On track ✓</span>
+          </div>
+          <div className="text-[var(--color-text-secondary)] font-bold text-xs">
+            [↑]
+          </div>
+        </div>
+
+        {/* Mobile bottom sheet slide up modal */}
+        {showBottomSheet && (
+          <div 
+            onClick={() => setShowBottomSheet(false)}
+            className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs"
+          >
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[var(--color-bg-card)] rounded-t-[var(--radius-xl)] w-full h-[65vh] flex flex-col overflow-hidden border-t border-[var(--color-border)] shadow-2xl animate-slide-up animate-duration-300"
+            >
+              {/* Bottom Sheet Header/Drag indicator */}
+              <div className="flex flex-col px-4 py-3 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-hover)] shrink-0 relative">
+                <div className="w-12 h-1 bg-[var(--color-border-strong)] rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2" />
+                
+                {/* Tabs inside bottom sheet */}
+                <div className="flex justify-between items-center mt-3">
+                  <div className="flex space-x-2">
+                    <button 
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all ${
+                        activeTab === 'budget' 
+                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' 
+                          : 'text-[var(--color-text-secondary)]'
+                      }`}
+                      onClick={() => setActiveTab('budget')}
+                    >
+                      Budget
+                    </button>
+                    <button 
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all ${
+                        activeTab === 'packing' 
+                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' 
+                          : 'text-[var(--color-text-secondary)]'
+                      }`}
+                      onClick={() => setActiveTab('packing')}
+                    >
+                      Packing
+                    </button>
+                    <button 
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all ${
+                        activeTab === 'tips' 
+                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' 
+                          : 'text-[var(--color-text-secondary)]'
+                      }`}
+                      onClick={() => setActiveTab('tips')}
+                    >
+                      Tips
+                    </button>
+                  </div>
+                  <button 
+                    className="p-1 rounded-full hover:bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)]"
+                    onClick={() => setShowBottomSheet(false)}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Bottom Sheet Scrollable Body */}
+              <div className="flex-1 overflow-y-auto p-4 pb-20">
+                {activeTab === 'budget' && (
+                  <div className="space-y-6">
+                    <BudgetChart breakdown={plan.budgetBreakdown} targetBudget={activeTrip.budget} />
+                    
+                    {budgetCopilot && (
+                      <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 space-y-4 text-left shadow-[var(--shadow-xs)]">
+                        <h4 className="font-semibold text-xs text-[var(--color-text-primary)] flex items-center gap-2">
+                          💡 Budget Co-pilot
+                        </h4>
+                        <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                          {budgetCopilot.comment}
+                        </p>
+                        {budgetCopilot.flags && budgetCopilot.flags.length > 0 && (
+                          <div className="space-y-2 pt-2">
+                            {budgetCopilot.flags.map((flag, fIdx: number) => (
+                              <div key={fIdx} className="p-2.5 rounded bg-[var(--color-primary-light)] border border-[var(--color-primary)]/20 text-xs flex justify-between items-center">
+                                <span className="font-semibold text-[var(--color-text-primary)]">{flag.category}</span>
+                                <span className="font-bold text-[var(--color-accent)]">
+                                  Spent: {formatCurrency(flag.spent)} / Planned: {formatCurrency(flag.planned)} (+{flag.deviation}%)
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {budgetCopilot.recommendations && budgetCopilot.recommendations.length > 0 && (
+                          <div className="pt-2 border-t border-[var(--color-border-subtle)] space-y-2">
+                            <p className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">Recommendations</p>
+                            <ul className="list-disc pl-4 space-y-1">
+                              {budgetCopilot.recommendations.map((rec: string, rIdx: number) => (
+                                <li key={rIdx} className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                                  {rec}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {activeTrip && activeTrip.id !== 0 && (
+                      <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 shadow-[var(--shadow-xs)] space-y-4">
+                        <h4 className="font-semibold text-xs text-[var(--color-text-primary)] flex items-center gap-2">
+                          🎟️ Booked Tickets
+                        </h4>
+                        {bookings.length === 0 ? (
+                          <p className="text-xs text-[var(--color-text-secondary)] py-2">
+                            No active flight or hotel tickets purchased for this trip yet.
+                          </p>
+                        ) : (
+                          <div className="space-y-4">
+                            {bookings.map((booking) => (
+                              <div key={booking.id} className="p-4 bg-[var(--color-bg-hover)] rounded-md border border-[var(--color-border)] text-xs space-y-2 relative">
+                                <div className="flex justify-between items-center">
+                                  <Badge type={booking.booking_type === 'Flight' ? 'direct' : 'recommender'} label={booking.booking_type} />
+                                  <span className={`font-semibold ${
+                                    booking.status === 'Cancelled' 
+                                      ? 'text-[var(--color-error)]' 
+                                      : booking.payment_status === 'Paid' 
+                                        ? 'text-[var(--color-success)]' 
+                                        : 'text-[var(--color-warning)]'
+                                  }`}>
+                                    {booking.status === 'Cancelled' ? 'Cancelled' : booking.payment_status}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-[var(--color-text-primary)] block text-xs truncate">{booking.provider_name}</span>
+                                  <span className="text-xs text-[var(--color-text-secondary)] font-mono block mt-1">Ref: {booking.booking_reference || 'Pending'}</span>
+                                </div>
+                                <div className="flex justify-between items-center pt-2 border-t border-[var(--color-border-subtle)]">
+                                  <span className="font-semibold text-[var(--color-accent)] font-mono">{formatCurrency(booking.price)}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {activeTab === 'packing' && (
+                  <PackingList 
+                    destination={activeTrip.destination}
+                    weatherCondition={plan.dailyItinerary?.[0]?.weather || 'Sunny'}
+                    interests={activeTrip.interests}
+                  />
+                )}
+                {activeTab === 'tips' && (
+                  <TravelTips 
+                    destination={activeTrip.destination} 
+                    startDate="2026-06-12"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* REPLAN MODAL */}
         {showReplanModal && (
@@ -1294,12 +1464,12 @@ export const Dashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-12 bg-[var(--color-bg-page)]">
       
       {/* Welcome Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-row justify-between items-center gap-4">
         <div>
           <h2 className="page-title">
             Hi, {(user?.name === 'Investor Guest' ? 'Guest' : (user?.name?.split(' ')[0] || 'User'))}!
           </h2>
-          <p className="text-[var(--color-text-secondary)] text-base">
+          <p className="text-[var(--color-text-secondary)] text-base hidden sm:block">
             {savedTrips.length === 0 
               ? "Where are you going next?" 
               : "Ready for your next adventure?"}
@@ -1307,14 +1477,15 @@ export const Dashboard: React.FC = () => {
         </div>
         <Link
           to="/planner"
-          className="btn-primary h-11 px-8"
+          className="btn-primary h-11 px-4 sm:px-8 flex items-center justify-center shrink-0"
         >
-          <Plus className="w-4 h-4" /> Plan a New Trip
+          <Plus className="w-4 h-4 sm:mr-2" />
+          <span className="hidden sm:inline">Plan a New Trip</span>
         </Link>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="stat-grid">
         <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-6 rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all">
           <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center mb-4">
             <Compass className="w-5 h-5" />

@@ -894,3 +894,181 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   STAGE 8 — MOBILE LAYOUT STYLES
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Eliminate Tap Delay on Mobile */
+html {
+  touch-action: manipulation;
+}
+
+/* Touch Targets & Interactives */
+.interactive {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Sidebar Nav Items */
+.sidebar-item {
+  min-height: 44px;
+}
+
+/* Interest Chips */
+.interest-chip {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card Action Button */
+.card-action-btn {
+  height: 40px;
+  padding: 0 16px;
+  margin: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Day Tabs */
+.day-tab {
+  min-height: 44px;
+}
+
+/* Mobile Bottom Navigation Bar */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  z-index: 100;
+  background: var(--color-bg-card);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom); /* iPhone safe area */
+}
+
+.mobile-nav__tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+  min-height: 44px;
+}
+
+.mobile-nav__tab.active {
+  color: var(--color-primary);
+}
+
+.mobile-nav__tab--cta {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Stats Grid Component */
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* mobile: 2 columns */
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Mobile Breakpoints & Layout Adaptations (< 768px) */
+@media (max-width: 767px) {
+  /* Hide desktop sidebar */
+  .sidebar {
+    display: none !important;
+  }
+
+  /* Main content padding-bottom to prevent overlap with bottom nav */
+  .page-content {
+    padding-bottom: 80px;
+  }
+
+  /* Hero adjustments */
+  .hero-headline {
+    font-size: 42px !important;
+    line-height: 1.1 !important;
+  }
+
+  .hero-subheadline {
+    font-size: 16px !important;
+    max-width: 100% !important;
+  }
+
+  /* Activity card overrides */
+  .activity-card {
+    padding: 12px !important;
+  }
+
+  /* Hotel photo overrides */
+  .hotel-card__image {
+    height: 160px !important;
+  }
+
+  /* Focus within inputs full screen */
+  .mobile-focus-container:focus-within {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    background: var(--color-bg-page) !important;
+    padding: 16px !important;
+    overflow-y: auto !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* Disable Hover-Only Styles on Touch-Based Systems */
+@media (hover: none) {
+  .card-interactive:hover {
+    transform: none !important;
+    box-shadow: var(--shadow-card) !important;
+  }
+  .hotel-card:hover .hotel-card__image {
+    transform: none !important;
+  }
+  .sidebar-item:hover {
+    background: transparent !important;
+    color: var(--color-text-secondary) !important;
+  }
+  .sidebar-item.active:hover {
+    background: var(--color-primary-light) !important;
+    color: var(--color-primary) !important;
+  }
+}
+
+

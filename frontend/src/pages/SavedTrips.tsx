@@ -142,21 +142,22 @@ export const SavedTrips: React.FC<SavedTripsProps> = ({ defaultTab = 'list' }) =
   }
 
   const tabs: { id: 'list' | 'timeline' | 'expenses' | 'analytics'; label: string }[] = [
-    { id: 'list', label: 'My Saved Trips' },
+    { id: 'list', label: 'Saved' },
     { id: 'timeline', label: 'Timeline' },
-    { id: 'expenses', label: 'Expenses' }
+    { id: 'expenses', label: 'Expenses' },
+    { id: 'analytics', label: 'Insights' }
   ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-8 font-sans bg-[var(--color-bg-page)]">
       {/* Sub-Navigation Tab Bar */}
-      <div className="border-b border-[var(--color-border)]">
-        <div className="flex space-x-8">
+      <div className="border-b border-[var(--color-border)] overflow-x-auto scrollbar-hide snap-x snap-mandatory flex w-full">
+        <div className="flex space-x-6 sm:space-x-8 min-w-full pb-1">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`pb-4 text-[var(--text-xs)] font-bold uppercase tracking-widest border-b-2 transition-all relative ${
+              className={`pb-3 text-[var(--text-xs)] font-bold uppercase tracking-widest border-b-2 transition-all relative whitespace-nowrap snap-start min-w-[70px] ${
                 activeTab === tab.id
                   ? 'border-[var(--color-primary)] text-[var(--color-primary)]'
                   : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'

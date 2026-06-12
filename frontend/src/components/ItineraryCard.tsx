@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DailyPlan } from '../services/api';
-import { Calendar, Sun, CloudRain, CloudSun, Utensils, CheckCircle } from 'lucide-react';
+import { Calendar, Sun, CloudRain, CloudSun, Utensils, CheckCircle, X } from 'lucide-react';
 import { ActivityCard } from './ActivityCard';
 import { RestaurantCard } from './RestaurantCard';
 import { MapWidget, MapMarkerItem } from './MapWidget';
@@ -15,6 +15,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
   const [activeDay, setActiveDay] = useState(1);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [fadeState, setFadeState] = useState<'in' | 'out'>('in');
+  const [showMobileMap, setShowMobileMap] = useState(false);
   
   const { weather: fetchedWeather } = useWeather(destination, '2026-06-12', dailyPlan.length);
 
@@ -78,7 +79,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide max-w-full">
+        <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide max-w-full snap-x snap-mandatory scroll-smooth">
           {dailyPlan.map((day) => {
             const fetchedDay = fetchedWeather?.find(w => w.day === day.day);
             const weatherTemp = fetchedDay ? `${fetchedDay.temp}°C` : (day.weather?.match(/\d+°C/)?.[0] || '');
@@ -90,7 +91,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
               <button
                 key={day.day}
                 onClick={() => handleTabChange(day.day)}
-                className={`px-4 py-2.5 rounded-[var(--radius-sm)] text-sm transition-all whitespace-nowrap border-b-2 flex items-center gap-2 ${
+                className={`day-tab px-4 py-2.5 rounded-[var(--radius-sm)] text-sm transition-all whitespace-nowrap border-b-2 flex items-center justify-center gap-2 snap-start min-w-[80px] flex-shrink-0 ${
                   activeDay === day.day
                     ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] border-[var(--color-primary)] font-medium'
                     : 'bg-transparent border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
@@ -124,8 +125,8 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
           </div>
         </div>
 
-        {/* Map Panel Improvement - Full width option */}
-        <div className="w-full h-[240px] rounded-[var(--radius-lg)] overflow-hidden border border-[var(--color-border)] mb-10 shadow-[var(--shadow-sm)]">
+        {/* Map Panel Improvement - Hidden on Mobile */}
+        <div className="hidden md:block w-full h-[240px] rounded-[var(--radius-lg)] overflow-hidden border border-[var(--color-border)] mb-10 shadow-[var(--shadow-sm)]">
           <MapWidget
             destination={destination}
             items={mapItems}
@@ -134,6 +135,43 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
             height="100%"
           />
         </div>
+
+        {/* Mobile View on Map Button */}
+        <div className="md:hidden mb-6">
+          <button 
+            onClick={() => setShowMobileMap(true)}
+            className="w-full btn-secondary h-11 flex items-center justify-center gap-2"
+          >
+            <span>View on Map</span>
+          </button>
+        </div>
+
+        {/* Mobile Full Screen Map Modal */}
+        {showMobileMap && (
+          <div className="fixed inset-0 z-[9999] bg-black flex flex-col font-sans">
+            <div className="h-14 bg-[var(--color-bg-card)] border-b border-[var(--color-border)] flex items-center justify-between px-4 shrink-0">
+              <span className="font-semibold text-sm text-[var(--color-text-primary)]">Day {activeDay} Map</span>
+              <button 
+                onClick={() => setShowMobileMap(false)}
+                className="p-2 rounded-full hover:bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-grow w-full relative bg-[var(--color-bg-page)]">
+              <MapWidget
+                destination={destination}
+                items={mapItems}
+                focusedIndex={focusedIndex}
+                onMarkerClick={(idx) => {
+                  handleMarkerClick(idx);
+                  setShowMobileMap(false); // Close map and focus card
+                }}
+                height="100%"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="itinerary-section">
           <div className="itinerary-section__header">

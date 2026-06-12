@@ -25,13 +25,13 @@ export const HeroSection: React.FC = () => {
               </span>
             </h1>
             
-            <p className="text-base sm:text-lg text-[var(--color-text-secondary)] dark:text-[var(--color-text-muted)] max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="hero-subheadline text-base sm:text-lg text-[var(--color-text-secondary)] dark:text-[var(--color-text-muted)] max-w-2xl mx-auto lg:mx-0 leading-relaxed">
               voira is your autonomous travel concierge. Instantly generate optimized daily schedules, real-time flight searches, budget allocations, and weather-adaptive revisions in one workspace.
             </p>
 
             {/* Simulated Search bar inside Hero (Compelling CTA) */}
             <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-2 rounded-md shadow-xl flex flex-col md:flex-row gap-2 max-w-xl mx-auto lg:mx-0 backdrop-blur-md">
-              <div className="flex items-center gap-2 px-4 flex-1">
+              <div className="flex items-center gap-2 px-4 flex-1 py-2 md:py-0">
                 <Search className="w-4.5 h-4.5 text-[var(--color-text-muted)]" />
                 <input 
                   type="text" 
@@ -42,7 +42,7 @@ export const HeroSection: React.FC = () => {
               </div>
               <Link
                 to="/planner"
-                className="btn-cta"
+                className="btn-cta w-full md:w-auto justify-center"
               >
                 <span>Plan Instantly</span>
                 <ChevronRight className="w-4 h-4" />

@@ -402,7 +402,7 @@ export const Expenses: React.FC = () => {
         <div className="lg:col-span-7 space-y-12">
           
           {/* Summary Box */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-5 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)]">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Total Budget</span>
               <span className="price text-[var(--color-text-primary)] mt-1 block truncate">
@@ -458,8 +458,8 @@ export const Expenses: React.FC = () => {
             </div>
           )}
 
-          {/* Bar Chart Comparison */}
-          <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[var(--radius-xl)] shadow-[var(--shadow-sm)] space-y-8">
+          {/* Bar Chart Comparison (desktop only) */}
+          <div className="hidden md:block bg-[var(--color-bg-card)] border border-[var(--color-border)] p-8 rounded-[var(--radius-xl)] shadow-[var(--shadow-sm)] space-y-8">
             <h4 className="font-semibold text-base text-[var(--color-text-primary)]">Planned Budget vs Actual Spending</h4>
             
             <div className="h-64 w-full">

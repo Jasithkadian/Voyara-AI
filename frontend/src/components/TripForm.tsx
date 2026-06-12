@@ -58,7 +58,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto bg-warmWhite dark:bg-dark-card border border-stoneMuted/50 dark:border-dark-border/40 rounded-lg p-comfortable shadow-sm">
+    <div className="mobile-focus-container w-full max-w-lg mx-auto bg-warmWhite dark:bg-dark-card border border-stoneMuted/50 dark:border-dark-border/40 rounded-lg p-comfortable shadow-sm">
       {/* Redesigned 3-Step Progress Indicator */}
       <div className="relative flex justify-between items-center mb-12 max-w-xs mx-auto">
         {/* Progress Line */}
@@ -165,7 +165,7 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
 
           <button
             type="submit"
-            className="btn-primary w-full h-11 mt-4"
+            className="btn-primary w-full h-[52px] md:h-11 mt-4"
           >
             <span>Continue</span>
             <ChevronRight className="w-4 h-4" />
@@ -222,17 +222,17 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
             </p>
           </div>
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <button
               type="button"
               onClick={handleBack}
-              className="btn-secondary w-1/3"
+              className="btn-secondary w-full sm:w-1/3 h-[52px] md:h-11 justify-center flex items-center gap-2"
             >
               <ChevronLeft className="w-4 h-4" /> Back
             </button>
             <button
               type="submit"
-              className="btn-primary w-2/3 h-11"
+              className="btn-primary w-full sm:w-2/3 h-[52px] md:h-11 justify-center flex items-center gap-2"
             >
               <span>Continue</span>
               <ChevronRight className="w-4 h-4" />
@@ -289,19 +289,19 @@ export const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
             </div>
           </div>
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <button
               type="button"
               onClick={handleBack}
               disabled={loading}
-              className="btn-secondary w-1/3 disabled:opacity-50"
+              className="btn-secondary w-full sm:w-1/3 h-[52px] md:h-11 disabled:opacity-50 justify-center flex items-center gap-2"
             >
               <ChevronLeft className="w-4 h-4" /> Back
             </button>
             <button
               type="submit"
               disabled={loading || selectedInterests.length === 0}
-              className="btn-cta w-2/3 animate-shimmer disabled:opacity-50"
+              className="btn-cta w-full sm:w-2/3 h-[52px] md:h-11 animate-shimmer disabled:opacity-50 justify-center flex items-center gap-2"
             >
               {loading ? (
                 <>

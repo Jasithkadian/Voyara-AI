@@ -259,7 +259,7 @@ export const TripPlanner: React.FC = () => {
         )}
 
         {/* Toggle Mode Tab Bar */}
-        <div className="flex bg-stoneMuted/30 dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 p-1.5 rounded-lg max-w-md mx-auto mb-8">
+        <div className="flex w-full md:max-w-md mx-auto mb-8 bg-stoneMuted/30 dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 p-1.5 rounded-lg">
           <button
             onClick={() => { setPlannerMode('conversational'); setParsedParams(null); }}
             className={`flex-1 py-2 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-2 ${
@@ -287,7 +287,7 @@ export const TripPlanner: React.FC = () => {
         {plannerMode === 'conversational' && (
           <div className="w-full">
             {!parsedParams ? (
-              <form onSubmit={handleNlSubmit} className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/50 dark:border-dark-border/40 rounded-xl p-comfortable shadow-sm space-y-6 text-left">
+              <form onSubmit={handleNlSubmit} className="mobile-focus-container bg-warmWhite dark:bg-dark-card border border-stoneMuted/50 dark:border-dark-border/40 rounded-xl p-comfortable shadow-sm space-y-6 text-left">
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-textSecondary dark:text-dark-text-muted flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-primary" /> Describe Your Travel Plan
@@ -298,14 +298,14 @@ export const TripPlanner: React.FC = () => {
                     value={nlQuery}
                     onChange={(e) => setNlQuery(e.target.value)}
                     placeholder="Try: 5 days in Goa for beaches and parties, ₹30,000, end of July"
-                    className="w-full px-4 py-4 rounded-lg bg-warmWhite dark:bg-dark-elevated border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-dark-text text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary placeholder:font-normal transition-all resize-none leading-relaxed shadow-inner"
+                    className="w-full h-[120px] md:h-auto px-4 py-4 rounded-lg bg-warmWhite dark:bg-dark-elevated border border-stoneMuted dark:border-dark-border text-textPrimary dark:text-dark-text text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-textSecondary placeholder:font-normal transition-all resize-none leading-relaxed shadow-inner"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={!nlQuery.trim()}
-                  className="w-full h-11 bg-primary text-warmWhite font-semibold rounded-md hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs shadow-sm shadow-primary/25 disabled:opacity-50"
+                  className="w-full h-[52px] md:h-11 bg-primary text-warmWhite font-semibold rounded-md hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs shadow-sm shadow-primary/25 disabled:opacity-50"
                 >
                   <span>Parse My Itinerary Idea</span>
                   <ChevronRight className="w-4 h-4" />
@@ -449,21 +449,21 @@ export const TripPlanner: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-4 pt-4 border-t border-[var(--color-border-subtle)] mt-6">
-                  <button
-                    onClick={() => setParsedParams(null)}
-                    className="btn-secondary w-1/3"
-                  >
-                    Reset
-                  </button>
-                  <button
-                    onClick={handleConfirmedGenerate}
-                    className="btn-cta flex-1"
-                  >
-                    <Sparkles className="w-4 h-4 text-white" />
-                    <span>Generate My Itinerary</span>
-                  </button>
-                </div>
+                 <div className="flex flex-col md:flex-row gap-4 pt-4 border-t border-[var(--color-border-subtle)] mt-6">
+                   <button
+                     onClick={() => setParsedParams(null)}
+                     className="btn-secondary w-full md:w-1/3 h-[52px] md:h-11 justify-center flex items-center gap-2"
+                   >
+                     Reset
+                   </button>
+                   <button
+                     onClick={handleConfirmedGenerate}
+                     className="btn-cta w-full md:flex-1 h-[52px] md:h-11 justify-center"
+                   >
+                     <Sparkles className="w-4 h-4 text-white" />
+                     <span>Generate My Itinerary</span>
+                   </button>
+                 </div>
               </div>
             )}
           </div>
