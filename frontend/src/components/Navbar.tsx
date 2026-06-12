@@ -82,22 +82,22 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 w-full glass border-b border-stoneMuted/50 dark:border-dark-border/50 transition-all duration-300">
+      <nav className="sticky top-0 z-40 w-full border-b border-[var(--color-border)] bg-white/70 backdrop-blur-md dark:bg-[#0a0a0c]/70 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
             <Link to="/" className="flex items-center group">
-              <Logo className="h-8 text-[#0A1628] dark:text-warmWhite" />
+              <span className="font-display text-2xl font-bold text-[var(--color-text-primary)] tracking-tighter">V <span className="font-ui text-xl font-semibold tracking-normal">voira</span></span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-8">
               <Link
                 to="/"
-                className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                className={`text-sm font-medium transition-all px-2 py-1 ${
                   isActive('/') 
-                    ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
-                    : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                    ? 'text-[var(--color-primary)]' 
+                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                 }`}
               >
                 Home
@@ -105,83 +105,83 @@ export const Navbar: React.FC = () => {
               {!isAuthenticated && (
                 <Link
                   to="/demo"
-                  className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                  className={`text-sm font-medium transition-all px-2 py-1 ${
                     isActive('/demo') 
-                      ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
-                      : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                      ? 'text-[var(--color-primary)]' 
+                      : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                   }`}
                 >
-                  Demo Sandbox
+                  Explore
                 </Link>
               )}
               {isAuthenticated ? (
                 <>
                   <Link
                     to="/dashboard"
-                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                    className={`text-sm font-medium transition-all px-2 py-1 ${
                       isActive('/dashboard') 
-                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
-                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                        ? 'text-[var(--color-primary)]' 
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                     }`}
                   >
                     Dashboard
                   </Link>
                   <Link
                     to="/planner"
-                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                    className={`text-sm font-medium transition-all px-2 py-1 ${
                       isActive('/planner') 
-                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
-                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                        ? 'text-[var(--color-primary)]' 
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                     }`}
                   >
                     Plan Trip
                   </Link>
                   <Link
                     to="/saved-trips"
-                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                    className={`text-sm font-medium transition-all px-2 py-1 ${
                       isActive('/saved-trips') 
-                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
-                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                        ? 'text-[var(--color-primary)]' 
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                     }`}
                   >
                     Saved Trips
                   </Link>
                   <Link
                     to="/chat"
-                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                    className={`text-sm font-medium transition-all px-2 py-1 ${
                       isActive('/chat') 
-                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
-                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                        ? 'text-[var(--color-primary)]' 
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                     }`}
                   >
                     AI Chat
                   </Link>
                   <Link
                     to="/trip-timeline"
-                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                    className={`text-sm font-medium transition-all px-2 py-1 ${
                       isActive('/trip-timeline') 
-                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
-                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                        ? 'text-[var(--color-primary)]' 
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                     }`}
                   >
                     Timeline
                   </Link>
                   <Link
                     to="/my-expenses"
-                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                    className={`text-sm font-medium transition-all px-2 py-1 ${
                       isActive('/my-expenses') 
-                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
-                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                        ? 'text-[var(--color-primary)]' 
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                     }`}
                   >
                     Expenses
                   </Link>
                   <Link
                     to="/analytics"
-                    className={`text-xs font-semibold transition-all px-4 py-2 rounded-sm select-none ${
+                    className={`text-sm font-medium transition-all px-2 py-1 ${
                       isActive('/analytics') 
-                        ? 'text-primary font-semibold bg-primary/5 border-b-[3px] border-primary dark:bg-primary/10' 
-                        : 'text-textSecondary hover:bg-stoneMuted/30 hover:text-textPrimary dark:text-dark-text-muted dark:hover:bg-dark-muted/50'
+                        ? 'text-[var(--color-primary)]' 
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                     }`}
                   >
                     Analytics

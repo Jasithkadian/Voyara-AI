@@ -1,10 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Plane, Calendar, Wallet, Compass, Sparkles, MapPin, Search, Globe, ChevronRight } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-
 export const HeroSection: React.FC = () => {
-  const { isAuthenticated } = useAuth();
 
   return (
     <div className="relative overflow-hidden py-20 lg:py-20 bg-grid-pattern">
@@ -129,6 +126,13 @@ export const HeroSection: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div id="features"></div>
+    </div>
+  );
+};
+ </div>
       </div>
 
       <div id="features"></div>
