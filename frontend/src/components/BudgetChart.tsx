@@ -26,10 +26,15 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
   };
 
   const total = breakdown.total_cost || 1;
-  const percentUsed = Math.round((total / targetBudget) * 100);
+  const remainingBudget = targetBudget - breakdown.total_cost;
+  
+  const pieData = data.filter(d => d.value > 0);
+  if (remainingBudget > 0) {
+    pieData.push({ name: 'Unallocated', value: remainingBudget, color: '#E2E8F0', icon: HelpCircle }); // Gray segment for unallocated
+  }
 
   return (
-    <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-lg)] relative overflow-hidden">
+    <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] relative overflow-hidden">
       <div className="flex items-center space-x-4 mb-6">
         <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-success-bg)] text-[var(--color-success)] flex items-center justify-center">
           <Wallet className="w-5 h-5" />
@@ -46,7 +51,7 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={data.filter(d => d.value > 0)}
+                data={pieData}
                 cx="50%"
                 cy="50%"
                 innerRadius={65}
@@ -54,7 +59,7 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
                 paddingAngle={3}
                 dataKey="value"
               >
-                {data.map((entry, index) => (
+                {pieData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
@@ -71,17 +76,14 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
               />
             </PieChart>
           </ResponsiveContainer>
-          <div className="absolute flex flex-col items-center justify-center">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">Est. Cost</span>
-            <span className="price text-[var(--color-accent)]">{formatCurrency(breakdown.total_cost)}</span>
-            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm mt-1 ${
-              targetBudget === breakdown.total_cost
-                ? 'text-[var(--color-success)] bg-[var(--color-success-bg)]'
-                : percentUsed <= 100 
-                ? 'text-[var(--color-success)] bg-[var(--color-success-bg)]' 
-                : 'text-[var(--color-error)] bg-[var(--color-error-bg)]'
-            }`}>
-              {targetBudget === breakdown.total_cost ? 'target met' : `${percentUsed}% limit`}
+          <div className="absolute flex flex-col items-center justify-center text-center px-4">
+            <span className={`text-[12px] font-bold ${remainingBudget === 0 ? 'text-[var(--color-success)]' : remainingBudget < 0 ? 'text-[var(--color-error)]' : 'text-[var(--color-text-secondary)]'}`}>
+              {remainingBudget === 0 
+                ? 'Exactly on budget' 
+                : remainingBudget < 0 
+                ? `Over budget by ${formatCurrency(Math.abs(remainingBudget))}`
+                : `${formatCurrency(remainingBudget)} remaining`
+              }
             </span>
           </div>
         </div>
@@ -94,19 +96,21 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
               <span className="price text-[var(--color-text-primary)]">{formatCurrency(targetBudget)}</span>
             </div>
             <div className={`p-4 rounded-[var(--radius-md)] border ${
-              targetBudget === breakdown.total_cost
+              remainingBudget === 0
                 ? 'bg-[var(--color-success-bg)] border-[var(--color-success-border)]'
+                : remainingBudget < 0
+                ? 'bg-[var(--color-error-bg)] border-[var(--color-error-border)]'
                 : 'bg-[var(--color-bg-hover)] border border-[var(--color-border)]'
             }`}>
               <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-text-muted)] block">Remaining</span>
               <span className={`price ${
-                targetBudget === breakdown.total_cost
+                remainingBudget === 0
                   ? 'text-[var(--color-success)]'
-                  : targetBudget - breakdown.total_cost >= 0 
-                  ? 'text-[var(--color-success)]' 
-                  : 'text-[var(--color-error)]'
+                  : remainingBudget < 0 
+                  ? 'text-[var(--color-error)]' 
+                  : 'text-[var(--color-text-primary)]'
               }`}>
-                {targetBudget === breakdown.total_cost ? 'Balanced' : formatCurrency(targetBudget - breakdown.total_cost)}
+                {remainingBudget === 0 ? '₹0 Remaining' : formatCurrency(remainingBudget)}
               </span>
             </div>
           </div>
@@ -114,7 +118,7 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
           <div className="space-y-4">
             {data.map((item, idx) => {
               const Icon = item.icon;
-              const pct = total > 0 ? (item.value / total) * 100 : 0;
+              const pct = targetBudget > 0 ? (item.value / targetBudget) * 100 : 0;
               return (
                 <div key={idx} className="space-y-1">
                   <div className="flex items-center justify-between text-xs font-semibold">
@@ -129,7 +133,7 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ breakdown, targetBudge
                   <div className="w-full bg-[var(--color-bg-hover)] h-1.5 rounded-full overflow-hidden">
                     <div 
                       className="h-full rounded-full transition-all duration-300" 
-                      style={{ backgroundColor: item.color, width: `${pct}%` }}
+                      style={{ backgroundColor: item.color, width: `${Math.min(pct, 100)}%` }}
                     ></div>
                   </div>
                 </div>

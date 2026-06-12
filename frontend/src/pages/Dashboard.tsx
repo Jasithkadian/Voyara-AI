@@ -19,7 +19,7 @@ import {
   Compass, Calendar, Wallet, MapPin, ArrowRight, Plus, 
   Trash2, Sparkles, Smile, RefreshCw, Save, MessageSquare, 
   X, AlertCircle, Sun, CloudRain, Users, Thermometer, Plane, CheckCircle,
-  Clock, Share2, FileText, CalendarRange
+  Clock, Share2, FileText, CalendarRange, Building2, UtensilsCrossed
 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
@@ -632,73 +632,65 @@ export const Dashboard: React.FC = () => {
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           
-          {/* Left: Overview, Timeline & Dining */}
+          {/* Left: Timeline & Bookings */}
           <div className="lg:col-span-8 space-y-12">
-            <TripOverview trip={activeTrip} />
-
-            {/* Route Map (Interactive Map) */}
-            {activeTrip && activeTrip.id !== 0 && (
-              <RouteMap 
-                tripId={activeTrip.id} 
-                itinerary={plan.dailyItinerary} 
-                attractions={plan.attractions} 
-                hotels={plan.hotelRecommendations} 
-              />
-            )}
-
-            <ItineraryCard dailyPlan={plan.dailyItinerary} />
+            <ItineraryCard dailyPlan={plan.dailyItinerary} destination={activeTrip.destination} />
 
             {/* Recommended Flights Section */}
             {flightsLoading ? (
-              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] space-y-0 overflow-hidden">
-                <div className="p-6 border-b border-[var(--color-border-subtle)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="skeleton skeleton-text-lg w-48" />
-                  <div className="skeleton skeleton-button" />
+              <div className="itinerary-section">
+                <div className="itinerary-section__header">
+                  <span className="itinerary-section__icon"><Plane className="w-5 h-5" /></span>
+                  <h3 className="itinerary-section__title">Recommended Flights</h3>
+                  <span className="itinerary-section__count">Loading...</span>
                 </div>
-                <div className="flex flex-col p-4 gap-4">
-                  <div className="h-20 skeleton rounded-[var(--radius-sm)]" />
+                <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] p-4 flex flex-col gap-4">
                   <div className="h-20 skeleton rounded-[var(--radius-sm)]" />
                   <div className="h-20 skeleton rounded-[var(--radius-sm)]" />
                 </div>
               </div>
             ) : flights.length > 0 && (
-              <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] space-y-0 overflow-hidden">
-                <div className="p-6 border-b border-[var(--color-border-subtle)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <h3 className="text-xl font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
-                    <Plane className="w-5 h-5 text-[var(--color-primary)]" /> Recommended Flights
-                  </h3>
-                  
-                  <div className="flight-sort !mb-0">
-                    <span>Sort by:</span>
-                    <button className="sort-btn active">Price ↑</button>
-                    <button className="sort-btn">Duration</button>
-                    <button className="sort-btn">Departure</button>
-                  </div>
+              <div className="itinerary-section">
+                <div className="itinerary-section__header">
+                  <span className="itinerary-section__icon"><Plane className="w-5 h-5" /></span>
+                  <h3 className="itinerary-section__title">Recommended Flights</h3>
+                  <span className="itinerary-section__count">{flights.length} options</span>
                 </div>
                 
-                <div className="flex flex-col">
-                  {[...flights].sort((a, b) => a.price - b.price).map((flight, idx) => {
-                    const isBooked = bookings.some(b => b.booking_type === 'Flight' && b.provider_name === flight.airline && b.details?.flightNumber === flight.flightNumber);
-                    return (
-                      <FlightRow 
-                        key={idx}
-                        flight={flight}
-                        isBooked={isBooked}
-                        onBook={() => handleBook('Flight', flight.airline, flight.price, { flightNumber: flight.flightNumber, departure: flight.departure, arrival: flight.arrival })}
-                      />
-                    );
-                  })}
+                <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] overflow-hidden">
+                  <div className="p-4 border-b border-[var(--color-border-subtle)] flex justify-end bg-[var(--color-bg-hover)]">
+                    <div className="flight-sort !mb-0">
+                      <span>Sort by:</span>
+                      <button className="sort-btn active">Price ↑</button>
+                      <button className="sort-btn">Duration</button>
+                      <button className="sort-btn">Departure</button>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    {[...flights].sort((a, b) => a.price - b.price).map((flight, idx) => {
+                      const isBooked = bookings.some(b => b.booking_type === 'Flight' && b.provider_name === flight.airline && b.details?.flightNumber === flight.flightNumber);
+                      return (
+                        <FlightRow 
+                          key={idx}
+                          flight={flight}
+                          isBooked={isBooked}
+                          onBook={() => handleBook('Flight', flight.airline, flight.price, { flightNumber: flight.flightNumber, departure: flight.departure, arrival: flight.arrival })}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}
             
             {/* Hotels recommendations list */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h3 className="text-xl font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
-                  🏨 Smart Hotel Matches
-                </h3>
-                <div className="flex bg-[var(--color-bg-hover)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-1 self-start sm:self-auto shadow-[var(--shadow-xs)]">
+            <div className="itinerary-section">
+              <div className="itinerary-section__header flex-wrap">
+                <span className="itinerary-section__icon"><Building2 className="w-5 h-5" /></span>
+                <h3 className="itinerary-section__title">Smart Hotel Matches</h3>
+                <span className="itinerary-section__count">{plan.hotelRecommendations.length} stays</span>
+                
+                <div className="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-4 flex bg-[var(--color-bg-hover)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-1 shadow-[var(--shadow-xs)]">
                   <button
                     onClick={() => setHotelViewMode('list')}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all select-none ${
@@ -723,7 +715,7 @@ export const Dashboard: React.FC = () => {
               </div>
 
               {hotelViewMode === 'list' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {plan.hotelRecommendations.map((hotel, index) => {
                     const isBooked = bookings.some(b => b.booking_type === 'Hotel' && b.provider_name === hotel.name);
                     return (
@@ -738,7 +730,7 @@ export const Dashboard: React.FC = () => {
                   })}
                 </div>
               ) : (
-                <div className="h-[450px] w-full rounded-lg overflow-hidden border border-stoneMuted/60 dark:border-dark-border/60 shadow-sm">
+                <div className="h-[450px] w-full rounded-[var(--radius-lg)] overflow-hidden border border-[var(--color-border)] shadow-[var(--shadow-sm)]">
                   <MapWidget
                     destination={activeTrip.destination}
                     items={plan.hotelRecommendations.map(hotel => ({
@@ -754,128 +746,162 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {/* Attractions category view */}
-            <AttractionCard attractions={plan.attractions} />
+            <div className="itinerary-section">
+              <div className="itinerary-section__header">
+                <span className="itinerary-section__icon"><MapPin className="w-5 h-5" /></span>
+                <h3 className="itinerary-section__title">Must-Visit Attractions</h3>
+                <span className="itinerary-section__count">{plan.attractions.length} places</span>
+              </div>
+              <AttractionCard attractions={plan.attractions} />
+            </div>
           </div>
 
-          {/* Right: Budget Estimations & Tips */}
-          <div className="lg:col-span-4 space-y-12">
-            <BudgetChart breakdown={plan.budgetBreakdown} targetBudget={activeTrip.budget} />
-
-            {/* Budget Co-pilot widget */}
-            {budgetCopilot && (
-              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-sm space-y-4 text-left">
-                <h4 className="font-sans font-semibold text-base text-textPrimary dark:text-dark-text flex items-center gap-2">
-                  💡 Budget Co-pilot
-                </h4>
-                
-                <p className="text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed">
-                  {budgetCopilot.comment}
-                </p>
-
-                {budgetCopilot.flags && budgetCopilot.flags.length > 0 && (
-                  <div className="space-y-2 pt-2">
-                    {budgetCopilot.flags.map((flag: any, fIdx: number) => (
-                      <div key={fIdx} className="p-2.5 rounded bg-primary/5 dark:bg-dark-muted/20 border border-primary/20 text-xs flex justify-between items-center">
-                        <span className="font-semibold text-textPrimary dark:text-warmWhite">{flag.category}</span>
-                        <span className="font-bold text-coral">
-                          Spent: {formatCurrency(flag.spent)} / Planned: {formatCurrency(flag.planned)} (+{flag.deviation}%)
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {budgetCopilot.recommendations && budgetCopilot.recommendations.length > 0 && (
-                  <div className="pt-2 border-t border-stoneMuted/40 dark:border-dark-border/40 space-y-2">
-                    <p className="text-[10px] uppercase font-bold text-textSecondary dark:text-dark-text-muted tracking-wider">Recommendations</p>
-                    <ul className="list-disc pl-4 space-y-1">
-                      {budgetCopilot.recommendations.map((rec: string, rIdx: number) => (
-                        <li key={rIdx} className="text-xs text-textSecondary dark:text-dark-text-muted leading-relaxed">
-                          {rec}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+          {/* Right: Sidebar Panel with Tabs */}
+          <div className="lg:col-span-4 space-y-8">
+            <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] overflow-hidden shadow-[var(--shadow-sm)] sticky top-24">
+              <div className="sidebar-tabs px-2 pt-2 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-hover)]">
+                <button 
+                  className={`sidebar-tab ${activeTab === 'budget' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('budget')}
+                >
+                  Budget
+                </button>
+                <button 
+                  className={`sidebar-tab ${activeTab === 'packing' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('packing')}
+                >
+                  Packing
+                </button>
+                <button 
+                  className={`sidebar-tab ${activeTab === 'tips' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('tips')}
+                >
+                  Tips
+                </button>
               </div>
-            )}
 
-            {/* Bookings & Tickets panel */}
-            {activeTrip && activeTrip.id !== 0 && (
-              <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-lg p-6 shadow-sm space-y-4">
-                <h4 className="font-sans font-semibold text-base text-textPrimary dark:text-dark-text flex items-center gap-2">
-                  🎟️ Booked Tickets & Reservations
-                </h4>
-                {bookings.length === 0 ? (
-                  <p className="text-xs text-textSecondary dark:text-dark-text-muted py-2">
-                    No active flight or hotel tickets purchased for this trip yet. Use the booking matches to checkout.
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {bookings.map((booking) => (
-                      <div key={booking.id} className="p-comfortable bg-warmWhite/50 dark:bg-dark-elevated/30 rounded-md border border-stoneMuted dark:border-dark-border/60 text-xs space-y-2 relative group/item hover:shadow-card-hover transition-all">
-                        <div className="flex justify-between items-center">
-                          <Badge type={booking.booking_type === 'Flight' ? 'direct' : 'recommender'} label={booking.booking_type} />
-                          <span className={`font-semibold ${
-                            booking.status === 'Cancelled' 
-                              ? 'text-coral' 
-                              : booking.payment_status === 'Paid' 
-                                ? 'text-successSage' 
-                                : 'text-warningAmber'
-                          }`}>
-                            {booking.status === 'Cancelled' ? 'Cancelled' : booking.payment_status}
-                          </span>
-                        </div>
-                        
-                        <div>
-                          <span className="font-semibold text-textPrimary dark:text-dark-text block text-xs truncate">{booking.provider_name}</span>
-                          <span className="text-xs text-textSecondary font-mono block mt-1">Ref: {booking.booking_reference || 'Pending'}</span>
-                        </div>
+              <div className={`sidebar-panel ${activeTab === 'budget' ? 'active' : ''} p-6 space-y-8 max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin`}>
+                <BudgetChart breakdown={plan.budgetBreakdown} targetBudget={activeTrip.budget} />
 
-                        {booking.confirmation_id && (
-                          <p className="text-xs text-successSage font-semibold bg-successSage/10 px-2 py-1 rounded-sm inline-block">
-                            Conf ID: {booking.confirmation_id}
-                          </p>
-                        )}
+                {/* Budget Co-pilot widget */}
+                {budgetCopilot && (
+                  <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-5 space-y-4 text-left shadow-[var(--shadow-xs)]">
+                    <h4 className="font-semibold text-base text-[var(--color-text-primary)] flex items-center gap-2">
+                      💡 Budget Co-pilot
+                    </h4>
+                    
+                    <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                      {budgetCopilot.comment}
+                    </p>
 
-                        <div className="flex justify-between items-center pt-2 border-t border-stoneMuted/50 dark:border-dark-border/65">
-                          <span className="font-semibold text-coral font-mono">{formatCurrency(booking.price)}</span>
-                          
-                          {booking.status !== 'Cancelled' ? (
-                            <button
-                              disabled={cancelLoading === booking.id}
-                              onClick={() => handleCancelBooking(booking.id)}
-                              className="text-xs text-coral hover:text-coral font-semibold hover:underline"
-                            >
-                              {cancelLoading === booking.id ? 'Cancelling...' : 'Cancel Reservation'}
-                            </button>
-                          ) : (
-                            booking.refund_status !== 'None' && (
-                              <span className="text-xs text-textSecondary italic font-normal">
-                                Refund: {booking.refund_status}
+                    {budgetCopilot.flags && budgetCopilot.flags.length > 0 && (
+                      <div className="space-y-2 pt-2">
+                        {budgetCopilot.flags.map((flag: any, fIdx: number) => (
+                          <div key={fIdx} className="p-2.5 rounded bg-[var(--color-primary-light)] border border-[var(--color-primary)]/20 text-xs flex justify-between items-center">
+                            <span className="font-semibold text-[var(--color-text-primary)]">{flag.category}</span>
+                            <span className="font-bold text-[var(--color-accent)]">
+                              Spent: {formatCurrency(flag.spent)} / Planned: {formatCurrency(flag.planned)} (+{flag.deviation}%)
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {budgetCopilot.recommendations && budgetCopilot.recommendations.length > 0 && (
+                      <div className="pt-2 border-t border-[var(--color-border-subtle)] space-y-2">
+                        <p className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">Recommendations</p>
+                        <ul className="list-disc pl-4 space-y-1">
+                          {budgetCopilot.recommendations.map((rec: string, rIdx: number) => (
+                            <li key={rIdx} className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                              {rec}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Bookings & Tickets panel */}
+                {activeTrip && activeTrip.id !== 0 && (
+                  <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-5 shadow-[var(--shadow-xs)] space-y-4">
+                    <h4 className="font-semibold text-base text-[var(--color-text-primary)] flex items-center gap-2">
+                      🎟️ Booked Tickets
+                    </h4>
+                    {bookings.length === 0 ? (
+                      <p className="text-xs text-[var(--color-text-secondary)] py-2">
+                        No active flight or hotel tickets purchased for this trip yet. Use the booking matches to checkout.
+                      </p>
+                    ) : (
+                      <div className="space-y-4">
+                        {bookings.map((booking) => (
+                          <div key={booking.id} className="p-4 bg-[var(--color-bg-hover)] rounded-md border border-[var(--color-border)] text-xs space-y-2 relative group/item hover:shadow-[var(--shadow-sm)] transition-all">
+                            <div className="flex justify-between items-center">
+                              <Badge type={booking.booking_type === 'Flight' ? 'direct' : 'recommender'} label={booking.booking_type} />
+                              <span className={`font-semibold ${
+                                booking.status === 'Cancelled' 
+                                  ? 'text-[var(--color-error)]' 
+                                  : booking.payment_status === 'Paid' 
+                                    ? 'text-[var(--color-success)]' 
+                                    : 'text-[var(--color-warning)]'
+                              }`}>
+                                {booking.status === 'Cancelled' ? 'Cancelled' : booking.payment_status}
                               </span>
-                            )
-                          )}
-                        </div>
+                            </div>
+                            
+                            <div>
+                              <span className="font-semibold text-[var(--color-text-primary)] block text-xs truncate">{booking.provider_name}</span>
+                              <span className="text-xs text-[var(--color-text-secondary)] font-mono block mt-1">Ref: {booking.booking_reference || 'Pending'}</span>
+                            </div>
+
+                            {booking.confirmation_id && (
+                              <p className="text-xs text-[var(--color-success)] font-semibold bg-[var(--color-success-bg)] px-2 py-1 rounded-sm inline-block">
+                                Conf ID: {booking.confirmation_id}
+                              </p>
+                            )}
+
+                            <div className="flex justify-between items-center pt-2 border-t border-[var(--color-border-subtle)]">
+                              <span className="font-semibold text-[var(--color-accent)] font-mono">{formatCurrency(booking.price)}</span>
+                              
+                              {booking.status !== 'Cancelled' ? (
+                                <button
+                                  disabled={cancelLoading === booking.id}
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                  className="text-[11px] font-bold text-[var(--color-error)] hover:underline"
+                                >
+                                  {cancelLoading === booking.id ? 'Cancelling...' : 'Cancel Reservation'}
+                                </button>
+                              ) : (
+                                booking.refund_status !== 'None' && (
+                                  <span className="text-xs text-[var(--color-text-secondary)] italic font-normal">
+                                    Refund: {booking.refund_status}
+                                  </span>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>
-            )}
 
-            {/* Packing List widget */}
-            <PackingList 
-              destination={activeTrip.destination}
-              weatherCondition={plan.dailyItinerary?.[0]?.weather || 'Sunny'}
-              interests={activeTrip.interests}
-            />
+              <div className={`sidebar-panel ${activeTab === 'packing' ? 'active' : ''} p-6 max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin`}>
+                <PackingList 
+                  destination={activeTrip.destination}
+                  weatherCondition={plan.dailyItinerary?.[0]?.weather || 'Sunny'}
+                  interests={activeTrip.interests}
+                />
+              </div>
 
-            {/* Tips Card */}
-            <TravelTips 
-              destination={activeTrip.destination} 
-              startDate="2026-06-12"
-            />
+              <div className={`sidebar-panel ${activeTab === 'tips' ? 'active' : ''} p-6 max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin`}>
+                <TravelTips 
+                  destination={activeTrip.destination} 
+                  startDate="2026-06-12"
+                />
+              </div>
+            </div>
           </div>
         </div>
 

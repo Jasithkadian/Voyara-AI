@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DailyPlan } from '../services/api';
-import { Calendar, Sun, CloudRain, CloudSun, Utensils, Compass } from 'lucide-react';
+import { Calendar, Sun, CloudRain, CloudSun, Utensils, CheckCircle } from 'lucide-react';
 import { ActivityCard } from './ActivityCard';
+import { RestaurantCard } from './RestaurantCard';
 import { MapWidget, MapMarkerItem } from './MapWidget';
 import { useWeather } from '../hooks/useWeather';
 
@@ -13,24 +14,33 @@ interface ItineraryCardProps {
 export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destination = 'Goa' }) => {
   const [activeDay, setActiveDay] = useState(1);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const [fadeState, setFadeState] = useState<'in' | 'out'>('in');
   
   const { weather: fetchedWeather } = useWeather(destination, '2026-06-12', dailyPlan.length);
 
   const currentDayData = dailyPlan.find(d => d.day === activeDay) || dailyPlan[0];
 
-  // Map weather strings to weather icons
+  const handleTabChange = (day: number) => {
+    if (day === activeDay) return;
+    setFadeState('out');
+    setTimeout(() => {
+      setActiveDay(day);
+      setFocusedIndex(null);
+      setFadeState('in');
+    }, 150);
+  };
+
   const getWeatherIcon = (weatherStr: string) => {
     const w = weatherStr?.toLowerCase() || '';
     if (w.includes('sun') || w.includes('clear') || w.includes('hot')) {
-      return <Sun className="w-3.5 h-3.5 text-warningAmber animate-pulse shrink-0" />;
+      return <Sun className="w-[18px] h-[18px] text-[var(--color-warning)] shrink-0" />;
     }
     if (w.includes('rain') || w.includes('shower') || w.includes('storm') || w.includes('monsoon')) {
-      return <CloudRain className="w-3.5 h-3.5 text-primary shrink-0" />;
+      return <CloudRain className="w-[18px] h-[18px] text-[var(--color-primary)] shrink-0" />;
     }
-    return <CloudSun className="w-3.5 h-3.5 text-textSecondary dark:text-dark-text-muted shrink-0" />;
+    return <CloudSun className="w-[18px] h-[18px] text-[var(--color-text-secondary)] shrink-0" />;
   };
 
-  // Construct items for map plotting (activities + restaurants)
   const mapItems: MapMarkerItem[] = [
     ...(currentDayData?.activities || []).map(act => ({
       name: act.title,
@@ -48,55 +58,50 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
 
   const handleMarkerClick = (idx: number) => {
     setFocusedIndex(idx);
-    
-    // Scroll corresponding card into view if needed
     const cardEl = document.getElementById(`timeline-card-${idx}`);
     if (cardEl) {
-      cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
   return (
-    <div className="bg-warmWhite dark:bg-dark-card border border-stoneMuted/60 dark:border-dark-border/60 rounded-[12px] p-comfortable sm:p-6 shadow-sm space-y-6">
-      {/* Header section with Day tabs */}
-      <div className="flex items-center justify-between flex-wrap gap-comfortable border-b border-stoneMuted/50 dark:border-dark-border pb-6">
+    <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-xl)] p-6 sm:p-8 shadow-[var(--shadow-sm)] space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-6 border-b border-[var(--color-border)] pb-6">
         <div className="flex items-center space-x-4 text-left">
-          <div className="w-11 h-11 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+          <div className="w-11 h-11 rounded-[var(--radius-md)] bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center">
             <Calendar className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-display font-semibold text-lg text-textPrimary dark:text-dark-text tracking-tight">Daily Itinerary</h3>
-            <p className="text-xs text-textSecondary dark:text-dark-text-muted font-semibold mt-1">Your curated schedule</p>
+            <h3 className="font-display font-semibold text-lg text-[var(--color-text-primary)] tracking-tight">Daily Itinerary</h3>
+            <p className="text-xs text-[var(--color-text-secondary)] font-medium mt-1">Your curated schedule</p>
           </div>
         </div>
 
-        {/* Day selection tabs with inline weather indicators */}
-        <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide py-1 max-w-full">
+        <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide max-w-full">
           {dailyPlan.map((day) => {
             const fetchedDay = fetchedWeather?.find(w => w.day === day.day);
             const weatherTemp = fetchedDay ? `${fetchedDay.temp}°C` : (day.weather?.match(/\d+°C/)?.[0] || '');
             const weatherDesc = fetchedDay ? fetchedDay.condition : (day.weather?.split(',')[0].trim() || 'Sunny');
             const weatherString = fetchedDay ? `${weatherDesc}, ${weatherTemp}` : (day.weather || 'Sunny');
+            const isCompleted = day.day < activeDay;
             
             return (
               <button
                 key={day.day}
-                onClick={() => {
-                  setActiveDay(day.day);
-                  setFocusedIndex(null);
-                }}
-                className={`px-4 py-2.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-2 ${
+                onClick={() => handleTabChange(day.day)}
+                className={`px-4 py-2.5 rounded-[var(--radius-sm)] text-sm transition-all whitespace-nowrap border-b-2 flex items-center gap-2 ${
                   activeDay === day.day
-                    ? 'bg-primary text-warmWhite border-primary shadow-md shadow-primary/15'
-                    : 'bg-warmWhite hover:bg-stoneMuted/30 dark:bg-dark-elevated dark:hover:bg-dark-muted border-stoneMuted/50 dark:border-dark-border/50 text-textPrimary dark:text-dark-text'
+                    ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] border-[var(--color-primary)] font-medium'
+                    : 'bg-transparent border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
                 }`}
               >
                 <span className="flex items-center gap-1.5">
                   <span>Day {day.day}</span>
                   {getWeatherIcon(weatherString)}
-                  <span className={`text-[10px] font-normal ${activeDay === day.day ? 'text-warmWhite/80' : 'text-textSecondary dark:text-dark-text-muted'}`}>
+                  <span className={`font-mono text-[13px] ${activeDay === day.day ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-muted)]'}`}>
                     {weatherTemp || weatherDesc}
                   </span>
+                  {isCompleted && <CheckCircle className="w-3.5 h-3.5 text-[var(--color-success)] ml-1" />}
                 </span>
               </button>
             );
@@ -104,24 +109,40 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
         </div>
       </div>
 
-      {/* Two-Way Interactive Layout */}
-      <div className="flex flex-col lg:flex-row gap-6 items-stretch">
-        
-        {/* Left Column (60% width) - scrollable timeline */}
-        <div className="flex-grow lg:w-[60%] space-y-6 text-left">
-          
-          <div className="mb-4">
-            <h3 className="font-display text-[20px] font-bold text-textPrimary dark:text-dark-text">
+      <div 
+        className={`transition-opacity duration-150 ease-in-out ${fadeState === 'in' ? 'opacity-100' : 'opacity-0'}`}
+      >
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="font-display text-[24px] font-bold text-[var(--color-text-primary)]">
               Day {activeDay} Schedule
             </h3>
-            <p className="text-xs text-textSecondary dark:text-dark-text-muted mt-1">
+            <p className="text-sm text-[var(--color-text-secondary)] mt-1">
               Forecast: {currentDayData?.weather || 'Sunny, 28°C'}
             </p>
           </div>
+        </div>
 
-          <div className="space-y-5">
+        {/* Map Panel Improvement - Full width option */}
+        <div className="w-full h-[240px] rounded-[var(--radius-lg)] overflow-hidden border border-[var(--color-border)] mb-10 shadow-[var(--shadow-sm)]">
+          <MapWidget
+            destination={destination}
+            items={mapItems}
+            focusedIndex={focusedIndex}
+            onMarkerClick={handleMarkerClick}
+            height="100%"
+          />
+        </div>
+
+        <div className="itinerary-section">
+          <div className="itinerary-section__header">
+            <span className="itinerary-section__icon"><Calendar className="w-5 h-5" /></span>
+            <h3 className="itinerary-section__title">Daily Activities</h3>
+            <span className="itinerary-section__count">{currentDayData?.activities.length || 0} activities</span>
+          </div>
+
+          <div className="space-y-4">
             {currentDayData?.activities.map((activity, idx) => {
-              const variant = idx === 0 ? 'destination' : idx === 1 ? 'activity' : 'data';
               const isFocused = focusedIndex === idx;
 
               return (
@@ -129,9 +150,9 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
                   key={idx}
                   id={`timeline-card-${idx}`}
                   onClick={() => handleCardFocus(idx)}
-                  className={`transition-all duration-300 rounded-lg cursor-pointer ${
+                  className={`transition-all duration-200 rounded-[var(--radius-lg)] cursor-pointer ${
                     isFocused 
-                      ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-dark-card scale-[1.01] shadow-md' 
+                      ? 'ring-2 ring-[var(--color-primary)] ring-offset-2 scale-[1.01] shadow-[var(--shadow-md)]' 
                       : ''
                   }`}
                 >
@@ -142,80 +163,53 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({ dailyPlan, destina
                     duration={activity.duration}
                     location={activity.location}
                     cost={activity.estimatedCost}
-                    variant={variant}
                     rating={idx === 0 ? '4.8' : idx === 1 ? '4.5' : undefined}
                   />
                 </div>
               );
             })}
           </div>
+        </div>
 
-          {/* Recommended Restaurants Section - clearly labeled, high card weight */}
-          {currentDayData?.restaurants && currentDayData.restaurants.length > 0 && (
-            <div className="pt-10 border-t border-[var(--color-border-subtle)] mt-10">
-              <h4 className="font-display font-semibold text-[var(--text-xl)] text-[var(--color-text-primary)] mb-4 flex items-center gap-2">
-                <Utensils className="w-5 h-5 text-[var(--color-accent)] shrink-0" /> Culinary Spots & Dining
-              </h4>
-              <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mb-8">
-                Handpicked restaurants matching your dietary profile.
-              </p>
-              
-              <div className="space-y-5">
-                {currentDayData.restaurants.map((restaurant, rIdx) => {
-                  const unifiedIdx = (currentDayData?.activities || []).length + rIdx;
-                  const isFocused = focusedIndex === unifiedIdx;
-                  
-                  return (
-                    <div 
-                      key={rIdx}
-                      id={`timeline-card-${unifiedIdx}`}
-                      onClick={() => handleCardFocus(unifiedIdx)}
-                      className={`transition-all duration-300 rounded-lg cursor-pointer ${
-                        isFocused 
-                          ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-dark-card scale-[1.01] shadow-md' 
-                          : ''
-                      }`}
-                    >
-                      <RestaurantCard
-                        name={restaurant.name}
-                        description={`${restaurant.description} Try their signature recommendation.`}
-                        meal={restaurant.recommendedMeal || 'Dinner'}
-                        cuisine={restaurant.cuisine}
-                        cost={restaurant.estimatedCost}
-                        rating={(4.3 + (rIdx * 0.2)).toFixed(1)}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
+        {currentDayData?.restaurants && currentDayData.restaurants.length > 0 && (
+          <div className="itinerary-section">
+            <div className="itinerary-section__header">
+              <span className="itinerary-section__icon"><Utensils className="w-5 h-5" /></span>
+              <h3 className="itinerary-section__title">Culinary Spots & Dining</h3>
+              <span className="itinerary-section__count">{currentDayData.restaurants.length} spots</span>
             </div>
-          )}
-        </div>
-
-        {/* Right Column (40% width) - Sticky MapWidget */}
-        <div className="w-full lg:w-[40%] min-h-[380px] lg:min-h-0 lg:sticky lg:top-[90px] shrink-0 self-start z-10">
-          <MapWidget
-            destination={destination}
-            items={mapItems}
-            focusedIndex={focusedIndex}
-            onMarkerClick={handleMarkerClick}
-            height="500px"
-          />
-        </div>
+            
+            <div className="space-y-4">
+              {currentDayData.restaurants.map((restaurant, rIdx) => {
+                const unifiedIdx = (currentDayData?.activities || []).length + rIdx;
+                const isFocused = focusedIndex === unifiedIdx;
+                
+                return (
+                  <div 
+                    key={rIdx}
+                    id={`timeline-card-${unifiedIdx}`}
+                    onClick={() => handleCardFocus(unifiedIdx)}
+                    className={`transition-all duration-200 rounded-[var(--radius-lg)] cursor-pointer ${
+                      isFocused 
+                        ? 'ring-2 ring-[var(--color-primary)] ring-offset-2 scale-[1.01] shadow-[var(--shadow-md)]' 
+                        : ''
+                    }`}
+                  >
+                    <RestaurantCard
+                      name={restaurant.name}
+                      description={`${restaurant.description} Try their signature recommendation.`}
+                      meal={restaurant.recommendedMeal || 'Dinner'}
+                      cuisine={restaurant.cuisine}
+                      cost={restaurant.estimatedCost}
+                      rating={(4.3 + (rIdx * 0.2)).toFixed(1)}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-};
-        focusedIndex={focusedIndex}
-            onMarkerClick={handleMarkerClick}
-            height="500px"
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
 };

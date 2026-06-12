@@ -369,6 +369,27 @@
   .skeleton-image-sq { height: 72px; width: 72px; border-radius: var(--radius-sm); }
   .skeleton-button { height: 36px; width: 100px; border-radius: var(--radius-md); }
 
+  /* SIDEBAR TABS */
+  .sidebar-tabs { display: flex; border-bottom: 1px solid var(--color-border); margin-bottom: 16px; }
+  .sidebar-tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 400; color: var(--color-text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all var(--transition-fast); }
+  .sidebar-tab:hover { color: var(--color-text-primary); }
+  .sidebar-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); font-weight: 500; }
+  
+  .sidebar-panel { display: none; animation: fade-in var(--transition-fast) forwards; }
+  .sidebar-panel.active { display: block; }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ITINERARY SECTION */
+  .itinerary-section { margin-bottom: 32px; }
+  .itinerary-section__header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--color-border); }
+  .itinerary-section__icon { color: var(--color-primary); display: flex; align-items: center; justify-content: center; }
+  .itinerary-section__title { font-size: 15px; font-weight: 600; color: var(--color-text-primary); }
+  .itinerary-section__count { font-size: 12px; color: var(--color-text-muted); margin-left: auto; }
+
   /* PRIMARY — main actions, 1 per screen */
   .btn-primary {
     background: var(--color-primary);
