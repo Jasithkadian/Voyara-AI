@@ -198,7 +198,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
     <>
       {showMap && <FlightPathAnimation />}
       
-      <div className={`fixed inset-0 z-50 bg-[#07080f] overflow-hidden flex flex-col items-center justify-center p-4 transition-all duration-500 ${fadeOut ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+      <div className={`fixed inset-0 z-50 bg-[#07080f] overflow-hidden flex flex-col items-center justify-center p-4 transition-all duration-500 ${fadeOut ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>
         
         {/* Animated Background Mesh */}
         <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] -z-10 animate-pulse-subtle" />

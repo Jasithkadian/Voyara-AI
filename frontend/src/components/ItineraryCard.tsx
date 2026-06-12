@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DailyPlan } from '../services/api';
 import { Calendar, Sun, CloudRain, CloudSun, Utensils, CheckCircle, X, RefreshCw, Clock, Coffee, Sunset } from 'lucide-react';
 import { ActivityCard } from './ActivityCard';
@@ -16,9 +16,9 @@ interface ItineraryCardProps {
   diningTier?: DiningType;
 }
 
-export const ItineraryCard: React.FC<ItineraryCardProps> = ({ 
-  dailyPlan, 
-  destination = 'Goa', 
+export const ItineraryCard: React.FC<ItineraryCardProps> = ({
+  dailyPlan,
+  destination = 'Goa',
   tripId = 0,
   onRegenerateDay,
   diningTier = 'mid-range'
@@ -28,7 +28,20 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
   const [fadeState, setFadeState] = useState<'in' | 'out'>('in');
   const [showMobileMap, setShowMobileMap] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
-  
+
+  // Prevent the entire day schedule from getting stuck in the "fade out" visual state
+  // after async plan updates (e.g. regeneration/replan).
+  useEffect(() => {
+    if (!regenerating) {
+      setFadeState('in');
+    }
+  }, [regenerating]);
+
+  useEffect(() => {
+    // When the plan data changes, ensure we render at full opacity.
+    setFadeState('in');
+  }, [dailyPlan]);
+
   const { weather: fetchedWeather } = useWeather(destination, '2026-06-12', dailyPlan.length);
 
   const currentDayData = dailyPlan.find(d => d.day === activeDay) || dailyPlan[0];
@@ -81,21 +94,21 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
   const eveningRestaurants = restaurants.filter(r => r.recommendedMeal?.toLowerCase().includes('dinner') || r.recommendedMeal?.toLowerCase().includes('evening') || r.recommendedMeal?.toLowerCase().includes('night'));
 
   // Fallback for items with missing or unmatched time slots
-  const unmatchedActivities = activities.filter(a => 
-    !a.time?.toLowerCase().includes('morning') && 
-    !a.time?.toLowerCase().includes('afternoon') && 
-    !a.time?.toLowerCase().includes('lunch') && 
-    !a.time?.toLowerCase().includes('evening') && 
-    !a.time?.toLowerCase().includes('dinner') && 
+  const unmatchedActivities = activities.filter(a =>
+    !a.time?.toLowerCase().includes('morning') &&
+    !a.time?.toLowerCase().includes('afternoon') &&
+    !a.time?.toLowerCase().includes('lunch') &&
+    !a.time?.toLowerCase().includes('evening') &&
+    !a.time?.toLowerCase().includes('dinner') &&
     !a.time?.toLowerCase().includes('night')
   );
-  
-  const unmatchedRestaurants = restaurants.filter(r => 
-    !r.recommendedMeal?.toLowerCase().includes('breakfast') && 
-    !r.recommendedMeal?.toLowerCase().includes('lunch') && 
-    !r.recommendedMeal?.toLowerCase().includes('afternoon') && 
-    !r.recommendedMeal?.toLowerCase().includes('dinner') && 
-    !r.recommendedMeal?.toLowerCase().includes('evening') && 
+
+  const unmatchedRestaurants = restaurants.filter(r =>
+    !r.recommendedMeal?.toLowerCase().includes('breakfast') &&
+    !r.recommendedMeal?.toLowerCase().includes('lunch') &&
+    !r.recommendedMeal?.toLowerCase().includes('afternoon') &&
+    !r.recommendedMeal?.toLowerCase().includes('dinner') &&
+    !r.recommendedMeal?.toLowerCase().includes('evening') &&
     !r.recommendedMeal?.toLowerCase().includes('night')
   );
 
@@ -163,16 +176,15 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
             const weatherDesc = fetchedDay ? fetchedDay.condition : (day.weather?.split(',')[0].trim() || 'Sunny');
             const weatherString = fetchedDay ? `${weatherDesc}, ${weatherTemp}` : (day.weather || 'Sunny');
             const isCompleted = day.day < activeDay;
-            
+
             return (
               <button
                 key={day.day}
                 onClick={() => handleTabChange(day.day)}
-                className={`day-tab px-4 py-2.5 rounded-xl text-xs transition-all whitespace-nowrap border flex items-center justify-center gap-2 snap-start min-w-[80px] flex-shrink-0 ${
-                  activeDay === day.day
+                className={`day-tab px-4 py-2.5 rounded-xl text-xs transition-all whitespace-nowrap border flex items-center justify-center gap-2 snap-start min-w-[80px] flex-shrink-0 ${activeDay === day.day
                     ? 'bg-purple-600 border-purple-500 text-white font-bold shadow-md shadow-purple-500/20'
                     : 'bg-white/5 border-white/5 text-stone-400 hover:text-white hover:bg-white/10'
-                }`}
+                  }`}
               >
                 <span className="flex items-center gap-1.5">
                   <span>Day {day.day}</span>
@@ -198,7 +210,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
               Forecast: {currentDayData?.weather || 'Sunny, 28°C'}
             </p>
           </div>
-          
+
           {onRegenerateDay && (
             <button
               onClick={handleRegenerate}
@@ -224,7 +236,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
 
         {/* Mobile View on Map Button */}
         <div className="md:hidden mb-6">
-          <button 
+          <button
             onClick={() => setShowMobileMap(true)}
             className="w-full h-11 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-stone-300 hover:text-white flex items-center justify-center gap-2 text-xs font-bold"
           >
@@ -237,7 +249,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
           <div className="fixed inset-0 z-[9999] bg-[#07080f] flex flex-col font-sans">
             <div className="h-14 bg-stone-900 border-b border-white/10 flex items-center justify-between px-4 shrink-0">
               <span className="font-bold text-sm text-white">Day {activeDay} Map</span>
-              <button 
+              <button
                 onClick={() => setShowMobileMap(false)}
                 className="p-2 rounded-full hover:bg-white/5 text-stone-400"
               >
@@ -273,7 +285,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
                   const actualIndex = activities.indexOf(activity);
                   const isFocused = focusedIndex === actualIndex;
                   return (
-                    <div 
+                    <div
                       key={`act-${idx}`}
                       id={`timeline-card-${actualIndex}`}
                       onClick={() => handleCardFocus(actualIndex)}
@@ -294,7 +306,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
                   const actualIndex = activities.length + restaurants.indexOf(rest);
                   const isFocused = focusedIndex === actualIndex;
                   return (
-                    <div 
+                    <div
                       key={`rest-${idx}`}
                       id={`timeline-card-${actualIndex}`}
                       onClick={() => handleCardFocus(actualIndex)}
@@ -327,7 +339,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
                   const actualIndex = activities.indexOf(activity);
                   const isFocused = focusedIndex === actualIndex;
                   return (
-                    <div 
+                    <div
                       key={`act-${idx}`}
                       id={`timeline-card-${actualIndex}`}
                       onClick={() => handleCardFocus(actualIndex)}
@@ -348,7 +360,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
                   const actualIndex = activities.length + restaurants.indexOf(rest);
                   const isFocused = focusedIndex === actualIndex;
                   return (
-                    <div 
+                    <div
                       key={`rest-${idx}`}
                       id={`timeline-card-${actualIndex}`}
                       onClick={() => handleCardFocus(actualIndex)}
@@ -381,7 +393,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
                   const actualIndex = activities.indexOf(activity);
                   const isFocused = focusedIndex === actualIndex;
                   return (
-                    <div 
+                    <div
                       key={`act-${idx}`}
                       id={`timeline-card-${actualIndex}`}
                       onClick={() => handleCardFocus(actualIndex)}
@@ -402,7 +414,7 @@ export const ItineraryCard: React.FC<ItineraryCardProps> = ({
                   const actualIndex = activities.length + restaurants.indexOf(rest);
                   const isFocused = focusedIndex === actualIndex;
                   return (
-                    <div 
+                    <div
                       key={`rest-${idx}`}
                       id={`timeline-card-${actualIndex}`}
                       onClick={() => handleCardFocus(actualIndex)}
