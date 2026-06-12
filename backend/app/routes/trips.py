@@ -486,6 +486,49 @@ def simulate_replan_v3(original_plan: Dict[str, Any], changes: str) -> Dict[str,
     # Deep copy original plan
     new_plan = json.loads(json.dumps(original_plan))
     
+    # Check for targeted single-day regeneration command
+    import re
+    day_match = re.search(r'(?:regenerate|replan|redo|refresh|change|update)\s+day\s+(\d+)', changes_lower)
+    if day_match:
+        target_day = int(day_match.group(1))
+        day_found = False
+        for day in new_plan.get("dailyItinerary", []):
+            if day.get("day") == target_day:
+                day_found = True
+                dest = new_plan.get("tripSummary", {}).get("destination", "Goa").lower()
+                if "goa" in dest:
+                    day["activities"] = [
+                        {"time": "Morning", "title": "Sunkissed Dolphin Watch Cruise", "description": "Early morning boat trip spotting dolphins in their natural habitat.", "estimatedCost": 400.0, "duration": "2 hours", "location": "Sinquerim Beach"},
+                        {"time": "Afternoon", "title": "Old Goa Heritage Walk & Church Tours", "description": "Guided walking tour through historic churches and UNESCO sites.", "estimatedCost": 100.0, "duration": "3 hours", "location": "Old Goa"},
+                        {"time": "Evening", "title": "Premium Beachside Seafood Barbecue", "description": "Enjoy a candlelight sunset seafood dinner right on the sand.", "estimatedCost": 1500.0, "duration": "3 hours", "location": "Calangute"}
+                    ]
+                else:
+                    day["activities"] = [
+                        {"time": "Morning", "title": "Premium Local Cultural Sightseeing", "description": "Experience local heritage, arts, and historic architectures with a professional guide.", "estimatedCost": 350.0, "duration": "3 hours", "location": "Cultural Center"},
+                        {"time": "Afternoon", "title": "Artistic Craft Workshop & Gallery Tour", "description": "Interactive pottery, cooking, or local craft creation session.", "estimatedCost": 600.0, "duration": "2.5 hours", "location": "Artisan District"},
+                        {"time": "Evening", "title": "Scenic Sunset Skyline Dinner", "description": "Enjoy high-quality local dishes with stunning elevated views.", "estimatedCost": 1400.0, "duration": "3 hours", "location": "Skyline Lounge"}
+                    ]
+        if day_found:
+            # Re-calculate total activities cost in budget breakdown if applicable
+            total_activity_cost = 0.0
+            for d in new_plan.get("dailyItinerary", []):
+                for act in d.get("activities", []):
+                    total_activity_cost += act.get("estimatedCost", 0.0)
+            
+            if "budgetBreakdown" in new_plan:
+                bd = new_plan["budgetBreakdown"]
+                bd["activity_cost"] = round(total_activity_cost, 2)
+                bd["total_cost"] = sum([
+                    bd.get("hotel_cost", 0.0),
+                    bd.get("food_cost", 0.0),
+                    bd.get("transportation_cost", 0.0),
+                    bd["activity_cost"],
+                    bd.get("miscellaneous_cost", 0.0)
+                ])
+                
+            new_plan.setdefault("travelTips", []).append(f"Note: Regenerated activities for Day {target_day} based on user request.")
+            return new_plan
+
     # 1. Weather adjustments (rain / storm / snow)
     if "rain" in changes_lower or "weather" in changes_lower or "storm" in changes_lower:
         # Set Day 2 to Rain (if exists) or modify all days slightly

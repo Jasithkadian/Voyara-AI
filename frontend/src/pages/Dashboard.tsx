@@ -24,6 +24,109 @@ import {
   Bookmark, Send
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Confetti Particle Generator Component
+const Confetti: React.FC = () => {
+  const colors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+  const particles = Array.from({ length: 100 });
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+      {particles.map((_, i) => {
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = 80 + Math.random() * 120;
+        const xDest = Math.cos(angle) * velocity * 5;
+        const yDest = Math.sin(angle) * velocity * 5 + 400; // fall down
+        const color = colors[i % colors.length];
+        const size = 6 + Math.random() * 8;
+        const isCircle = Math.random() > 0.5;
+
+        return (
+          <motion.div
+            key={i}
+            initial={{ 
+              x: '50vw', 
+              y: '50vh', 
+              opacity: 1, 
+              scale: 1,
+              rotate: 0 
+            }}
+            animate={{ 
+              x: `calc(50vw + ${xDest}px)`, 
+              y: `calc(50vh + ${yDest}px)`, 
+              opacity: 0, 
+              scale: 0.5,
+              rotate: Math.random() * 720 
+            }}
+            transition={{ 
+              duration: 2.0 + Math.random() * 1.5, 
+              ease: [0.1, 0.8, 0.3, 1] 
+            }}
+            className="absolute"
+            style={{
+              width: size,
+              height: size,
+              backgroundColor: color,
+              borderRadius: isCircle ? '50%' : '2px',
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+const getSmartSuggestions = (destination: string, weather: string) => {
+  const dest = destination.toLowerCase();
+  const isRainy = weather.toLowerCase().includes('rain') || weather.toLowerCase().includes('monsoon') || weather.toLowerCase().includes('storm');
+  
+  const suggestions = [
+    {
+      title: 'Best Restaurant Nearby',
+      value: dest.includes('goa') 
+        ? 'Mum\'s Kitchen (Panaji) - Exceptional authentic traditional Goan home-style seafood.' 
+        : dest.includes('paris') 
+          ? 'Bouillon Chartier - Historic Parisian hall serving classic French dishes at very budget-friendly rates.' 
+          : `The Grand ${destination} Bistro - Top-rated local restaurant offering signature items.`,
+      icon: '🍕'
+    },
+    {
+      title: 'Best Sunset View Point',
+      value: dest.includes('goa') 
+        ? 'Chapora Fort (Vagator) or the cliffs overlooking Ozran Beach.' 
+        : dest.includes('paris') 
+          ? 'Steps of Sacré-Cœur Basilica in Montmartre, offering views over the skyline.' 
+          : `Sunset Hill overlook, best visited 30 minutes before twilight.`,
+      icon: '🌅'
+    },
+    {
+      title: 'Weather Advisory',
+      value: isRainy 
+        ? 'Monsoon warnings active. We have adjusted your timeline to swap beach activities for indoor excursions.' 
+        : 'Clear skies forecast. High UV index around afternoon hours; SPF 50+ recommended.',
+      icon: '☀️'
+    },
+    {
+      title: 'Crowd & Queue Forecast',
+      value: dest.includes('goa') 
+        ? 'Moderate crowds. Beaches are quieter in early morning; North Goa traffic peaks post 7 PM.' 
+        : dest.includes('paris') 
+          ? 'Louvre queues exceed 2 hours today. Best visited Wednesday/Friday after 6 PM.' 
+          : 'Moderate seasonal crowds. Best to book early morning slots to skip tourist queues.',
+      icon: '👥'
+    },
+    {
+      title: 'Local Events & Festivals',
+      value: dest.includes('goa') 
+        ? 'Goa Seafood and Heritage Festival at Miramar beach road.' 
+        : dest.includes('paris') 
+          ? 'Seine Open-Air Cinema screening vintage films at Canal de l\'Ourcq.' 
+          : 'Weekly traditional flea markets and live street music in the old square.',
+      icon: '🎉'
+    }
+  ];
+  return suggestions;
+};
 
 interface TripVersion {
   versionId: string;
@@ -184,10 +287,37 @@ export const Dashboard: React.FC = () => {
   const [replanWeather, setReplanWeather] = useState<string>('Rain');
   const [replanCustomText, setReplanCustomText] = useState<string>('');
   const [replanLoading, setReplanLoading] = useState(false);
+  
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  useEffect(() => {
+    if (activeTrip && activeTrip.id === 0 && !saveSuccess) {
+      setShowConfetti(true);
+      const timer = setTimeout(() => setShowConfetti(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTrip]);
+
+  useEffect(() => {
+    if (saveSuccess) {
+      setShowConfetti(true);
+      const timer = setTimeout(() => setShowConfetti(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [saveSuccess]);
   // Flights & Bookings States
   const [flights, setFlights] = useState<any[]>([]);
   const [flightsLoading, setFlightsLoading] = useState(false);
-  const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
+  const { selectedHotels, setSelectedHotels, selectedFlights, setSelectedFlights } = useTripStore();
+  const selectedFlightId = selectedFlights[0]?.flightNumber || null;
+  const handleSelectFlight = (flight: any) => {
+    const isAlreadySelected = selectedFlights.some(f => f.flightNumber === flight.flightNumber);
+    if (isAlreadySelected) {
+      setSelectedFlights([]);
+    } else {
+      setSelectedFlights([flight]);
+    }
+  };
   const [flightSortKey, setFlightSortKey] = useState<'price' | 'duration' | 'departure'>('price');
   const [bookings, setBookings] = useState<any[]>([]);
   const [budgetCopilot, setBudgetCopilot] = useState<BudgetCopilotData | null>(null);
@@ -640,6 +770,7 @@ export const Dashboard: React.FC = () => {
     const plan = activeTrip.generated_plan;
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 space-y-6 itinerary-fade-in">
+        {showConfetti && <Confetti />}
         
         {/* Error/Success Banner */}
         {error && (
@@ -807,6 +938,25 @@ export const Dashboard: React.FC = () => {
               }}
             />
 
+            {/* Smart AI Recommendations Widget */}
+            <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-sm)] space-y-4">
+              <h3 className="text-sm font-bold tracking-wider uppercase text-[var(--color-text-primary)] flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-400" />
+                Smart AI Insights & Suggestions
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {getSmartSuggestions(activeTrip.destination, plan.dailyItinerary?.[0]?.weather || 'Sunny').map((s, idx) => (
+                  <div key={idx} className="p-4 bg-white/5 border border-white/10 rounded-xl flex gap-3 text-left">
+                    <span className="text-2xl select-none">{s.icon}</span>
+                    <div>
+                      <h4 className="font-semibold text-xs text-[var(--color-text-primary)]">{s.title}</h4>
+                      <p className="text-xs text-[var(--color-text-secondary)] mt-1 leading-relaxed">{s.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Recommended Flights Section */}
             {flightsLoading ? (
               <div className="itinerary-section">
@@ -875,7 +1025,7 @@ export const Dashboard: React.FC = () => {
                           isBooked={isBooked}
                           isSelected={selectedFlightId === flight.flightNumber}
                           isDimmed={selectedFlightId !== null && selectedFlightId !== flight.flightNumber}
-                          onSelect={() => setSelectedFlightId(selectedFlightId === flight.flightNumber ? null : flight.flightNumber)}
+                          onSelect={() => handleSelectFlight(flight)}
                           onBook={() => handleBook('Flight', flight.airline, flight.price, { flightNumber: flight.flightNumber, departure: flight.departure, arrival: flight.arrival })}
                         />
                       );
@@ -920,12 +1070,22 @@ export const Dashboard: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {plan.hotelRecommendations.map((hotel, index) => {
                     const isBooked = bookings.some(b => b.booking_type === 'Hotel' && b.provider_name === hotel.name);
+                    const isSelected = selectedHotels.some(h => h.name === hotel.name);
                     return (
                       <HotelCard 
                         key={index} 
                         hotel={hotel} 
                         index={index}
                         isBooked={isBooked}
+                        isSelected={isSelected}
+                        onSelect={() => {
+                          const isAlreadySelected = selectedHotels.some(h => h.name === hotel.name);
+                          if (isAlreadySelected) {
+                            setSelectedHotels(selectedHotels.filter(h => h.name !== hotel.name));
+                          } else {
+                            setSelectedHotels([hotel]);
+                          }
+                        }}
                         onBook={() => {
                           const price = typeof hotel.pricePerNight === 'number' 
                             ? hotel.pricePerNight 

@@ -7,6 +7,8 @@ interface HotelCardProps {
   hotel: HotelRecommendation;
   isBooked?: boolean;
   onBook?: () => void;
+  onSelect?: () => void;
+  isSelected?: boolean;
   index?: number;
   isBestValue?: boolean;
 }
@@ -15,6 +17,8 @@ export const HotelCard: React.FC<HotelCardProps> = ({
   hotel,
   isBooked = false,
   onBook,
+  onSelect,
+  isSelected = false,
   index = 0,
   isBestValue = index === 1,
 }) => {
@@ -111,33 +115,46 @@ export const HotelCard: React.FC<HotelCardProps> = ({
         </div>
 
         {/* Action button */}
-        <div className="hotel-card__cta">
-          {isRecommended ? (
-            isBooked ? (
-              <button className="btn-secondary w-full" disabled>
-                ✓ Booked
-              </button>
-            ) : (
-              <button
-                onClick={onBook}
-                className="btn-primary w-full"
-              >
-                View Hotel
-              </button>
-            )
-          ) : (
-            <button
-              onClick={() =>
-                window.open(
-                  `https://www.google.com/search?q=${encodeURIComponent(hotel.name + ' deals')}`,
-                  '_blank'
-                )
-              }
-              className="btn-secondary w-full"
-            >
-              <span>View Hotel</span>
-              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+        <div className="hotel-card__cta flex gap-2">
+          {isBooked ? (
+            <button className="btn-secondary w-full" disabled>
+              ✓ Booked
             </button>
+          ) : (
+            <>
+              {isRecommended ? (
+                <button
+                  onClick={onBook}
+                  className="btn-primary flex-1 text-xs py-2 px-1"
+                >
+                  Book Stay
+                </button>
+              ) : (
+                <button
+                  onClick={() =>
+                    window.open(
+                      `https://www.google.com/search?q=${encodeURIComponent(hotel.name + ' deals')}`,
+                      '_blank'
+                    )
+                  }
+                  className="btn-secondary flex-1 text-xs py-2 px-1 flex items-center justify-center gap-1"
+                >
+                  <span>Deals</span>
+                  <ExternalLink className="w-3 h-3 shrink-0" />
+                </button>
+              )}
+              <button
+                onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
+                className={`text-xs py-2 px-3 rounded-lg border font-bold transition-all flex items-center gap-1 shrink-0 ${
+                  isSelected
+                    ? 'bg-purple-600 border-purple-500 text-white shadow-md shadow-purple-500/20'
+                    : 'border-white/10 text-stone-400 bg-white/5 hover:bg-white/10 hover:text-white'
+                }`}
+                title="Select this Hotel"
+              >
+                {isSelected ? '★ Selected' : '☆ Select'}
+              </button>
+            </>
           )}
         </div>
       </div>

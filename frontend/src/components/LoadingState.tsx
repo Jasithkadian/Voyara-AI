@@ -114,11 +114,11 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   const [thinkingLogs, setThinkingLogs] = useState<string[]>([]);
 
   const steps = [
-    'Analyzing Travel Request',
+    'Analyzing Request',
     'Finding Attractions',
     'Comparing Hotels',
     'Optimizing Budget',
-    'Building Final Itinerary'
+    'Generating Final Plan'
   ];
 
   // Map steps to specific logs
@@ -129,19 +129,20 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
     ],
     1: [
       'Querying attractions index database for ' + destination + '...',
-      'Found 42 recommended places matching your interests...'
+      'Found 42 attractions'
     ],
     2: [
-      'Searching stays matching maximum ₹' + Math.round(budget * 0.4).toLocaleString() + ' cost criteria...',
-      'Retrieved 18 luxury and premium lodging matches...'
+      'Searching stays matching budget criteria...',
+      'Found 18 hotels'
     ],
     3: [
       'Running budget cost optimization allocations...',
-      'Safety emergency buffer allocated successfully (10% limit)...'
+      'Budget optimized'
     ],
     4: [
       'Integrating day-by-day travel timeline nodes...',
-      'Orchestrator package built successfully.'
+      'Building itinerary',
+      'Generating final plan details...'
     ]
   };
 

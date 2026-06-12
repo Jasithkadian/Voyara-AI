@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Search, Globe, ChevronRight, MapPin } from 'lucide-react';
+import { Sparkles, Search, Globe, ChevronRight, MapPin, Mic, MicOff, History, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTripStore } from '../store/useTripStore';
 import { parseNaturalLanguage } from '../utils/parser';
@@ -20,6 +20,13 @@ export const HeroSection: React.FC = () => {
   const [query, setQuery] = useState('');
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
+  // Voice Search / Speech Recognition
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  // Recent Searches
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+
   // Rotating placeholder effect
   useEffect(() => {
     const interval = setInterval(() => {
@@ -28,9 +35,88 @@ export const HeroSection: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Initialize Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const rec = new SpeechRecognition();
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.lang = 'en-US';
+
+      rec.onstart = () => {
+        setIsListening(true);
+      };
+
+      rec.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setQuery(transcript);
+      };
+
+      rec.onerror = (event: any) => {
+        console.error('Speech recognition error', event.error);
+        setIsListening(false);
+      };
+
+      rec.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = rec;
+    }
+  }, []);
+
+  // Load recent searches
+  useEffect(() => {
+    const stored = localStorage.getItem('voyara_recent_searches');
+    if (stored) {
+      try {
+        setRecentSearches(JSON.parse(stored));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }, []);
+
+  const addRecentSearch = (searchQuery: string) => {
+    const cleanQuery = searchQuery.trim();
+    if (!cleanQuery) return;
+    
+    setRecentSearches(prev => {
+      const filtered = prev.filter(q => q.toLowerCase() !== cleanQuery.toLowerCase());
+      const updated = [cleanQuery, ...filtered].slice(0, 5);
+      localStorage.setItem('voyara_recent_searches', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const clearRecentSearch = (e: React.MouseEvent, qToRemove: string) => {
+    e.stopPropagation();
+    setRecentSearches(prev => {
+      const updated = prev.filter(q => q !== qToRemove);
+      localStorage.setItem('voyara_recent_searches', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert('Speech Recognition is not supported in this browser. Please try Chrome or Safari.');
+      return;
+    }
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      recognitionRef.current.start();
+    }
+  };
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
+
+    // Save recent search
+    addRecentSearch(query);
 
     // Parse Natural Language
     const parsed = parseNaturalLanguage(query);
@@ -93,65 +179,127 @@ export const HeroSection: React.FC = () => {
             </motion.p>
 
             {/* Active AI Search Bar */}
-            <motion.form 
+            <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, type: 'spring', delay: 0.3 }}
-              onSubmit={handleSearchSubmit}
-              className="bg-white/5 border border-white/10 p-2.5 rounded-2xl shadow-2xl flex flex-col md:flex-row gap-3 max-w-xl mx-auto lg:mx-0 backdrop-blur-xl hover:border-purple-500/30 transition-all group"
+              className="space-y-4 max-w-xl mx-auto lg:mx-0"
             >
-              <div className="flex items-center gap-3 px-4 flex-1 py-2 md:py-0">
-                <Search className="w-5 h-5 text-stone-400 group-hover:text-purple-400 transition-colors" />
-                <div className="relative flex-grow h-8 flex items-center">
-                  <input 
-                    type="text" 
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    required
-                    className="bg-transparent text-sm text-white placeholder-stone-500 focus:outline-none w-full font-semibold relative z-10"
-                  />
-                  <AnimatePresence mode="wait">
-                    {!query && (
-                      <motion.span 
-                        key={placeholderIndex}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 0.5, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute left-0 text-sm text-stone-400 font-normal select-none pointer-events-none"
-                      >
-                        {PLACEHOLDERS[placeholderIndex]}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-              <button
-                type="submit"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow-md shadow-purple-500/20 active:scale-95 flex items-center justify-center gap-2"
+              <form 
+                onSubmit={handleSearchSubmit}
+                className="bg-white/5 border border-white/10 p-2.5 rounded-2xl shadow-2xl flex flex-row gap-3 backdrop-blur-xl hover:border-purple-500/30 transition-all group"
               >
-                <span>Plan Instantly</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </motion.form>
+                <div className="flex items-center gap-3 px-4 flex-grow py-2 md:py-0">
+                  <Search className="w-5 h-5 text-stone-400 group-hover:text-purple-400 transition-colors" />
+                  <div className="relative flex-grow h-8 flex items-center">
+                    <input 
+                      type="text" 
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      required
+                      className="bg-transparent text-sm text-white placeholder-stone-500 focus:outline-none w-full font-semibold relative z-10"
+                    />
+                    <AnimatePresence mode="wait">
+                      {!query && (
+                        <motion.span 
+                          key={placeholderIndex}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 0.5, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                          className="absolute left-0 text-sm text-stone-400 font-normal select-none pointer-events-none"
+                        >
+                          {PLACEHOLDERS[placeholderIndex]}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                {/* Voice Input Trigger */}
+                {(window as any).SpeechRecognition || (window as any).webkitSpeechRecognition ? (
+                  <button
+                    type="button"
+                    onClick={toggleListening}
+                    className={`p-2 rounded-xl border transition-colors flex items-center justify-center shrink-0 ${
+                      isListening 
+                        ? 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse' 
+                        : 'border-white/10 text-stone-400 hover:text-white bg-white/5 hover:bg-white/10'
+                    }`}
+                    title={isListening ? 'Listening... Click to stop' : 'Search by Voice'}
+                  >
+                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  </button>
+                ) : null}
+
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow-md shadow-purple-500/20 active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <span>Plan Instantly</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </form>
+
+              {/* Speech-to-Text active status */}
+              {isListening && (
+                <div className="text-[10px] font-bold text-red-400 tracking-wider flex items-center gap-1.5 justify-center lg:justify-start px-2 uppercase">
+                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
+                  <span>Listening carefully... Speak now</span>
+                </div>
+              )}
+            </motion.div>
 
             {/* Suggested Prompts helper chips */}
-            <div className="flex flex-wrap gap-2 justify-center lg:justify-start pt-2 max-w-xl mx-auto lg:mx-0">
-              <span className="text-xs text-stone-400 font-semibold py-1">Try:</span>
-              {[
-                '5 days in Goa under 20k',
-                'Honeymoon in Bali',
-                'Tokyo solo 10 days'
-              ].map((p, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setQuery(p)}
-                  className="text-xs bg-white/5 border border-white/10 text-stone-300 hover:text-white hover:bg-white/10 px-3 py-1 rounded-full transition-colors font-medium"
-                >
-                  {p}
-                </button>
-              ))}
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2 justify-center lg:justify-start max-w-xl mx-auto lg:mx-0">
+                <span className="text-xs text-stone-400 font-semibold py-1">Try:</span>
+                {[
+                  '5 days in Goa under 20k',
+                  'Honeymoon in Bali',
+                  'Tokyo solo 10 days'
+                ].map((p, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setQuery(p)}
+                    className="text-xs bg-white/5 border border-white/10 text-stone-300 hover:text-white hover:bg-white/10 px-3 py-1 rounded-full transition-colors font-medium"
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+
+              {/* Recent Searches history chips */}
+              {recentSearches.length > 0 && (
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-start max-w-xl mx-auto lg:mx-0 border-t border-white/5 pt-3">
+                  <span className="text-xs text-stone-400 font-semibold py-1 flex items-center gap-1">
+                    <History className="w-3.5 h-3.5" /> Recent Searches:
+                  </span>
+                  {recentSearches.map((p, idx) => (
+                    <div
+                      key={idx}
+                      className="group relative flex items-center text-xs bg-white/5 border border-white/10 hover:border-white/20 text-stone-300 rounded-full pl-3 pr-2.5 py-1 transition-all"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setQuery(p)}
+                        className="font-medium mr-1.5 hover:text-white"
+                      >
+                        {p}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => clearRecentSearch(e, p)}
+                        className="text-stone-500 hover:text-stone-300 transition-colors"
+                        title="Remove search"
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Credibility metrics block */}

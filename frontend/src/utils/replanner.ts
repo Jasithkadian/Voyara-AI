@@ -111,15 +111,24 @@ export function simulateReplanLocal(originalPlan: TripPlan, changes: string): Tr
 
   // 6. Default fallback: regenerate a day with general interests
   else {
+    const dest = (newPlan.tripSummary?.destination || '').toLowerCase();
     newPlan.dailyItinerary = newPlan.dailyItinerary.map((day) => {
       if (targetDay > 0 && day.day !== targetDay) return day;
       
       const updated = { ...day };
-      updated.activities = [
-        { time: 'Morning', title: 'Curated Heritage Walk', description: 'Explore local historical landmarks and architectural sites.', estimatedCost: 0, duration: '2 hours', location: 'Historical Core' },
-        { time: 'Afternoon', title: 'Local Craft Workshop', description: 'Engage with local artisans and try traditional pottery making.', estimatedCost: 500, duration: '3 hours', location: 'Craft Center' },
-        { time: 'Evening', title: 'Relaxing Sunset Point Walk', description: 'Gather at the highest peak to watch the scenic sunset panorama.', estimatedCost: 0, duration: '1.5 hours', location: 'Sunset Hill' }
-      ];
+      if (dest.includes('goa')) {
+        updated.activities = [
+          { time: 'Morning', title: 'Sunkissed Dolphin Watch Cruise', description: 'Early morning boat trip spotting dolphins in their natural habitat.', estimatedCost: 400, duration: '2 hours', location: 'Sinquerim Beach' },
+          { time: 'Afternoon', title: 'Old Goa Heritage Walk & Church Tours', description: 'Guided walking tour through historic churches and UNESCO sites.', estimatedCost: 100, duration: '3 hours', location: 'Old Goa' },
+          { time: 'Evening', title: 'Premium Beachside Seafood Barbecue', description: 'Enjoy a candlelight sunset seafood dinner right on the sand.', estimatedCost: 1500, duration: '3 hours', location: 'Calangute' }
+        ];
+      } else {
+        updated.activities = [
+          { time: 'Morning', title: 'Premium Local Cultural Sightseeing', description: 'Experience local heritage, arts, and historic architectures with a professional guide.', estimatedCost: 350, duration: '3 hours', location: 'Cultural Center' },
+          { time: 'Afternoon', title: 'Artistic Craft Workshop & Gallery Tour', description: 'Interactive pottery, cooking, or local craft creation session.', estimatedCost: 600, duration: '2.5 hours', location: 'Artisan District' },
+          { time: 'Evening', title: 'Scenic Sunset Skyline Dinner', description: 'Enjoy high-quality local dishes with stunning elevated views.', estimatedCost: 1400, duration: '3 hours', location: 'Skyline Lounge' }
+        ];
+      }
       return updated;
     });
   }
